@@ -18,7 +18,42 @@
                     ToolTip.Tip="Spacing of the two hits of a flam sub step" />
       </StackPanel>
 
-      <StackPanel x:Name="Inspector" Spacing="6" Margin="0,12,0,0" IsVisible="{Binding SelectedCell, Converter={x:Static ObjectConverters.IsNotNull}}">
+      <!-- Several active steps picked with Ctrl/Cmd/Shift-click: edit them together -->
+      <Border x:Name="BatchInspector" Classes="batch" Margin="0,12,0,0" IsVisible="{Binding HasMultiSelection}">
+        <StackPanel Spacing="6">
+          <TextBlock x:Name="MultiSelectionText" Classes="header" Text="{Binding MultiSelectionLabel}" Foreground="{StaticResource SectionBlue}" />
+          <TextBlock Text="{Binding BatchVelocity, StringFormat='Velocity v.{0}'}" />
+          <Slider x:Name="BatchVelocitySlider" Minimum="0" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding BatchVelocity}" />
+          <TextBlock Text="{Binding BatchProbabilityPercent, StringFormat='Probability {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding BatchProbabilityPercent}" />
+          <TextBlock Text="Sub step" />
+          <ComboBox x:Name="BatchSubStepPicker" HorizontalAlignment="Stretch"
+                    ItemsSource="{x:Static vm:RhythmEditorViewModel.SubStepOptions}" SelectedItem="{Binding BatchSubStep}" />
+          <TextBlock Text="{Binding BatchSubStepProbabilityPercent, StringFormat='Sub step probability {0}%'}" IsVisible="{Binding BatchHasSubStep}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding BatchSubStepProbabilityPercent}"
+                  IsVisible="{Binding BatchHasSubStep}" />
+          <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0">
+            <Button x:Name="ApplyToSelectionButton" Classes="primary" Content="Apply" Command="{Binding ApplyToSelectionCommand}"
+                    ToolTip.Tip="Set these values on every selected step, then clear the selection" />
+            <Button x:Name="ClearSelectionButton" Classes="seg" Content="Clear selection" Command="{Binding ClearMultiSelectionCommand}" />
+          </StackPanel>
+        </StackPanel>
+      </Border>
+
+      <StackPanel Spacing="4" Margin="0,12,0,0" IsVisible="{Binding !HasMultiSelection}">
+        <Button x:Name="SelectAllActiveButton" Classes="seg" Content="Select all active steps" Command="{Binding SelectAllActiveCommand}"
+                HorizontalAlignment="Left" ToolTip.Tip="Pick every active step to set velocity, probability and sub step for all of them" />
+        <TextBlock Text="Ctrl/Cmd-click or Shift-click active steps to pick several." FontSize="11.5" TextWrapping="Wrap"
+                   Foreground="{StaticResource MutedText}" />
+      </StackPanel>
+
+      <StackPanel x:Name="Inspector" Spacing="6" Margin="0,12,0,0">
+        <StackPanel.IsVisible>
+          <MultiBinding Converter="{x:Static BoolConverters.And}">
+            <Binding Path="SelectedCell" Converter="{x:Static ObjectConverters.IsNotNull}" />
+            <Binding Path="!HasMultiSelection" />
+          </MultiBinding>
+        </StackPanel.IsVisible>
         <TextBlock Classes="header" Text="{Binding SelectedCell.Description, FallbackValue=''}" />
         <CheckBox Content="On" IsChecked="{Binding SelectedCell.On, FallbackValue=False}" />
         <TextBlock Text="{Binding SelectedCell.Velocity, StringFormat='Velocity v.{0}', FallbackValue=''}" />
@@ -75,6 +110,7 @@
                                     Classes.selected="{Binding IsSelected}"
                                     Classes.outside="{Binding !IsInLength}"
                                     Classes.playing="{Binding IsPlaying}"
+                                    Classes.multi="{Binding IsMultiSelected}"
                                     IsChecked="{Binding On}"
                                     Command="{Binding ActivateCommand}"
                                     ToolTip.Tip="{Binding Description}" />

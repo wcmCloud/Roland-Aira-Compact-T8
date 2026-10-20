@@ -261,6 +261,20 @@
   <Style Selector="ToggleButton.cell.playing:not(:checked) /template/ ContentPresenter">
     <Setter Property="Background" Value="{StaticResource PlayingDim}" />
   </Style>
+  <Style Selector="ToggleButton.cell.multi">
+    <Setter Property="BorderBrush" Value="{StaticResource SectionBlue}" />
+  </Style>
+  <Style Selector="ToggleButton.cell.multi /template/ ContentPresenter">
+    <Setter Property="BorderBrush" Value="{StaticResource SectionBlue}" />
+    <Setter Property="BorderThickness" Value="3" />
+  </Style>
+  <Style Selector="Border.batch">
+    <Setter Property="Background" Value="#144AA8FF" />
+    <Setter Property="BorderBrush" Value="{StaticResource SectionBlue}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Padding" Value="10" />
+  </Style>
   <Style Selector="ToggleButton.cell.outside">
     <Setter Property="Opacity" Value="0.3" />
   </Style>

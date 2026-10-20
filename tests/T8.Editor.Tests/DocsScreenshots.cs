@@ -56,6 +56,15 @@ public class DocsScreenshots
         Crop(window, Find<RhythmEditorView>(window), "rhythm-editor.png");
         Crop(window, Find<RhythmGeneratorView>(window), "rhythm-generator.png");
 
+        // Several active closed hats picked to set them together.
+        foreach (var cell in vm.Rhythm[RhythmTrack.CH].Cells.Where(c => c.On).Take(6))
+            vm.Rhythm.ToggleMultiSelect(cell);
+        vm.Rhythm.BatchVelocity = 5;
+        vm.Rhythm.BatchSubStep = SubStep.Half;
+        Settle(window);
+        Crop(window, Find<RhythmEditorView>(window), "rhythm-multiselect.png");
+        vm.Rhythm.ClearMultiSelectionCommand.Execute(null);
+
         // The fill pattern made from it.
         vm.RhythmGenerator.MakeFillCommand.Execute(null);
         vm.SelectSlot(1, 16);

@@ -107,6 +107,32 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Ctrl_click_picks_active_cells_without_switching_them()
+    {
+        var (window, vm) = Show();
+        window.UpdateLayout();
+        var bd = vm.Rhythm[RhythmTrack.BD].Cells.First(c => c.On);
+        var off = vm.Rhythm[RhythmTrack.SD].Cells.First(c => !c.On);
+        var buttons = window.GetVisualDescendants().OfType<ToggleButton>().Where(t => t.Classes.Contains("cell")).ToList();
+
+        foreach (var cell in new[] { bd, off })
+        {
+            var button = buttons.Single(b => b.DataContext == cell);
+            var point = button.TranslatePoint(new Point(button.Bounds.Width / 2, button.Bounds.Height / 2), window)!.Value;
+            window.MouseDown(point, MouseButton.Left, RawInputModifiers.Control);
+            window.MouseUp(point, MouseButton.Left, RawInputModifiers.Control);
+        }
+
+        Assert.True(bd.On);          // not switched off
+        Assert.True(bd.IsMultiSelected);
+        Assert.False(off.On);        // not switched on
+        Assert.False(off.IsMultiSelected);
+        Assert.Contains(window.GetVisualDescendants().OfType<TextBlock>(), t => t.Name == "MultiSelectionText" && t.IsEffectivelyVisible);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Knobs_turn_with_a_drag_and_the_wheel_and_reset()
     {
         var knob = new Knob { Minimum = 0, Maximum = 100, Value = 50, DefaultValue = 20 };

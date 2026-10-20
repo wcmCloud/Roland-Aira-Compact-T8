@@ -218,6 +218,16 @@ stored in it is kept when you save.) Each column is one of 32 steps; the brighte
   16th) and **Flam** (0–100, the spacing of a flam's two hits).
 - Click a track's name to clear the whole track.
 
+### Editing several steps at once
+
+**Ctrl-click** (Cmd-click on macOS) or **Shift-click** active steps to pick them; they get a blue outline, and
+**Select all active steps** picks every active step. The panel on the right then sets **Velocity**,
+**Probability**, **Sub step** and **Sub step probability** for all of them: press **Apply** to write the values
+to every picked step and clear the selection, or **Clear selection** to leave them as they were. Inactive steps
+can't be picked, and switching a picked step off drops it from the selection.
+
+![Six closed hats picked, with the panel to set them together](docs/screenshots/rhythm-multiselect.png)
+
 ## Generating rhythms
 
 ![The rhythm generator](docs/screenshots/rhythm-generator.png)

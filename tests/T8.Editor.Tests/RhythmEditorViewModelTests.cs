@@ -166,4 +166,90 @@ public class RhythmEditorViewModelTests
         Assert.True(vm[RhythmTrack.CY].Cells[3].On);
         Assert.Equal(RhythmTrack.OH, vm[RhythmTrack.OH].Track);
     }
+
+    [Fact]
+    public void Only_active_cells_can_be_multi_selected_and_picking_twice_unpicks()
+    {
+        var vm = Create();
+        var on = vm[RhythmTrack.BD].Cells[0];
+        on.On = true;
+        on.Velocity = 4;
+        var off = vm[RhythmTrack.SD].Cells[0];
+
+        vm.ToggleMultiSelect(off);
+        Assert.False(vm.HasMultiSelection);
+
+        vm.ToggleMultiSelect(on);
+        Assert.True(on.IsMultiSelected);
+        Assert.Equal("1 step selected", vm.MultiSelectionLabel);
+        Assert.Equal(4, vm.BatchVelocity); // starts from the first picked step
+
+        vm.ToggleMultiSelect(on);
+        Assert.False(on.IsMultiSelected);
+        Assert.False(vm.HasMultiSelection);
+    }
+
+    [Fact]
+    public void Apply_sets_velocity_probability_and_sub_step_on_every_selected_step_then_clears()
+    {
+        var vm = Create();
+        var cells = new[] { vm[RhythmTrack.BD].Cells[0], vm[RhythmTrack.CH].Cells[2], vm[RhythmTrack.OH].Cells[3] };
+        foreach (var cell in cells)
+        {
+            cell.On = true;
+            vm.ToggleMultiSelect(cell);
+        }
+        var untouched = vm[RhythmTrack.SD].Cells[4];
+        untouched.On = true;
+        _changes = 0;
+
+        vm.BatchVelocity = 9;
+        vm.BatchProbabilityPercent = 60;
+        vm.BatchSubStep = SubStep.Third;
+        vm.BatchSubStepProbabilityPercent = 50;
+        Assert.Equal("3 steps selected", vm.MultiSelectionLabel);
+        vm.ApplyToSelectionCommand.Execute(null);
+
+        Assert.All(cells, c =>
+        {
+            Assert.Equal(9, c.Velocity);
+            Assert.Equal(60, c.ProbabilityPercent);
+            Assert.Equal(SubStep.Third, c.SubStep);
+            Assert.Equal(50, c.SubStepProbabilityPercent);
+            Assert.False(c.IsMultiSelected);
+        });
+        Assert.Equal("19265", _pattern.Steps[2][RhythmTrack.CH].ToString());
+        Assert.Equal(RhythmCell.DefaultNoteVelocity, untouched.Velocity);
+        Assert.False(vm.HasMultiSelection);
+        Assert.True(_changes > 0);
+    }
+
+    [Fact]
+    public void Select_all_active_picks_every_active_step_in_the_length_and_clear_drops_them()
+    {
+        var vm = Create();
+        vm.Length = 8;
+        vm[RhythmTrack.BD].Cells[0].On = true;
+        vm[RhythmTrack.CH].Cells[5].On = true;
+        vm[RhythmTrack.CH].Cells[12].On = true; // past the last step
+
+        vm.SelectAllActiveCommand.Execute(null);
+        Assert.Equal(2, vm.MultiSelection.Count);
+
+        vm.ClearMultiSelectionCommand.Execute(null);
+        Assert.False(vm.HasMultiSelection);
+        Assert.DoesNotContain(vm.Tracks.SelectMany(t => t.Cells), c => c.IsMultiSelected);
+    }
+
+    [Fact]
+    public void Switching_a_selected_step_off_drops_it_from_the_selection()
+    {
+        var vm = Create();
+        var cell = vm[RhythmTrack.BD].Cells[0];
+        cell.On = true;
+        vm.ToggleMultiSelect(cell);
+        cell.On = false;
+        Assert.False(vm.HasMultiSelection);
+        Assert.False(cell.IsMultiSelected);
+    }
 }

@@ -110,6 +110,107 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
     /// <summary>1-based number of the step being played, or null when stopped.</summary>
     public int? PlayingStepNumber => _playingStep + 1;
 
+    // ---- Multi-selection: set velocity, probability and sub step for many active steps at once ----
+
+    /// <summary>Active cells picked with Ctrl/Cmd/Shift-click, edited together with <see cref="ApplyToSelectionCommand"/>.</summary>
+    public ObservableCollection<RhythmCellViewModel> MultiSelection { get; } = new();
+
+    public bool HasMultiSelection => MultiSelection.Count > 0;
+
+    public string MultiSelectionLabel => MultiSelection.Count == 1 ? "1 step selected" : $"{MultiSelection.Count} steps selected";
+
+    [ObservableProperty]
+    private int _batchVelocity = RhythmCell.DefaultNoteVelocity;
+
+    [ObservableProperty]
+    private int _batchProbabilityPercent = 100;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(BatchHasSubStep))]
+    private SubStep _batchSubStep;
+
+    [ObservableProperty]
+    private int _batchSubStepProbabilityPercent = 100;
+
+    public bool BatchHasSubStep => BatchSubStep != SubStep.Off;
+
+    partial void OnBatchVelocityChanged(int value) => BatchVelocity = Math.Clamp(value, 0, 10);
+    partial void OnBatchProbabilityPercentChanged(int value) => BatchProbabilityPercent = Math.Clamp(value, 0, 100);
+    partial void OnBatchSubStepProbabilityPercentChanged(int value) => BatchSubStepProbabilityPercent = Math.Clamp(value, 0, 100);
+
+    /// <summary>
+    /// Adds an active cell to the multi-selection, or takes it out if it's already in. Inactive cells
+    /// can't be selected. The first cell picked sets the starting values of the batch controls.
+    /// </summary>
+    public void ToggleMultiSelect(RhythmCellViewModel cell)
+    {
+        if (cell.IsMultiSelected)
+        {
+            cell.IsMultiSelected = false;
+            MultiSelection.Remove(cell);
+        }
+        else if (cell.On)
+        {
+            if (MultiSelection.Count == 0)
+            {
+                BatchVelocity = cell.Velocity;
+                BatchProbabilityPercent = cell.ProbabilityPercent;
+                BatchSubStep = cell.SubStep;
+                BatchSubStepProbabilityPercent = cell.SubStepProbabilityPercent;
+            }
+            cell.IsMultiSelected = true;
+            MultiSelection.Add(cell);
+        }
+        OnMultiSelectionChanged();
+    }
+
+    /// <summary>Selects every active step of every track that has a sound.</summary>
+    [RelayCommand]
+    private void SelectAllActive()
+    {
+        foreach (var cell in Tracks.SelectMany(t => t.Cells).Where(c => c.On && c.IsInLength && !c.IsMultiSelected))
+            ToggleMultiSelect(cell);
+    }
+
+    /// <summary>Sets velocity, probability and sub step on every selected step, then clears the selection.</summary>
+    [RelayCommand]
+    private void ApplyToSelection()
+    {
+        foreach (var cell in MultiSelection)
+        {
+            cell.Velocity = BatchVelocity;
+            cell.ProbabilityPercent = BatchProbabilityPercent;
+            cell.SubStep = BatchSubStep;
+            cell.SubStepProbabilityPercent = BatchSubStepProbabilityPercent;
+        }
+        ClearMultiSelection();
+    }
+
+    [RelayCommand]
+    private void ClearMultiSelection()
+    {
+        foreach (var cell in MultiSelection)
+            cell.IsMultiSelected = false;
+        MultiSelection.Clear();
+        OnMultiSelectionChanged();
+    }
+
+    /// <summary>A cell was switched off: it can't stay in the multi-selection.</summary>
+    internal void OnCellTurnedOff(RhythmCellViewModel cell)
+    {
+        if (!cell.IsMultiSelected)
+            return;
+        cell.IsMultiSelected = false;
+        MultiSelection.Remove(cell);
+        OnMultiSelectionChanged();
+    }
+
+    private void OnMultiSelectionChanged()
+    {
+        OnPropertyChanged(nameof(HasMultiSelection));
+        OnPropertyChanged(nameof(MultiSelectionLabel));
+    }
+
     internal void Select(RhythmCellViewModel cell)
     {
         if (SelectedCell is not null)
@@ -180,6 +281,10 @@ public sealed partial class RhythmCellViewModel : ObservableObject
     [ObservableProperty]
     private bool _isPlaying;
 
+    /// <summary>Part of the multi-selection (Ctrl/Cmd/Shift-click).</summary>
+    [ObservableProperty]
+    private bool _isMultiSelected;
+
     public RhythmCellViewModel(RhythmCell cell, RhythmTrack track, int stepNumber, RhythmEditorViewModel editor, Action changed, Action<RhythmTrack>? audition)
     {
         _cell = cell;
@@ -209,6 +314,8 @@ public sealed partial class RhythmCellViewModel : ObservableObject
                 OnPropertyChanged(nameof(Velocity));
             }
             OnPropertyChanged();
+            if (!value)
+                _editor.OnCellTurnedOff(this);
             _changed();
         }
     }
