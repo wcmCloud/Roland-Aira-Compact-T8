@@ -313,7 +313,9 @@ steps. **Generate**, **Randomize**, **Undo** and **Seed** work as for rhythms.
 
 The **Song** tab chains patterns from the banks into a song.
 
-1. Pick a pattern in the pattern grid and press **+ Add selected pattern**. Repeat for each part of the song.
+1. With the Song tab open, **click a pattern in the pattern grid** at the top: it's added to the end of the song,
+   named "Bank n - Pattern y". Click the next one, and so on. (**+ Add selected pattern** does the same for the
+   pattern that's already open.)
 2. For each entry set the **bank** and **pattern**, how many times it **repeats**, a **name** and a **colour**
    (click the swatch to change it). **Steps** shows how long one pass of the pattern is (its last step).
 3. Turn on **FILL** to play a fill pattern once after the repeats, as a bridge into the next entry, and pick the

@@ -141,7 +141,7 @@ public sealed partial class SongViewModel : ObservableObject
         {
             Bank = bank,
             Pattern = pattern,
-            Name = $"Part {Entries.Count + 1}",
+            Name = $"Bank {bank} - Pattern {pattern}",
             Color = Palette[Entries.Count % Palette.Count],
         };
         _song.Entries.Add(entry);

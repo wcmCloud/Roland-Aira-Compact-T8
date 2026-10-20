@@ -104,7 +104,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         Song = new SongViewModel(this, dialogs);
         PatternBanks = Enumerable.Range(1, PatternLibrary.BankCount)
             .Select(bank => new PatternBankRow(bank, Enumerable.Range(1, PatternLibrary.PatternsPerBank)
-                .Select(pattern => new PatternSlotViewModel(bank, pattern, slot => SelectSlot(slot.Bank, slot.Pattern)))
+                .Select(pattern => new PatternSlotViewModel(bank, pattern, OnSlotClicked))
                 .ToList()))
             .ToList();
         RhythmGenerator.PropertyChanged += (_, e) =>
@@ -127,6 +127,23 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     /// <summary>The 4 × 16 grid of patterns, one row per bank.</summary>
     public IReadOnlyList<PatternBankRow> PatternBanks { get; }
+
+    public const int SongTab = 2;
+
+    /// <summary>The tab shown: 0 Rhythm, 1 Bass, 2 Song.</summary>
+    [ObservableProperty]
+    private int _selectedTab;
+
+    /// <summary>A click in the pattern grid: opens the pattern, and on the Song tab also adds it to the song.</summary>
+    private void OnSlotClicked(PatternSlotViewModel slot)
+    {
+        SelectSlot(slot.Bank, slot.Pattern);
+        if (SelectedTab == SongTab)
+        {
+            var entry = Song.AddEntry(slot.Bank, slot.Pattern);
+            Status = $"Added {entry.Name} to the song.";
+        }
+    }
 
     /// <summary>Switches to a bank and pattern in one go (one load, one program change).</summary>
     public void SelectSlot(int bank, int pattern)

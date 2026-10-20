@@ -29,11 +29,27 @@ public class SongViewModelTests : IDisposable
 
         var entry = Song.Entries.Single();
         Assert.Equal((2, 5, 1), (entry.Bank, entry.Pattern, entry.Repeats));
-        Assert.Equal("Part 1", entry.Name);
+        Assert.Equal("Bank 2 - Pattern 5", entry.Name);
         Assert.Equal(SongViewModel.Palette[0], entry.Color);
         Assert.Equal(_vm.Library.Rhythm[1, 4].Length, entry.Steps);
         Assert.True(Song.IsDirty);
         Assert.Equal(2, Song.LoopChoices.Count); // whole song + entry 1
+    }
+
+    [Fact]
+    public void On_the_song_tab_clicking_the_pattern_grid_adds_to_the_song()
+    {
+        _vm.PatternBanks[2].Slots[6].SelectCommand.Execute(null); // Rhythm tab: just opens the pattern
+        Assert.Empty(Song.Entries);
+        Assert.Equal((3, 7), (_vm.SelectedBank, _vm.SelectedPattern));
+
+        _vm.SelectedTab = MainWindowViewModel.SongTab;
+        _vm.PatternBanks[2].Slots[6].SelectCommand.Execute(null); // the open pattern again
+        _vm.PatternBanks[0].Slots[1].SelectCommand.Execute(null);
+
+        Assert.Equal(["Bank 3 - Pattern 7", "Bank 1 - Pattern 2"], Song.Entries.Select(e => e.Name));
+        Assert.Equal((1, 2), (Song.Entries[1].Bank, Song.Entries[1].Pattern));
+        Assert.Contains("Added Bank 1 - Pattern 2 to the song", _vm.Status);
     }
 
     [Fact]

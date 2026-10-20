@@ -119,7 +119,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionOrange}" />
             <TextBlock Classes="cardTitle" Text="ARRANGEMENT" />
-            <TextBlock Text="Pick a pattern in the grid above and add it; set how often it repeats and whether a fill leads into the next."
+            <TextBlock Text="Click a pattern in the grid above to add it to the song; set how often it repeats and whether a fill leads into the next."
                        Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" Margin="8,0,0,0" />
           </StackPanel>
         </DockPanel>
@@ -137,7 +137,7 @@
         </Grid>
 
         <Panel>
-          <TextBlock Text="No patterns yet. Select a pattern in the grid above and press + Add selected pattern."
+          <TextBlock Text="No patterns yet. Click a pattern in the grid above to add it."
                      Foreground="{StaticResource MutedText}" HorizontalAlignment="Center" VerticalAlignment="Center"
                      IsVisible="{Binding IsEmpty}" />
           <ScrollViewer VerticalScrollBarVisibility="Auto">
