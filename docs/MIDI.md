@@ -10,6 +10,15 @@ From the MIDI Implementation Chart (manual p.31). The T-8 has **no Control Chang
 
 Also recognized: Clock, Start, Continue, Stop, All Notes Off, Active Sensing.
 
+All channels and drum notes can be changed in the editor's **MIDI settings…** window (or with `--bass-ch`,
+`--rhythm-ch`, `--pc-ch` on the command line) to match the T-8's `bACh`, `rhCh` and `Pc.Ch` menu settings.
+
+## Connection test
+
+**Test connection** (editor) or `t8 test` (command line) plays kick, snare, closed hat, open hat and a bass note
+C2 on the configured channels, and listens on the T-8's MIDI input. The T-8 sends Active Sensing all the time,
+so receiving anything proves the link works both ways. If no matching input exists, only sending is checked.
+
 ## T-8 settings needed
 
 - **rXPc** (RX Program Change) **On**: for `select`.
@@ -18,7 +27,7 @@ Also recognized: Clock, Start, Continue, Stop, All Notes Off, Active Sensing.
 
 ## Platform support
 
-DryWetMIDI's device API runs on Windows and macOS. On Linux, `T8.Midi` writes to ALSA raw MIDI devices (`/dev/snd/midiC*D*`) itself; your user needs access to them (usually the `audio` group). Linux output only for now.
+DryWetMIDI's device API runs on Windows and macOS. On Linux, `T8.Midi` reads and writes ALSA raw MIDI devices (`/dev/snd/midiC*D*`) itself; your user needs access to them (usually the `audio` group).
 
 ## Approximations and open questions
 

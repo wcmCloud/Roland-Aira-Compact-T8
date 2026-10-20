@@ -12,6 +12,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 {
     private readonly IMidiPortProvider _ports;
     private readonly IDialogService _dialogs;
+    private readonly ISettingsStore? _settingsStore;
+    private readonly Func<IEnumerable<string>> _driveCandidates;
     private T8Controller? _controller;
     private (BassPattern Bass, RhythmPattern Rhythm)? _clipboard;
 
@@ -51,14 +53,35 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private bool _auditionEnabled = true;
 
-    public MainWindowViewModel(IMidiPortProvider ports, IDialogService dialogs)
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(TestConnectionCommand))]
+    private bool _isTestingConnection;
+
+    /// <param name="settingsStore">Where settings are kept; null keeps them in memory only.</param>
+    /// <param name="driveCandidates">Where to look for a mounted T-8; defaults to this OS's mount points.</param>
+    public MainWindowViewModel(
+        IMidiPortProvider ports,
+        IDialogService dialogs,
+        ISettingsStore? settingsStore = null,
+        Func<IEnumerable<string>>? driveCandidates = null)
     {
         _ports = ports;
         _dialogs = dialogs;
+        _settingsStore = settingsStore;
+        _driveCandidates = driveCandidates ?? T8Drive.CandidateRoots;
+        Settings = settingsStore?.Load() ?? new EditorSettings();
+        _bpm = Settings.Bpm;
+        _auditionEnabled = Settings.AuditionEnabled;
         Library = PatternLibrary.CreateBlank();
         LoadSelectedPattern();
         RefreshPorts();
     }
+
+    public EditorSettings Settings { get; private set; }
+
+    public string MidiSummary =>
+        $"Bass ch {Settings.Midi.BassChannel} · Rhythm ch {Settings.Midi.RhythmChannel} · Pattern select ch {Settings.Midi.ProgramChangeChannel}" +
+        (Settings.PlayMode == PlayMode.SyncT8Sequencer ? " · Play runs the T-8's sequencer" : "");
 
     public PatternLibrary Library { get; private set; }
 
@@ -82,14 +105,28 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     partial void OnSelectedPortChanged(MidiPortInfo? value)
     {
         StopPlayback();
-        _controller?.Dispose();
-        _controller = null;
+        CloseController();
+        if (value is not null && Settings.OutputPortName != value.Name)
+        {
+            Settings.OutputPortName = value.Name;
+            SaveSettings();
+        }
     }
 
     partial void OnBpmChanged(double value)
     {
-        if (IsPlaying)
+        Settings.Bpm = value;
+        SaveSettings();
+        if (IsPlaying && Settings.PlayMode == PlayMode.SyncT8Sequencer)
+            _controller!.Clock.Bpm = value;
+        else if (IsPlaying)
             StartPlayback();
+    }
+
+    partial void OnAuditionEnabledChanged(bool value)
+    {
+        Settings.AuditionEnabled = value;
+        SaveSettings();
     }
 
     // ---- Library -------------------------------------------------------------------------
@@ -135,6 +172,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
             FolderPath = root;
             IsDirty = false;
             LoadSelectedPattern();
+            Settings.LastFolder = root;
+            SaveSettings();
             Status = $"Loaded 64 patterns from {root}.";
             return true;
         }
@@ -176,6 +215,55 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         {
             Status = $"Couldn't save to {folder}: {ex.Message}";
             return false;
+        }
+    }
+
+    // ---- T-8 drive -----------------------------------------------------------------------
+
+    private const string DriveHelp =
+        "Connect the T-8 by USB and switch it on while holding PLAY; it then shows up as a drive named T-8.";
+
+    /// <summary>Opens the patterns from a mounted T-8's BACKUP folder.</summary>
+    [RelayCommand]
+    private async Task LoadFromT8Async()
+    {
+        var drive = T8Drive.Find(_driveCandidates());
+        if (drive is null)
+        {
+            Status = $"T-8 drive not found. {DriveHelp}";
+            return;
+        }
+        if (!await ConfirmDiscardAsync())
+            return;
+        OpenFolder(T8Drive.BackupPath(drive));
+    }
+
+    /// <summary>Writes all 64 patterns to a mounted T-8's RESTORE folder.</summary>
+    [RelayCommand]
+    private async Task WriteToT8Async()
+    {
+        var drive = T8Drive.Find(_driveCandidates());
+        if (drive is null)
+        {
+            Status = $"T-8 drive not found. {DriveHelp}";
+            return;
+        }
+
+        var confirmed = await _dialogs.ConfirmAsync(
+            "Write to T-8",
+            $"Write all 64 patterns to the T-8 at {drive}? After you press ACCENT on the T-8 they replace the patterns on it.",
+            "Write");
+        if (!confirmed)
+            return;
+
+        try
+        {
+            T8Drive.WriteRestore(Library, drive);
+            Status = "Written to the T-8. Eject the T-8 drive, then press ACCENT on the T-8 to load the patterns. Wait for dOnE before switching it off.";
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Status = $"Couldn't write to the T-8: {ex.Message}";
         }
     }
 
@@ -229,7 +317,57 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
             Status = $"Couldn't list MIDI ports: {ex.Message}";
         }
 
-        SelectedPort = Ports.FirstOrDefault(p => p.Id == previous) ?? MidiPorts.FindT8(Ports) ?? Ports.FirstOrDefault();
+        SelectedPort = Ports.FirstOrDefault(p => p.Id == previous)
+            ?? Ports.FirstOrDefault(p => p.Name == Settings.OutputPortName)
+            ?? MidiPorts.FindT8(Ports)
+            ?? Ports.FirstOrDefault();
+    }
+
+    [RelayCommand]
+    private async Task OpenMidiSettingsAsync()
+    {
+        var settingsVm = new MidiSettingsViewModel(_ports, Settings);
+        if (!await _dialogs.ShowMidiSettingsAsync(settingsVm))
+            return;
+
+        StopPlayback();
+        CloseController();
+        Settings = settingsVm.ToSettings();
+        SaveSettings();
+        OnPropertyChanged(nameof(Settings));
+        OnPropertyChanged(nameof(MidiSummary));
+        RefreshPorts();
+        Status = $"MIDI settings saved. {MidiSummary}.";
+    }
+
+    private bool CanTestConnection() => !IsTestingConnection;
+
+    [RelayCommand(CanExecute = nameof(CanTestConnection))]
+    private async Task TestConnectionAsync()
+    {
+        if (SelectedPort is null)
+        {
+            Status = "No MIDI output selected. Connect the T-8 and press Refresh.";
+            return;
+        }
+
+        StopPlayback();
+        CloseController(); // the test opens the port itself
+        IsTestingConnection = true;
+        Status = $"Testing {SelectedPort.Name}: you should hear kick, snare, hats and a bass note…";
+        try
+        {
+            var result = await new ConnectionTest(_ports, Settings.Midi).RunAsync(SelectedPort);
+            Status = result.Summary;
+        }
+        catch (Exception ex)
+        {
+            Status = $"Connection test failed: {ex.Message}";
+        }
+        finally
+        {
+            IsTestingConnection = false;
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanPlay))]
@@ -255,6 +393,17 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
             return;
         try
         {
+            if (Settings.PlayMode == PlayMode.SyncT8Sequencer)
+            {
+                // The T-8 plays its own stored pattern, following our clock.
+                t8.SelectPattern(SelectedBank, SelectedPattern);
+                t8.Clock.Bpm = Bpm;
+                t8.Clock.Start();
+                IsPlaying = true;
+                Status = $"Running the T-8's {PatternLabel} at {Bpm:0} BPM (needs SYnC set to AUTO or USB).";
+                return;
+            }
+
             t8.PlayPreview(CurrentBass, CurrentRhythm, Bpm);
             IsPlaying = true;
             Status = $"Playing {PatternLabel} at {Bpm:0} BPM through {SelectedPort!.Name}.";
@@ -271,6 +420,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         if (!IsPlaying)
             return;
         _controller?.StopPreview();
+        _controller?.Clock.Stop();
         IsPlaying = false;
         Status = "Stopped.";
     }
@@ -286,7 +436,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         }
         try
         {
-            _controller = new T8Controller(_ports.OpenOutput(SelectedPort));
+            _controller = new T8Controller(_ports.OpenOutput(SelectedPort), Settings.Midi.Clone());
             return _controller;
         }
         catch (Exception ex)
@@ -315,8 +465,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     private void OnSelectionChanged()
     {
         LoadSelectedPattern();
-        if (IsPlaying)
+        if (IsPlaying && Settings.PlayMode == PlayMode.SyncT8Sequencer)
+            _controller?.SelectPattern(SelectedBank, SelectedPattern);
+        else if (IsPlaying)
             StartPlayback();
+        else if (Settings.FollowSelection && SelectedPort is not null)
+            Controller()?.SelectPattern(SelectedBank, SelectedPattern);
     }
 
     private void LoadSelectedPattern()
@@ -328,8 +482,26 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 
     private void MarkDirty() => IsDirty = true;
 
+    private void CloseController()
+    {
+        _controller?.Dispose();
+        _controller = null;
+    }
+
+    private void SaveSettings()
+    {
+        try
+        {
+            _settingsStore?.Save(Settings);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            Status = $"Couldn't save settings: {ex.Message}";
+        }
+    }
+
     private async Task<bool> ConfirmDiscardAsync() =>
-        !IsDirty || await _dialogs.ConfirmAsync("Unsaved changes", "Discard the changes you haven't saved?");
+        !IsDirty || await _dialogs.ConfirmAsync("Unsaved changes", "Discard the changes you haven't saved?", "Discard");
 
     public void Dispose()
     {

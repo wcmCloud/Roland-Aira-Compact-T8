@@ -121,3 +121,33 @@ public class MainWindowTests
         window.MouseUp(point, MouseButton.Left);
     }
 }
+
+public class MidiSettingsWindowTests
+{
+    [AvaloniaFact]
+    public void Settings_window_shows_channels_and_saves()
+    {
+        var vm = new MidiSettingsViewModel(FakePortProvider.WithT8(), new T8.Editor.Services.EditorSettings());
+        var window = new MidiSettingsWindow { DataContext = vm };
+        window.Show();
+
+        Assert.Equal(2, window.FindControl<ComboBox>("BassChannelPicker")!.SelectedItem);
+        Assert.Equal(10, window.FindControl<ComboBox>("RhythmChannelPicker")!.SelectedItem);
+        Assert.Equal("T-8", (window.FindControl<ComboBox>("SettingsPortPicker")!.SelectedItem as T8.Midi.Ports.MidiPortInfo)?.Name);
+        Assert.True(window.FindControl<RadioButton>("PreviewModeRadio")!.IsChecked);
+
+        window.FindControl<ComboBox>("BassChannelPicker")!.SelectedItem = 10;
+        Assert.False(window.FindControl<Button>("SaveSettingsButton")!.IsEnabled);
+        window.FindControl<ComboBox>("BassChannelPicker")!.SelectedItem = 3;
+        Assert.True(window.FindControl<Button>("SaveSettingsButton")!.IsEnabled);
+
+        window.FindControl<RadioButton>("SyncModeRadio")!.IsChecked = true;
+        Assert.Equal(T8.Editor.Services.PlayMode.SyncT8Sequencer, vm.PlayMode);
+        Assert.Equal(3, vm.ToSettings().Midi.BassChannel);
+
+        var output = Environment.GetEnvironmentVariable("T8_SCREENSHOT_DIR");
+        if (output is not null)
+            window.CaptureRenderedFrame()!.Save(Path.Combine(output, "midi-settings.png"));
+        window.Close();
+    }
+}

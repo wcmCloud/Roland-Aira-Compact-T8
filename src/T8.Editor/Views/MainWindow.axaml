@@ -15,6 +15,11 @@
       <Button x:Name="SaveButton" Content="Save" Command="{Binding SaveCommand}" HotKey="Ctrl+S" />
       <Button x:Name="SaveAsButton" Content="Save as…" Command="{Binding SaveAsCommand}" />
       <Separator Width="16" />
+      <Button x:Name="LoadFromT8Button" Content="Load from T-8" Command="{Binding LoadFromT8Command}"
+              ToolTip.Tip="Read the patterns from the T-8 drive (switch the T-8 on while holding PLAY)" />
+      <Button x:Name="WriteToT8Button" Content="Write to T-8" Command="{Binding WriteToT8Command}"
+              ToolTip.Tip="Write all 64 patterns to the T-8 drive's RESTORE folder" />
+      <Separator Width="16" />
       <Button x:Name="CopyButton" Content="Copy pattern" Command="{Binding CopyPatternCommand}" />
       <Button x:Name="PasteButton" Content="Paste pattern" Command="{Binding PastePatternCommand}" />
       <Button x:Name="ClearButton" Content="Clear pattern" Command="{Binding ClearPatternCommand}" />
@@ -48,6 +53,9 @@
         </ComboBox.ItemTemplate>
       </ComboBox>
       <Button x:Name="RefreshButton" Content="Refresh" Command="{Binding RefreshPortsCommand}" />
+      <Button x:Name="TestConnectionButton" Content="Test connection" Command="{Binding TestConnectionCommand}"
+              ToolTip.Tip="Play test sounds on the T-8 and check that it answers" />
+      <Button x:Name="MidiSettingsButton" Content="MIDI settings…" Command="{Binding OpenMidiSettingsCommand}" />
       <TextBlock Classes="header" Text="BPM" Margin="12,0,0,0" />
       <NumericUpDown x:Name="BpmInput" Value="{Binding Bpm}" Minimum="20" Maximum="300" Increment="1" FormatString="0" Width="120" />
       <Button x:Name="PlayButton" Content="▶ Play" Command="{Binding PlayCommand}" ToolTip.Tip="Play this pattern through the T-8's sounds" />
@@ -57,7 +65,10 @@
       <CheckBox x:Name="AuditionCheck" Content="Audition steps" IsChecked="{Binding AuditionEnabled}" />
     </StackPanel>
 
-    <TextBlock DockPanel.Dock="Bottom" x:Name="StatusText" Text="{Binding Status}" Margin="0,8,0,0" Opacity="0.8" />
+    <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+      <TextBlock DockPanel.Dock="Right" x:Name="MidiSummaryText" Text="{Binding MidiSummary}" Opacity="0.6" FontSize="12" Margin="16,0,0,0" />
+      <TextBlock x:Name="StatusText" Text="{Binding Status}" Opacity="0.8" TextTrimming="CharacterEllipsis" />
+    </DockPanel>
 
     <TabControl x:Name="Tabs">
       <TabItem Header="Rhythm">

@@ -1,0 +1,92 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:T8.Editor.ViewModels"
+        xmlns:ports="using:T8.Midi.Ports"
+        x:Class="T8.Editor.Views.MidiSettingsWindow"
+        x:DataType="vm:MidiSettingsViewModel"
+        Title="MIDI settings"
+        Width="620" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <StackPanel Margin="20" Spacing="14">
+    <!-- Port -->
+    <StackPanel Spacing="6">
+      <TextBlock Classes="header" Text="Connection" />
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <ComboBox x:Name="SettingsPortPicker" MinWidth="260" ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}"
+                  PlaceholderText="No MIDI outputs">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="ports:MidiPortInfo">
+              <TextBlock Text="{Binding Name}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <Button Content="Refresh" Command="{Binding RefreshPortsCommand}" />
+        <Button x:Name="TestConnectionButton" Content="Test connection" Command="{Binding TestConnectionCommand}" />
+      </StackPanel>
+      <TextBlock x:Name="TestResultText" Text="{Binding TestResult}" TextWrapping="Wrap" FontSize="12"
+                 IsVisible="{Binding TestResult, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
+                 Foreground="{Binding TestPassed, Converter={x:Static vm:Converters.TestResultBrush}}" />
+    </StackPanel>
+
+    <!-- Channels -->
+    <StackPanel Spacing="6">
+      <TextBlock Classes="header" Text="MIDI channels (must match the T-8)" />
+      <Grid ColumnDefinitions="200,100" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
+        <TextBlock Text="Bass (bACh)" VerticalAlignment="Center" />
+        <ComboBox x:Name="BassChannelPicker" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.Channels}" SelectedItem="{Binding BassChannel}" />
+        <TextBlock Grid.Row="1" Text="Rhythm (rhCh)" VerticalAlignment="Center" />
+        <ComboBox x:Name="RhythmChannelPicker" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.Channels}" SelectedItem="{Binding RhythmChannel}" />
+        <TextBlock Grid.Row="2" Text="Pattern select (Pc.Ch)" VerticalAlignment="Center" />
+        <ComboBox x:Name="ProgramChannelPicker" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.Channels}" SelectedItem="{Binding ProgramChangeChannel}" />
+      </Grid>
+    </StackPanel>
+
+    <!-- Drum notes -->
+    <StackPanel Spacing="6">
+      <TextBlock Classes="header" Text="Drum note numbers" />
+      <ItemsControl ItemsSource="{Binding DrumNotes}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:DrumNoteViewModel">
+            <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,0,16,6" Width="180">
+              <TextBlock Text="{Binding Name}" Width="90" VerticalAlignment="Center" />
+              <NumericUpDown Value="{Binding Note}" Minimum="0" Maximum="127" FormatString="0" Width="80" ShowButtonSpinner="False" />
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+
+    <!-- Playback -->
+    <StackPanel Spacing="6">
+      <TextBlock Classes="header" Text="Play button" />
+      <RadioButton x:Name="PreviewModeRadio" GroupName="PlayMode" Content="Play the edited pattern through the T-8's sounds (notes from the computer)"
+                   IsChecked="{Binding PlayMode, Converter={x:Static vm:Converters.IsPreviewMode}}" />
+      <RadioButton x:Name="SyncModeRadio" GroupName="PlayMode" Content="Run the T-8's own sequencer with the computer as clock master"
+                   IsChecked="{Binding PlayMode, Converter={x:Static vm:Converters.IsSyncMode}}" />
+      <CheckBox x:Name="FollowSelectionCheck" Content="Switch the T-8 to the pattern I pick in the editor" IsChecked="{Binding FollowSelection}" />
+    </StackPanel>
+
+    <Border Background="#22FF7A1A" CornerRadius="4" Padding="10">
+      <TextBlock Text="{Binding T8SetupHelp}" TextWrapping="Wrap" FontSize="12" />
+    </Border>
+
+    <ItemsControl x:Name="ErrorList" ItemsSource="{Binding Errors}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate x:DataType="x:String">
+          <TextBlock Text="{Binding}" Foreground="#FF6B6B" />
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+
+    <DockPanel>
+      <Button DockPanel.Dock="Left" Content="Reset to T-8 defaults" Command="{Binding ResetToT8DefaultsCommand}" />
+      <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+        <Button x:Name="CancelButton" Content="Cancel" IsCancel="True" Click="OnCancel" />
+        <Button x:Name="SaveSettingsButton" Content="Save" IsDefault="True" IsEnabled="{Binding IsValid}" Click="OnSave" />
+      </StackPanel>
+    </DockPanel>
+  </StackPanel>
+</Window>

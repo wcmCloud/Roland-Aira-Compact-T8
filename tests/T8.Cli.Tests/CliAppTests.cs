@@ -29,11 +29,14 @@ public class CliAppTests
     }
 
     [Fact]
-    public void Ports_lists_outputs_and_marks_the_t8()
+    public void Ports_lists_outputs_and_inputs_and_marks_the_t8()
     {
         Assert.Equal(0, Run("ports"));
-        Assert.Contains("  IAC Bus 1", _out.ToString());
-        Assert.Contains("* T-8", _out.ToString());
+        var text = _out.ToString();
+        Assert.Contains("Outputs:", text);
+        Assert.Contains("Inputs:", text);
+        Assert.Contains("  IAC Bus 1", text);
+        Assert.Contains("* T-8", text);
     }
 
     [Fact]
@@ -41,6 +44,38 @@ public class CliAppTests
     {
         Assert.Equal(0, Run(new FakePortProvider(), "ports"));
         Assert.Contains("No MIDI outputs found.", _out.ToString());
+        Assert.Contains("No MIDI inputs found.", _out.ToString());
+    }
+
+    [Fact]
+    public void Test_reports_a_working_connection()
+    {
+        Assert.Equal(0, Run("test"));
+        Assert.Contains("the T-8 is answering", _out.ToString());
+    }
+
+    [Fact]
+    public void Test_fails_when_the_t8_is_silent()
+    {
+        var ports = FakePortProvider.WithT8();
+        ports.InputsRespond = false;
+        Assert.Equal(1, Run(ports, "test"));
+        Assert.Contains("nothing came back", _out.ToString());
+    }
+
+    [Fact]
+    public void Channel_options_change_where_notes_go()
+    {
+        var ports = FakePortProvider.WithT8();
+        Assert.Equal(0, Run(ports, "select", "1", "2", "--pc-ch", "1"));
+        Assert.Equal(0, (int)((ProgramChangeEvent)ports.LastOpened!.Events[0]).Channel);
+    }
+
+    [Fact]
+    public void Invalid_channel_options_fail()
+    {
+        Assert.Equal(1, Run("select", "1", "1", "--bass-ch", "10"));
+        Assert.Contains("Bass and rhythm need different channels.", _err.ToString());
     }
 
     [Fact]

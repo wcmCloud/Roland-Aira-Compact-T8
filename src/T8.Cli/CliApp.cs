@@ -11,7 +11,8 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
     public const string Usage = """
         Usage: t8 <command> [options]
 
-          ports                                   List MIDI outputs
+          ports                                   List MIDI outputs and inputs
+          test                                    Test the connection: play test sounds and listen for the T-8
           select <bank> <pattern>                 Switch the T-8 to a pattern (needs rXPc on)
           preview <folder> <bank> <pattern>       Play a .PRM pattern through the T-8's sounds
                   [--bpm 120] [--part both|bass|rhythm]
@@ -21,6 +22,8 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
 
           <folder> is a BACKUP or RESTORE folder with BASS and RHYTHM inside.
           Add --port "<name>" to use a port other than the auto-detected T-8.
+          Channels default to the T-8's (bass 2, rhythm 10, program change 16); change them with
+          --bass-ch, --rhythm-ch and --pc-ch to match the T-8's bACh, rhCh and Pc.Ch settings.
         """;
 
     private string[] _args = [];
@@ -39,6 +42,7 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
             return args[0] switch
             {
                 "ports" => ListPorts(),
+                "test" => TestConnection(),
                 "select" => Select(),
                 "preview" => Preview(),
                 "clock" => RunClock(),
@@ -54,12 +58,44 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
 
     private int ListPorts()
     {
-        var list = ports.ListOutputs();
+        output.WriteLine("Outputs:");
+        WritePorts(ports.ListOutputs(), "No MIDI outputs found.");
+        output.WriteLine("Inputs:");
+        WritePorts(ports.ListInputs(), "No MIDI inputs found.");
+        return 0;
+    }
+
+    private void WritePorts(IReadOnlyList<MidiPortInfo> list, string none)
+    {
         if (list.Count == 0)
-            output.WriteLine("No MIDI outputs found.");
+            output.WriteLine($"  {none}");
         foreach (var port in list)
             output.WriteLine($"{(MidiPorts.LooksLikeT8(port.Name) ? "*" : " ")} {port.Name}");
-        return 0;
+    }
+
+    private int TestConnection()
+    {
+        var port = FindOutput();
+        output.WriteLine($"Testing {port.Name}. You should hear kick, snare, closed and open hat, then a bass note.");
+        var result = new ConnectionTest(ports, Map()).RunAsync(port).GetAwaiter().GetResult();
+        foreach (var line in result.Log)
+            output.WriteLine($"  {line}");
+        output.WriteLine(result.Summary);
+        return result.Success ? 0 : 1;
+    }
+
+    private T8MidiMap Map()
+    {
+        var map = new T8MidiMap
+        {
+            BassChannel = Option("--bass-ch", 2),
+            RhythmChannel = Option("--rhythm-ch", 10),
+            ProgramChangeChannel = Option("--pc-ch", 16),
+        };
+        var errors = map.Validate();
+        if (errors.Count > 0)
+            throw new ArgumentException(string.Join(" ", errors));
+        return map;
     }
 
     private int Select()
@@ -98,7 +134,7 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
     {
         var (bass, rhythm) = LoadPatterns();
         var path = _args.Length > 4 && !_args[4].StartsWith("--") ? _args[4] : throw new ArgumentException("Missing output .mid path.");
-        var file = new PatternMidiBuilder().BuildMidiFile(bass, rhythm, Option("--bpm", 120.0));
+        var file = new PatternMidiBuilder { Map = Map() }.BuildMidiFile(bass, rhythm, Option("--bpm", 120.0));
         file.Write(path, overwriteFile: true);
         output.WriteLine($"Wrote {path}.");
         return 0;
@@ -118,6 +154,14 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
 
     private T8Controller Open()
     {
+        var map = Map();
+        var port = FindOutput();
+        output.WriteLine($"Using {port.Name}");
+        return new T8Controller(ports.OpenOutput(port), map);
+    }
+
+    private MidiPortInfo FindOutput()
+    {
         var list = ports.ListOutputs();
         var name = Option<string?>("--port", null);
         var port = name is null
@@ -127,8 +171,7 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
             throw new InvalidOperationException(name is null
                 ? "No T-8 found. Check the USB cable, or run 't8 ports' and pass --port."
                 : $"No MIDI output named '{name}'.");
-        output.WriteLine($"Using {port.Name}");
-        return new T8Controller(ports.OpenOutput(port));
+        return port;
     }
 
     private int IntArg(int index) =>

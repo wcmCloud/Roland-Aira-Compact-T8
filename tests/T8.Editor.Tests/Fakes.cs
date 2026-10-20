@@ -1,4 +1,5 @@
 using T8.Editor.Services;
+using T8.Editor.ViewModels;
 
 namespace T8.Editor.Tests;
 
@@ -10,9 +11,31 @@ internal sealed class FakeDialogService : IDialogService
 
     public Task<string?> PickFolderAsync(string title) => Task.FromResult(Folders.Count > 0 ? Folders.Dequeue() : null);
 
-    public Task<bool> ConfirmAsync(string title, string message)
+    public Task<bool> ConfirmAsync(string title, string message, string confirmText = "OK")
     {
         ConfirmCount++;
+        LastConfirmText = confirmText;
         return Task.FromResult(ConfirmResult);
+    }
+
+    public string? LastConfirmText { get; private set; }
+
+    /// <summary>Called with the settings window's view model; return true to press Save.</summary>
+    public Func<MidiSettingsViewModel, bool> OnMidiSettings { get; set; } = _ => false;
+
+    public Task<bool> ShowMidiSettingsAsync(MidiSettingsViewModel settings) => Task.FromResult(OnMidiSettings(settings));
+}
+
+internal sealed class MemorySettingsStore : ISettingsStore
+{
+    public EditorSettings Stored { get; set; } = new();
+    public int SaveCount { get; private set; }
+
+    public EditorSettings Load() => Stored.Clone();
+
+    public void Save(EditorSettings settings)
+    {
+        SaveCount++;
+        Stored = settings.Clone();
     }
 }

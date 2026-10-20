@@ -17,7 +17,7 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var window = new MainWindow();
-            var viewModel = new MainWindowViewModel(MidiPorts.System, new AvaloniaDialogService(window));
+            var viewModel = new MainWindowViewModel(MidiPorts.System, new AvaloniaDialogService(window), new JsonSettingsStore());
             window.DataContext = viewModel;
             desktop.MainWindow = window;
             desktop.Exit += (_, _) => viewModel.Dispose();

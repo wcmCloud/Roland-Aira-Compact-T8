@@ -1,6 +1,8 @@
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Platform.Storage;
+using T8.Editor.ViewModels;
+using T8.Editor.Views;
 
 namespace T8.Editor.Services;
 
@@ -16,7 +18,7 @@ public sealed class AvaloniaDialogService(Window owner) : IDialogService
         return folders.Count > 0 ? folders[0].TryGetLocalPath() : null;
     }
 
-    public async Task<bool> ConfirmAsync(string title, string message)
+    public async Task<bool> ConfirmAsync(string title, string message, string confirmText = "OK")
     {
         var dialog = new Window
         {
@@ -27,7 +29,7 @@ public sealed class AvaloniaDialogService(Window owner) : IDialogService
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
 
-        var yes = new Button { Content = "Discard", IsDefault = true };
+        var yes = new Button { Content = confirmText, IsDefault = true };
         var no = new Button { Content = "Cancel", IsCancel = true };
         yes.Click += (_, _) => dialog.Close(true);
         no.Click += (_, _) => dialog.Close(false);
@@ -50,5 +52,11 @@ public sealed class AvaloniaDialogService(Window owner) : IDialogService
         };
 
         return await dialog.ShowDialog<bool>(owner);
+    }
+
+    public async Task<bool> ShowMidiSettingsAsync(MidiSettingsViewModel settings)
+    {
+        var window = new MidiSettingsWindow { DataContext = settings };
+        return await window.ShowDialog<bool>(owner);
     }
 }
