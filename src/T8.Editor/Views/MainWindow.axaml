@@ -56,7 +56,7 @@
 
     <!-- Patterns and transport -->
     <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" Margin="12,10,12,0">
-      <Border Classes="card">
+      <Border x:Name="PatternsCard" Classes="card">
         <StackPanel Spacing="6">
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionOrange}" />
@@ -87,7 +87,7 @@
         </StackPanel>
       </Border>
 
-      <Border Grid.Column="1" Classes="card" Margin="10,0,0,0">
+      <Border x:Name="TransportCard" Grid.Column="1" Classes="card" Margin="10,0,0,0">
         <StackPanel Spacing="8">
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionGreen}" />

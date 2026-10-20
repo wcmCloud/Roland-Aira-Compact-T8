@@ -246,7 +246,9 @@
   </Style>
   <Style Selector="Border.bassStep.playing">
     <Setter Property="Background" Value="{StaticResource PlayingDim}" />
-    <Setter Property="BoxShadow" Value="0 0 0 2 #FFD23F" />
+    <Setter Property="BorderBrush" Value="{StaticResource Playing}" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="Padding" Value="0,2" />
   </Style>
   <Style Selector="Button.note">
     <Setter Property="FontSize" Value="13" />
