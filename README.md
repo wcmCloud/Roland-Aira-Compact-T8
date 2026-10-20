@@ -24,15 +24,33 @@ USB MIDI, and write them back.
 
 ## Getting started
 
-Run it from source with the [.NET 10 SDK](https://dotnet.microsoft.com/download), or build a self-contained package
-(see [Build packages](#build-packages); pushing a `v*` tag also attaches packages to a GitHub release):
+Download the latest version from the [releases page](https://github.com/wcmCloud/Roland-Aira-Compact-T8/releases/latest).
+The downloads are self-contained, so there is nothing else to install:
+
+| Computer | Download |
+|---|---|
+| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.0-osx-arm64.zip` |
+| Mac with Intel | `T8Editor-1.0.0-osx-x64.zip` |
+| Windows PC (x64) | `T8Editor-1.0.0-win-x64.zip` |
+| Windows on ARM | `T8Editor-1.0.0-win-arm64.zip` |
+| Linux x64 | `T8Editor-1.0.0-linux-x64.tar.gz` |
+| Linux ARM64 | `T8Editor-1.0.0-linux-arm64.tar.gz` |
+
+- **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications. It isn't notarized by Apple, so the
+  first time right-click it and choose **Open**. If macOS says it is damaged, run
+  `xattr -dr com.apple.quarantine "/Applications/Roland Aira Compact T-8 Editor.app"` once.
+- **Windows:** unzip and run `T8Editor.exe`. If SmartScreen warns, choose **More info → Run anyway**.
+- **Linux:** unpack and run `./T8Editor`. Your user needs access to the MIDI devices (usually the `audio` group).
+
+Or run it from source with the [.NET 10 SDK](https://dotnet.microsoft.com/download):
 
 ```sh
 dotnet run --project src/T8.Editor
 ```
 
-On macOS the package is `Roland Aira Compact T-8 Editor.app`. It isn't signed, so the first time, right-click it
-and choose **Open**.
+The version is shown in the title bar, and the ⓘ button in the top bar (or the app menu on macOS) opens the About window.
+
+<img src="docs/images/about.png" alt="The About window" width="440">
 
 The editor starts with 64 blank patterns. To edit your own, get the T-8's patterns with
 [Load from T-8](#getting-patterns-on-and-off-the-t-8), or **Open…** a `BACKUP` folder you copied earlier.
@@ -241,14 +259,26 @@ dotnet run --project src/T8.Cli -- export BACKUP 1 1 pattern.mid
 ## Build packages
 
 ```sh
-scripts/publish.sh               # osx-arm64, osx-x64, win-x64, linux-x64 into artifacts/
-scripts/publish.sh osx-arm64     # just one
+scripts/publish.sh                 # all six packages into artifacts/
+scripts/publish.sh osx-arm64       # just one: osx-arm64, osx-x64, win-arm64, win-x64, linux-arm64, linux-x64
+VERSION=1.0.1 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
 ```
 
-Packages are self-contained, so no .NET install is needed to run them. macOS gets a `Roland Aira Compact T-8 Editor.app`; it isn't
-signed, so the first time right-click it and choose **Open**. On Windows you can also run `scripts/publish.ps1`.
-GitHub Actions (`.github/workflows/ci.yml`) runs the tests on all three OSes and builds the packages; pushing a
-`v*` tag attaches them to a release.
+Packages are self-contained, so no .NET install is needed to run them. On macOS the app bundle is signed ad hoc
+(Apple Silicon only runs signed code); it isn't notarized. On Windows you can also run `scripts/publish.ps1`
+for the two Windows packages. GitHub Actions (`.github/workflows/ci.yml`) runs the tests on all three OSes and
+builds the packages on every push.
+
+### Making a release
+
+Set `<Version>` in `src/T8.Editor/T8.Editor.csproj`, commit and push, then:
+
+```sh
+scripts/release.sh
+```
+
+It builds the six packages, tags `v<version>`, and creates the GitHub release with them, using
+`scripts/release-notes.md` as the description (needs the GitHub CLI, `gh`, signed in).
 
 ## For developers
 

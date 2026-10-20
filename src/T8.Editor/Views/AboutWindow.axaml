@@ -1,0 +1,45 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:editor="using:T8.Editor"
+        x:Class="T8.Editor.Views.AboutWindow"
+        Title="About Roland Aira Compact T-8 Editor"
+        Width="440" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource WindowBg}">
+  <StackPanel Margin="28,26,28,22" Spacing="14">
+    <!-- Wordmark -->
+    <Border Background="{StaticResource BarBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="8"
+            Padding="18,14" HorizontalAlignment="Center">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <TextBlock Text="T-8" FontSize="44" FontWeight="Black" Foreground="{StaticResource T8Orange}" VerticalAlignment="Center" />
+        <StackPanel VerticalAlignment="Center" Spacing="2">
+          <TextBlock Text="AIRA COMPACT" FontSize="12" FontWeight="Bold" LetterSpacing="2.5" />
+          <TextBlock Text="BEAT MACHINE EDITOR" FontSize="10" FontWeight="SemiBold" LetterSpacing="1.8"
+                     Foreground="{StaticResource MutedText}" />
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <StackPanel Spacing="3" HorizontalAlignment="Center">
+      <TextBlock Text="{x:Static editor:AppInfo.Name}" FontSize="17" FontWeight="SemiBold" HorizontalAlignment="Center" />
+      <TextBlock x:Name="VersionText" FontSize="12.5" Foreground="{StaticResource MutedText}" HorizontalAlignment="Center" />
+    </StackPanel>
+
+    <TextBlock TextWrapping="Wrap" TextAlignment="Center" FontSize="13" LineHeight="19"
+               Text="Edit, generate and play the patterns of the Roland AIRA Compact T-8 over USB: drums, bass lines, fills, and loading and writing the T-8's patterns." />
+
+    <StackPanel Spacing="2" HorizontalAlignment="Center">
+      <TextBlock Text="Created by" FontSize="11" Foreground="{StaticResource MutedText}" HorizontalAlignment="Center" />
+      <TextBlock Text="{x:Static editor:AppInfo.Author}" FontSize="15" FontWeight="SemiBold" HorizontalAlignment="Center" />
+    </StackPanel>
+
+    <Button x:Name="WebsiteButton" Classes="seg" HorizontalAlignment="Center" Click="OnWebsite"
+            Content="github.com/wcmCloud/Roland-Aira-Compact-T8" />
+
+    <TextBlock TextWrapping="Wrap" TextAlignment="Center" FontSize="10.5" Foreground="{StaticResource MutedText}"
+               Text="An independent project, not made or endorsed by Roland Corporation. Roland, AIRA and T-8 are trademarks of Roland Corporation." />
+
+    <Button x:Name="CloseButton" Classes="primary" Content="Close" HorizontalAlignment="Center" MinWidth="100"
+            HorizontalContentAlignment="Center" IsDefault="True" IsCancel="True" Click="OnClose" />
+  </StackPanel>
+</Window>

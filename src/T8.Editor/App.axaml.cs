@@ -25,4 +25,10 @@ public partial class App : Application
 
         base.OnFrameworkInitializationCompleted();
     }
+
+    private void OnAboutClicked(object? sender, EventArgs e)
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow.DataContext: MainWindowViewModel vm })
+            vm.ShowAboutCommand.Execute(null);
+    }
 }

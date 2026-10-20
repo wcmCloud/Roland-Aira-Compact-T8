@@ -24,6 +24,14 @@ internal sealed class FakeDialogService : IDialogService
     public Func<MidiSettingsViewModel, bool> OnMidiSettings { get; set; } = _ => false;
 
     public Task<bool> ShowMidiSettingsAsync(MidiSettingsViewModel settings) => Task.FromResult(OnMidiSettings(settings));
+
+    public int AboutCount { get; private set; }
+
+    public Task ShowAboutAsync()
+    {
+        AboutCount++;
+        return Task.CompletedTask;
+    }
 }
 
 internal sealed class MemorySettingsStore : ISettingsStore

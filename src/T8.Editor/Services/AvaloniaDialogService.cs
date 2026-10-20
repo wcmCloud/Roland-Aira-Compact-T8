@@ -54,6 +54,8 @@ public sealed class AvaloniaDialogService(Window owner) : IDialogService
         return await dialog.ShowDialog<bool>(owner);
     }
 
+    public Task ShowAboutAsync() => new AboutWindow().ShowDialog(owner);
+
     public async Task<bool> ShowMidiSettingsAsync(MidiSettingsViewModel settings)
     {
         var window = new MidiSettingsWindow { DataContext = settings };

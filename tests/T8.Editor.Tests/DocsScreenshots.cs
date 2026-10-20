@@ -111,6 +111,13 @@ public class DocsScreenshots
         Save(settingsWindow, "midi-settings.png");
         settingsWindow.Close();
 
+        var about = new AboutWindow();
+        about.Show();
+        Settle(about);
+        Save(about, "about.png");
+        Assert.Contains("Christos Christodoulidis", about.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text));
+        about.Close();
+
         window.Close();
         vm.Dispose();
     }

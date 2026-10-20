@@ -169,9 +169,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 
     public ObservableCollection<MidiPortInfo> Ports { get; } = new();
 
-    public const string AppName = "Roland Aira Compact T-8 Editor";
+    public const string AppName = AppInfo.Name;
 
-    public string Title => $"{AppName} - {(FolderPath is null ? "Untitled" : Path.GetFileName(FolderPath))}{(IsDirty ? " *" : "")}";
+    public string Title => $"{AppName} - {AppInfo.DisplayVersion} - {(FolderPath is null ? "Untitled" : Path.GetFileName(FolderPath))}{(IsDirty ? " *" : "")}";
 
     public string PatternLabel => $"Bank {SelectedBank} · Pattern {SelectedPattern}";
 
@@ -403,6 +403,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     }
 
     // ---- MIDI ----------------------------------------------------------------------------
+
+    [RelayCommand]
+    private Task ShowAboutAsync() => _dialogs.ShowAboutAsync();
 
     [RelayCommand]
     private void RefreshPorts()

@@ -11,4 +11,7 @@ public interface IDialogService
 
     /// <summary>Shows the MIDI settings window. True when the user pressed Save.</summary>
     Task<bool> ShowMidiSettingsAsync(MidiSettingsViewModel settings);
+
+    /// <summary>Shows the About window.</summary>
+    Task ShowAboutAsync();
 }

@@ -28,7 +28,7 @@ public class MainWindowTests
     {
         var (window, vm) = Show();
 
-        Assert.Equal("Roland Aira Compact T-8 Editor - BACKUP", window.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0 - BACKUP", window.Title);
         Assert.Contains("Loaded 64 patterns", window.FindControl<TextBlock>("StatusText")!.Text);
         Assert.Equal(8, window.GetVisualDescendants().OfType<RhythmEditorView>().Single()
             .FindControl<ItemsControl>("TrackRows")!.ItemCount);
@@ -201,6 +201,22 @@ public class MainWindowTests
         var point = control.TranslatePoint(new Point(control.Bounds.Width / 2, control.Bounds.Height / 2), window)!.Value;
         window.MouseDown(point, MouseButton.Left);
         window.MouseUp(point, MouseButton.Left);
+    }
+}
+
+public class AboutWindowTests
+{
+    [AvaloniaFact]
+    public void About_shows_the_author_and_version_and_no_avalonia_branding()
+    {
+        var about = new AboutWindow();
+        about.Show();
+        var texts = about.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text ?? "").ToList();
+
+        Assert.Contains("Christos Christodoulidis", texts);
+        Assert.Contains(texts, t => t.StartsWith("Version 1.0.0"));
+        Assert.DoesNotContain(texts, t => t.Contains("Avalonia", StringComparison.OrdinalIgnoreCase));
+        about.Close();
     }
 }
 

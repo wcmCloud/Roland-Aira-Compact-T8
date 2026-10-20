@@ -21,7 +21,7 @@ public class MainWindowViewModelTests : IDisposable
     {
         Assert.Null(_vm.FolderPath);
         Assert.False(_vm.IsDirty);
-        Assert.Equal("Roland Aira Compact T-8 Editor - Untitled", _vm.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0 - Untitled", _vm.Title);
         Assert.Equal(16, _vm.Rhythm.Length);
         Assert.Equal([1, 2, 3, 4], _vm.BankNumbers);
         Assert.Equal(16, _vm.PatternNumbers.Count);
@@ -43,7 +43,7 @@ public class MainWindowViewModelTests : IDisposable
         Assert.Equal(12, _vm.Bass.Length);
         Assert.Equal(32, _vm.Rhythm.Length);
         Assert.Contains("Loaded 64 patterns", _vm.Status);
-        Assert.Equal("Roland Aira Compact T-8 Editor - BACKUP", _vm.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0 - BACKUP", _vm.Title);
     }
 
     [Fact]
@@ -341,6 +341,27 @@ public class MainWindowViewModelTests : IDisposable
 
         _vm.ClearPatternCommand.Execute(null);
         Assert.True(_vm.PatternBanks[1].Slots[6].IsEmpty);
+    }
+
+    [Fact]
+    public void About_opens_the_about_window()
+    {
+        _vm.ShowAboutCommand.Execute(null);
+        Assert.Equal(1, _dialogs.AboutCount);
+    }
+
+    [Theory]
+    [InlineData(1, 0, 0, "v1.0")]
+    [InlineData(1, 2, 3, "v1.2.3")]
+    public void Versions_show_major_minor_and_a_patch_when_there_is_one(int major, int minor, int build, string expected) =>
+        Assert.Equal(expected, T8.Editor.AppInfo.Format(new Version(major, minor, build)));
+
+    [Fact]
+    public void The_app_is_version_1_0_by_christos()
+    {
+        Assert.Equal("v1.0", T8.Editor.AppInfo.DisplayVersion);
+        Assert.StartsWith("1.0.0", T8.Editor.AppInfo.FullVersion);
+        Assert.Equal("Christos Christodoulidis", T8.Editor.AppInfo.Author);
     }
 
     [Fact]
