@@ -92,11 +92,13 @@ public class ThreadTickGeneratorTests
         var ticks = 0;
         clock.Ticked += (_, _) => Interlocked.Increment(ref ticks);
 
+        var watch = System.Diagnostics.Stopwatch.StartNew();
         clock.Start();
         Thread.Sleep(500);
         clock.Stop();
+        var expected = watch.Elapsed.TotalMilliseconds / 2;
 
-        // 2 ms for 0.5 s is 250 ticks; allow for a slow test machine.
-        Assert.InRange(ticks, 150, 260);
+        // One tick per 2 ms of real time; allow for a slow test machine, but never a burst of extra ticks.
+        Assert.InRange(ticks, expected * 0.6, expected * 1.05 + 2);
     }
 }
