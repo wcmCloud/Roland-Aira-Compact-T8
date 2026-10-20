@@ -25,6 +25,12 @@
     <td align="center"><b>Rhythm</b> — 7-track step grid, step inspector, style-based generator and fills</td>
     <td align="center"><b>Bass</b> — piano-keyboard step entry and a key, scale and chord aware line generator</td>
   </tr>
+  <tr>
+    <td colspan="2"><img src="docs/screenshots/main-song.png" alt="Song tab: an arrangement of patterns with repeats and fills, and the song timeline"></td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"><b>Song</b> — chain patterns from the banks with repeats and fill bridges, and play the whole song</td>
+  </tr>
 </table>
 
 </div>
@@ -58,6 +64,13 @@
       Hear your edits through the T-8's own sounds, or drive its sequencer as clock master — with the playing step lit up.
     </td>
     <td valign="top">
+      <h3>🎼 Songs</h3>
+      Chain patterns from the banks with repeats and fills as bridges, see the song on a colour timeline, and
+      play it through the T-8's sounds or on its own sequencer. Saved as <code>.t8song</code> files.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
       <h3>💾 Load &amp; write</h3>
       Read all 64 patterns from the T-8's USB drive, save sets on your computer, and write them back.
     </td>
@@ -77,7 +90,7 @@
 | [The window](#the-window) | [Command line](#command-line) · [Build packages](#build-packages) |
 | [Editing rhythms](#editing-rhythms) · [Generating rhythms](#generating-rhythms) · [Fills](#fills) | [For developers](#for-developers) |
 | [Editing bass lines](#editing-bass-lines) · [Generating bass lines](#generating-bass-lines) | |
-| [Playing patterns](#playing-patterns) | |
+| [Songs](#songs) · [Playing patterns](#playing-patterns) | |
 
 ## Getting started
 
@@ -293,6 +306,35 @@ The bass line generator writes a new line into the current pattern, up to its la
 
 The line always starts on the root, each chord change starts on that chord's root, and it moves mostly in small
 steps. **Generate**, **Randomize**, **Undo** and **Seed** work as for rhythms.
+
+## Songs
+
+![The Song tab](docs/screenshots/main-song.png)
+
+The **Song** tab chains patterns from the banks into a song.
+
+1. Pick a pattern in the pattern grid and press **+ Add selected pattern**. Repeat for each part of the song.
+2. For each entry set the **bank** and **pattern**, how many times it **repeats**, a **name** and a **colour**
+   (click the swatch to change it). **Steps** shows how long one pass of the pattern is (its last step).
+3. Turn on **FILL** to play a fill pattern once after the repeats, as a bridge into the next entry, and pick the
+   fill pattern (same bank; 16 by default, as made by [Make fill](#fills)).
+4. Reorder with ▲ ▼, duplicate with ⧉, remove with ✕, or press ▶ on a row to play the song from there.
+
+Press **PLAY SONG** to play it. The playing entry is outlined in green, the timeline fills up as the song plays,
+and the bottom row shows what's playing now (with the repeat, e.g. 2/4), what comes next, the step and the time.
+**PREVIOUS** and **NEXT** jump between entries. **LOOP SONG** starts again from the top after the last entry,
+and **Loop** can instead keep repeating a single entry while you work on it.
+
+What PLAY SONG does follows the Play mode in the MIDI settings:
+
+- **Through the T-8's sounds:** the editor plays the whole song as notes, straight from the patterns in the editor.
+- **On the T-8's own sequencer:** the editor selects the first pattern, sends the clock, and as each pattern
+  starts it tells the T-8 the next one, which the T-8 switches to when the current pattern ends. The T-8 needs
+  the same patterns as the editor (**Write to T-8** first), `rXPc` on and `SYnC` set to AUTO or USB.
+
+**Save song** / **Open song…** use `.t8song` files, a small JSON format described in
+[docs/SONG-FORMAT.md](docs/SONG-FORMAT.md). A song refers to bank and pattern numbers, so it plays whatever patterns
+are open; the tempo is saved with it.
 
 ## Playing patterns
 

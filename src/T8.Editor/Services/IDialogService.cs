@@ -14,4 +14,10 @@ public interface IDialogService
 
     /// <summary>Shows the About window.</summary>
     Task ShowAboutAsync();
+
+    /// <summary>Asks for a .t8song file to open; null if cancelled.</summary>
+    Task<string?> PickSongToOpenAsync();
+
+    /// <summary>Asks where to save a .t8song file; null if cancelled.</summary>
+    Task<string?> PickSongToSaveAsync(string suggestedName);
 }

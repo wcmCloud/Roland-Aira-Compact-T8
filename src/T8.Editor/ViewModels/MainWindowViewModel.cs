@@ -8,7 +8,7 @@ using T8.Midi.Ports;
 
 namespace T8.Editor.ViewModels;
 
-public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
+public sealed partial class MainWindowViewModel : ObservableObject, IDisposable, ISongHost
 {
     private readonly IMidiPortProvider _ports;
     private readonly IDialogService _dialogs;
@@ -101,6 +101,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         }, OnPatternGenerated,
             () => (SelectedBank, SelectedPattern),
             (bank, pattern) => Library.Rhythm[bank - 1, pattern - 1]);
+        Song = new SongViewModel(this, dialogs);
         PatternBanks = Enumerable.Range(1, PatternLibrary.BankCount)
             .Select(bank => new PatternBankRow(bank, Enumerable.Range(1, PatternLibrary.PatternsPerBank)
                 .Select(pattern => new PatternSlotViewModel(bank, pattern, slot => SelectSlot(slot.Bank, slot.Pattern)))
@@ -114,6 +115,15 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         LoadSelectedPattern();
         RefreshPorts();
     }
+
+    /// <summary>The Song tab.</summary>
+    public SongViewModel Song { get; }
+
+    T8Controller? ISongHost.Controller() => Controller();
+
+    void ISongHost.StopPatternPlayback() => StopPlayback();
+
+    void ISongHost.ShowStatus(string text) => Status = text;
 
     /// <summary>The 4 × 16 grid of patterns, one row per bank.</summary>
     public IReadOnlyList<PatternBankRow> PatternBanks { get; }
@@ -231,6 +241,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     /// </summary>
     public void UpdatePlayhead()
     {
+        Song?.UpdatePosition();
         long? position = null;
         if (ShowPlayhead && IsPlaying)
             position = _controller?.CurrentStep;
@@ -603,6 +614,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 
     private void StartPlayback()
     {
+        Song?.Stop(); // a pattern and a song can't play at the same time
         if (Controller() is not { } t8)
             return;
         if (IsPaused)
@@ -735,6 +747,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         Rhythm = new RhythmEditorViewModel(CurrentRhythm, MarkDirty, AuditionDrum);
         BassGenerator.Target = Bass;
         RhythmGenerator.Target = Rhythm;
+        Song?.RefreshSteps();
         RefreshSlots();
         OnPropertyChanged(nameof(PatternLabel));
     }
@@ -743,6 +756,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         IsDirty = true;
         RefreshSlots();
+        Song?.RefreshSteps();
     }
 
     private void CloseController()
@@ -768,6 +782,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        Song?.Stop();
         CloseListener();
         _controller?.Dispose();
         _controller = null;

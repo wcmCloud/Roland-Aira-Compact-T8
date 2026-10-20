@@ -175,6 +175,54 @@
     <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
 
+  <!-- Song tab -->
+  <Style Selector="Grid.songColumns">
+    <Setter Property="ColumnSpacing" Value="8" />
+  </Style>
+  <Style Selector="Border.songRow">
+    <Setter Property="CornerRadius" Value="5" />
+    <Setter Property="Padding" Value="10,6" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="{StaticResource CardBorder}" />
+  </Style>
+  <Style Selector="Border.songRow.current">
+    <Setter Property="BorderBrush" Value="{StaticResource SectionGreen}" />
+  </Style>
+  <Style Selector="TextBlock.miniLabel">
+    <Setter Property="FontSize" Value="10.5" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="LetterSpacing" Value="1" />
+    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.mini">
+    <Setter Property="Padding" Value="7,3" />
+    <Setter Property="MinWidth" Value="28" />
+    <Setter Property="FontSize" Value="11" />
+  </Style>
+  <Style Selector="Button.swatch">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="2" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="HorizontalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ProgressBar.timeline">
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="34" />
+    <Setter Property="Height" Value="34" />
+    <Setter Property="CornerRadius" Value="4" />
+  </Style>
+  <Style Selector="ProgressBar.thin">
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="4" />
+    <Setter Property="Height" Value="4" />
+    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+    <Setter Property="Background" Value="#2A2A30" />
+  </Style>
+  <Style Selector="ProgressBar.thin.green">
+    <Setter Property="Foreground" Value="{StaticResource SectionGreen}" />
+  </Style>
+
   <!-- Tabs: smaller, like the S1 editor's -->
   <Style Selector="TabControl > TabItem">
     <Setter Property="FontSize" Value="15" />

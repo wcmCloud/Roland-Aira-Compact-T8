@@ -6,6 +6,20 @@ namespace T8.Editor.ViewModels;
 
 public static class Converters
 {
+    /// <summary>Fills are drawn a little dimmer than the entries on the song timeline.</summary>
+    public static readonly IValueConverter FillOpacity =
+        new FuncValueConverter<bool, double>(isFill => isFill ? 0.6 : 1.0);
+
+    /// <summary>"#RRGGBB" to a brush.</summary>
+    public static readonly IValueConverter HexBrush =
+        new FuncValueConverter<string?, IBrush>(hex => new SolidColorBrush(ParseColor(hex)));
+
+    /// <summary>"#RRGGBB" to a see-through tint of it, for backgrounds.</summary>
+    public static readonly IValueConverter HexTint =
+        new FuncValueConverter<string?, IBrush>(hex => new SolidColorBrush(ParseColor(hex), 0.28));
+
+    private static Color ParseColor(string? hex) => Color.TryParse(hex, out var color) ? color : Color.Parse("#FF7A1A");
+
     /// <summary>A channel number, or "OFF" for a part that is switched off.</summary>
     public static readonly IValueConverter ChannelName =
         new FuncValueConverter<int, string>(T8.Midi.T8MidiMap.ChannelName);

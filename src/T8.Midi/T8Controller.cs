@@ -3,6 +3,7 @@ using Melanchall.DryWetMidi.Core;
 using Melanchall.DryWetMidi.Interaction;
 using Melanchall.DryWetMidi.Multimedia;
 using T8.Core.Patterns;
+using T8.Core.Songs;
 using T8.Midi.Ports;
 
 namespace T8.Midi;
@@ -108,9 +109,53 @@ public sealed class T8Controller : IDisposable
             events.AddRange(fillEvents);
             _fillTicks = (long)fill.Length * PatternMidiBuilder.TicksPerStep;
         }
+        return StartPlayback(events, length, length + _fillTicks, bpm, loop);
+    }
+
+    /// <summary>
+    /// Plays a song through the T-8's sounds: every pass of the plan one after another, from pass
+    /// <paramref name="fromPass"/>, and round again from the start if <paramref name="loop"/> is set.
+    /// <see cref="CurrentStep"/> then counts steps from the start of the song.
+    /// </summary>
+    public Playback PlaySong(SongPlan plan, PatternLibrary library, double bpm, bool loop, int fromPass = 0)
+    {
+        StopPreview();
+
+        var builder = new PatternMidiBuilder { Map = Map };
+        var events = new List<TimedEvent>();
+        foreach (var pass in plan.Passes)
+        {
+            var bass = Map.BassOn ? library.Bass[pass.Bank - 1, pass.Pattern - 1] : null;
+            var rhythm = Map.RhythmOn ? library.Rhythm[pass.Bank - 1, pass.Pattern - 1] : null;
+            var offset = (long)pass.StartStep * PatternMidiBuilder.TicksPerStep;
+            foreach (var e in builder.Build(bass, rhythm, pass.Steps))
+            {
+                e.Time += offset;
+                events.Add(e);
+            }
+        }
+
+        var length = (long)plan.TotalSteps * PatternMidiBuilder.TicksPerStep;
+        _loopTicks = length;
+        _fillTicks = 0;
+        _msPerTick = 60_000.0 / (bpm * PatternMidiBuilder.TicksPerQuarterNote);
+        var playback = StartPlayback(events, length, length, bpm, loop);
+        if (fromPass > 0 && fromPass < plan.Passes.Count)
+            playback.MoveToTime(new MidiTimeSpan((long)plan.Passes[fromPass].StartStep * PatternMidiBuilder.TicksPerStep));
+        return playback;
+    }
+
+    /// <summary>True when a preview started by <see cref="PlaySong"/> or <see cref="PlayPreview"/> has played to its end.</summary>
+    public bool PreviewFinished => _preview is { IsRunning: false } && !_paused;
+
+    private bool _paused;
+
+    private Playback StartPlayback(List<TimedEvent> events, long playbackEnd, long timelineEnd, double bpm, bool loop)
+    {
+        _paused = false;
         // Playback ends at its last event, not at PlaybackEnd, so without this the loop would restart
         // right after the last note instead of at the end of the last step. Meta events aren't sent to the T-8.
-        events.Add(new TimedEvent(new MarkerEvent("Loop end"), length + _fillTicks));
+        events.Add(new TimedEvent(new MarkerEvent("Loop end"), timelineEnd));
         var tempoMap = PatternMidiBuilder.CreateTempoMap(bpm);
         var settings = new PlaybackSettings
         {
@@ -125,7 +170,7 @@ public sealed class T8Controller : IDisposable
         {
             Loop = loop,
             InterruptNotesOnStop = true,
-            PlaybackEnd = new MidiTimeSpan(length),
+            PlaybackEnd = new MidiTimeSpan(playbackEnd),
         };
         _preview.RepeatStarted += OnRepeatStarted;
         _preview.Start();
@@ -186,13 +231,17 @@ public sealed class T8Controller : IDisposable
         if (_preview is not { IsRunning: true } preview)
             return;
         preview.Stop();
+        _paused = true;
         AllNotesOff();
     }
 
     public void ResumePreview()
     {
         if (_preview is { IsRunning: false } preview)
+        {
+            _paused = false;
             preview.Start();
+        }
     }
 
     public void StopPreview()

@@ -158,6 +158,9 @@
           <views:BassEditorView DataContext="{Binding Bass}" />
         </DockPanel>
       </TabItem>
+      <TabItem Header="Song">
+        <views:SongView DataContext="{Binding Song}" />
+      </TabItem>
     </TabControl>
   </DockPanel>
 </Window>

@@ -56,6 +56,31 @@ public sealed class AvaloniaDialogService(Window owner) : IDialogService
 
     public Task ShowAboutAsync() => new AboutWindow().ShowDialog(owner);
 
+    private static readonly FilePickerFileType SongFiles = new("T-8 song") { Patterns = ["*" + T8.Core.Songs.Song.FileExtension] };
+
+    public async Task<string?> PickSongToOpenAsync()
+    {
+        var files = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = "Open song",
+            AllowMultiple = false,
+            FileTypeFilter = [SongFiles],
+        });
+        return files.Count > 0 ? files[0].TryGetLocalPath() : null;
+    }
+
+    public async Task<string?> PickSongToSaveAsync(string suggestedName)
+    {
+        var file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Save song",
+            SuggestedFileName = suggestedName + T8.Core.Songs.Song.FileExtension,
+            DefaultExtension = T8.Core.Songs.Song.FileExtension.TrimStart('.'),
+            FileTypeChoices = [SongFiles],
+        });
+        return file?.TryGetLocalPath();
+    }
+
     public async Task<bool> ShowMidiSettingsAsync(MidiSettingsViewModel settings)
     {
         var window = new MidiSettingsWindow { DataContext = settings };

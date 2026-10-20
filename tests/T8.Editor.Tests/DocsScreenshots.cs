@@ -99,6 +99,37 @@ public class DocsScreenshots
         CropRect(window, area, "bass-step-menu.png");
         menu.Close();
 
+        // Song tab: intro with a fill into the main part, then the outro; the main part playing.
+        window.FindControl<TabControl>("Tabs")!.SelectedIndex = 2;
+        var song = vm.Song;
+        song.Title = "Hardcore";
+        var intro = song.AddEntry(1, 1);
+        intro.Name = "Intro";
+        intro.HasFill = true;
+        var main = song.AddEntry(1, 3);
+        main.Name = "Main";
+        main.Repeats = 4;
+        var breakdown = song.AddEntry(1, 5);
+        breakdown.Name = "Breakdown";
+        breakdown.Repeats = 2;
+        breakdown.HasFill = true;
+        var outro = song.AddEntry(1, 7);
+        outro.Name = "Outro";
+        main.IsCurrent = true;
+        song.Timeline[0].Progress = 1;
+        song.Timeline[1].Progress = 1;
+        song.Timeline[2].Progress = 0.4;
+        song.CurrentText = "1-3 Main  (2/4)";
+        song.NextText = "1-3 Main";
+        song.PositionText = "Step 20 / 32 · 120 BPM";
+        song.TimeText = "00:52";
+        song.EntryProgress = 0.4;
+        song.SongProgress = 0.35;
+        vm.Status = "Playing \"Hardcore\" through the T-8's sounds.";
+        Settle(window);
+        Save(window, "main-song.png");
+        window.FindControl<TabControl>("Tabs")!.SelectedIndex = 0;
+
         // MIDI settings after detecting the T-8's channels.
         var settingsVm = new MidiSettingsViewModel(ports, vm.Settings)
         {

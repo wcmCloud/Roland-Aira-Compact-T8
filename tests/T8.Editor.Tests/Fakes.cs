@@ -25,6 +25,12 @@ internal sealed class FakeDialogService : IDialogService
 
     public Task<bool> ShowMidiSettingsAsync(MidiSettingsViewModel settings) => Task.FromResult(OnMidiSettings(settings));
 
+    public Queue<string?> SongFiles { get; } = new();
+
+    public Task<string?> PickSongToOpenAsync() => Task.FromResult(SongFiles.Count > 0 ? SongFiles.Dequeue() : null);
+
+    public Task<string?> PickSongToSaveAsync(string suggestedName) => Task.FromResult(SongFiles.Count > 0 ? SongFiles.Dequeue() : null);
+
     public int AboutCount { get; private set; }
 
     public Task ShowAboutAsync()
