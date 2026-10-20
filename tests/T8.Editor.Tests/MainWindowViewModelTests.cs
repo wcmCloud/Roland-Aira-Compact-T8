@@ -325,6 +325,25 @@ public class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Pattern_grid_marks_the_selection_empty_patterns_and_the_fill()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        var slots = _vm.PatternBanks.SelectMany(r => r.Slots).ToList();
+        Assert.Equal(64, slots.Count);
+        Assert.Single(slots, s => s.IsSelected);
+        Assert.True(slots.Single(s => s.Bank == 1 && s.Pattern == 16).IsFill);
+
+        _vm.PatternBanks[1].Slots[6].SelectCommand.Execute(null);
+        Assert.Equal((2, 7), (_vm.SelectedBank, _vm.SelectedPattern));
+        Assert.True(_vm.PatternBanks[1].Slots[6].IsSelected);
+        Assert.True(_vm.PatternBanks[1].Slots[15].IsFill);
+        Assert.False(_vm.PatternBanks[0].Slots[15].IsFill);
+
+        _vm.ClearPatternCommand.Execute(null);
+        Assert.True(_vm.PatternBanks[1].Slots[6].IsEmpty);
+    }
+
+    [Fact]
     public void Commands_without_a_port_explain_what_to_do()
     {
         using var vm = new MainWindowViewModel(new FakePortProvider(), _dialogs);

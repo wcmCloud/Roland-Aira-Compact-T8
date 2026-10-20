@@ -10,16 +10,16 @@
       <NumericUpDown x:Name="BassLength" Value="{Binding Length}" Minimum="1" Maximum="32" FormatString="0" Width="120" />
       <CheckBox x:Name="TripletCheck" Content="Triplet" IsChecked="{Binding Triplet}" />
       <TextBlock Classes="header" Text="Transpose" Margin="16,0,0,0" />
-      <Button Content="−12" Command="{Binding TransposeCommand}">
+      <Button Classes="seg" Content="−12" Command="{Binding TransposeCommand}">
         <Button.CommandParameter><x:Int32>-12</x:Int32></Button.CommandParameter>
       </Button>
-      <Button Content="−1" Command="{Binding TransposeCommand}">
+      <Button Classes="seg" Content="−1" Command="{Binding TransposeCommand}">
         <Button.CommandParameter><x:Int32>-1</x:Int32></Button.CommandParameter>
       </Button>
-      <Button Content="+1" Command="{Binding TransposeCommand}">
+      <Button Classes="seg" Content="+1" Command="{Binding TransposeCommand}">
         <Button.CommandParameter><x:Int32>1</x:Int32></Button.CommandParameter>
       </Button>
-      <Button Content="+12" Command="{Binding TransposeCommand}">
+      <Button Classes="seg" Content="+12" Command="{Binding TransposeCommand}">
         <Button.CommandParameter><x:Int32>12</x:Int32></Button.CommandParameter>
       </Button>
     </StackPanel>
@@ -54,9 +54,13 @@
 
         <!-- Keyboard: plays a note into the selected step -->
         <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,16,0,6">
-          <Button Content="‹" FontSize="16" Padding="12,2" Command="{Binding SelectPreviousCommand}" ToolTip.Tip="Select the previous step" />
+          <Button Classes="seg" Command="{Binding SelectPreviousCommand}" ToolTip.Tip="Select the previous step">
+            <PathIcon Data="{StaticResource IconLeft}" />
+          </Button>
           <TextBlock x:Name="SelectionText" Classes="header" Text="{Binding SelectionLabel}" MinWidth="150" />
-          <Button Content="›" FontSize="16" Padding="12,2" Command="{Binding SelectNextCommand}" ToolTip.Tip="Select the next step" />
+          <Button Classes="seg" Command="{Binding SelectNextCommand}" ToolTip.Tip="Select the next step">
+            <PathIcon Data="{StaticResource IconRight}" />
+          </Button>
           <CheckBox x:Name="AdvanceCheck" Content="Go to the next step after a note" IsChecked="{Binding AdvanceAfterNote}" Margin="8,0,0,0" />
           <TextBlock Text="Click a step, then a key. Right-click a step for all notes." Opacity="0.6" FontSize="12"
                      VerticalAlignment="Center" Margin="8,0,0,0" />

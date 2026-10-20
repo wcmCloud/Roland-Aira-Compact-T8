@@ -69,17 +69,45 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
-    public void Picking_a_pattern_in_the_selector_switches_pattern()
+    public void Clicking_a_cell_in_the_pattern_grid_switches_bank_and_pattern()
     {
         var (window, vm) = Show();
-        var picker = window.FindControl<ListBox>("PatternPicker")!;
+        window.UpdateLayout();
+        var grid = window.FindControl<ItemsControl>("PatternGrid")!;
+        var cell = grid.GetVisualDescendants().OfType<Button>()
+            .Single(b => b.DataContext is PatternSlotViewModel { Bank: 3, Pattern: 5 });
 
-        picker.SelectedItem = 5;
+        Click(window, cell);
 
-        Assert.Equal(5, vm.SelectedPattern);
-        Assert.Equal(vm.Library.Rhythm[0, 4].Length, vm.Rhythm.Length);
+        Assert.Equal((3, 5), (vm.SelectedBank, vm.SelectedPattern));
+        Assert.Equal(vm.Library.Rhythm[2, 4].Length, vm.Rhythm.Length);
+        Assert.Contains("selected", cell.Classes);
         window.Close();
         vm.Dispose();
+    }
+
+    [AvaloniaFact]
+    public void Knobs_turn_with_a_drag_and_the_wheel_and_reset()
+    {
+        var knob = new Knob { Minimum = 0, Maximum = 100, Value = 50, DefaultValue = 20 };
+        var window = new Window { Content = knob, Width = 200, Height = 200 };
+        window.Show();
+        window.UpdateLayout();
+        var center = knob.TranslatePoint(new Point(knob.Bounds.Width / 2, 20), window)!.Value;
+
+        window.MouseDown(center, MouseButton.Left);
+        window.MouseMove(center - new Point(0, 40)); // up 40 px of 160 for the range
+        window.MouseUp(center - new Point(0, 40), MouseButton.Left);
+        Assert.Equal(75, knob.Value);
+
+        knob.Nudge(-3);
+        Assert.Equal(72, knob.Value);
+        knob.Value = 500;
+        Assert.Equal(100, knob.Value);
+
+        knob.Reset();
+        Assert.Equal(20, knob.Value);
+        window.Close();
     }
 
     [AvaloniaFact]

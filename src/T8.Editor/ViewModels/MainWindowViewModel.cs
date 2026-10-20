@@ -90,8 +90,58 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         }, OnPatternGenerated,
             () => (SelectedBank, SelectedPattern),
             (bank, pattern) => Library.Rhythm[bank - 1, pattern - 1]);
+        PatternBanks = Enumerable.Range(1, PatternLibrary.BankCount)
+            .Select(bank => new PatternBankRow(bank, Enumerable.Range(1, PatternLibrary.PatternsPerBank)
+                .Select(pattern => new PatternSlotViewModel(bank, pattern, slot => SelectSlot(slot.Bank, slot.Pattern)))
+                .ToList()))
+            .ToList();
+        RhythmGenerator.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(RhythmGeneratorViewModel.FillPattern))
+                RefreshSlots();
+        };
         LoadSelectedPattern();
         RefreshPorts();
+    }
+
+    /// <summary>The 4 × 16 grid of patterns, one row per bank.</summary>
+    public IReadOnlyList<PatternBankRow> PatternBanks { get; }
+
+    /// <summary>Switches to a bank and pattern in one go (one load, one program change).</summary>
+    public void SelectSlot(int bank, int pattern)
+    {
+        if (bank == SelectedBank && pattern == SelectedPattern)
+            return;
+#pragma warning disable MVVMTK0034 // set both fields before reacting once
+        _selectedBank = bank;
+        _selectedPattern = pattern;
+#pragma warning restore MVVMTK0034
+        OnPropertyChanged(nameof(SelectedBank));
+        OnPropertyChanged(nameof(SelectedPattern));
+        OnSelectionChanged();
+    }
+
+    /// <summary>Updates which grid cells are selected, empty and the fill pattern.</summary>
+    private void RefreshSlots()
+    {
+        if (PatternBanks is null)
+            return;
+        foreach (var row in PatternBanks)
+        {
+            foreach (var slot in row.Slots)
+            {
+                slot.IsSelected = slot.Bank == SelectedBank && slot.Pattern == SelectedPattern;
+                slot.IsFill = slot.Bank == SelectedBank && slot.Pattern == RhythmGenerator.FillPattern;
+                slot.IsEmpty = IsEmpty(slot.Bank, slot.Pattern);
+            }
+        }
+    }
+
+    private bool IsEmpty(int bank, int pattern)
+    {
+        var bass = Library.Bass[bank - 1, pattern - 1];
+        var rhythm = Library.Rhythm[bank - 1, pattern - 1];
+        return bass.Steps.All(s => s.State == BassStepState.Off) && rhythm.Steps.All(s => s.Cells.All(c => !c.On));
     }
 
     public BassGeneratorViewModel BassGenerator { get; }
@@ -559,10 +609,15 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         Rhythm = new RhythmEditorViewModel(CurrentRhythm, MarkDirty, AuditionDrum);
         BassGenerator.Target = Bass;
         RhythmGenerator.Target = Rhythm;
+        RefreshSlots();
         OnPropertyChanged(nameof(PatternLabel));
     }
 
-    private void MarkDirty() => IsDirty = true;
+    private void MarkDirty()
+    {
+        IsDirty = true;
+        RefreshSlots();
+    }
 
     private void CloseController()
     {

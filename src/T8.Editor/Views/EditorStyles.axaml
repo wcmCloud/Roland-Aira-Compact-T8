@@ -7,7 +7,178 @@
     <SolidColorBrush x:Key="CellOffBeat" Color="#3A3A40" />
     <SolidColorBrush x:Key="Playing" Color="#FFD23F" />
     <SolidColorBrush x:Key="PlayingDim" Color="#5C4A12" />
+    <SolidColorBrush x:Key="WindowBg" Color="#111113" />
+    <!-- Icons: Material Design Icons (Apache 2.0) -->
+    <StreamGeometry x:Key="IconCog">M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.34 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.34 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.03 4.95,18.95L7.44,17.94C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.67 16.04,18.34 16.56,17.94L19.05,18.95C19.27,19.03 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z</StreamGeometry>
+    <StreamGeometry x:Key="IconRefresh">M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z</StreamGeometry>
+    <StreamGeometry x:Key="IconPlay">M8,5.14V19.14L19,12.14L8,5.14Z</StreamGeometry>
+    <StreamGeometry x:Key="IconStop">M18,18H6V6H18V18Z</StreamGeometry>
+    <StreamGeometry x:Key="IconLeft">M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z</StreamGeometry>
+    <StreamGeometry x:Key="IconRight">M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z</StreamGeometry>
+    <StreamGeometry x:Key="IconDice">M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M7,5A2,2 0 0,0 5,7A2,2 0 0,0 7,9A2,2 0 0,0 9,7A2,2 0 0,0 7,5M17,15A2,2 0 0,0 15,17A2,2 0 0,0 17,19A2,2 0 0,0 19,17A2,2 0 0,0 17,15M17,5A2,2 0 0,0 15,7A2,2 0 0,0 17,9A2,2 0 0,0 19,7A2,2 0 0,0 17,5M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M7,15A2,2 0 0,0 5,17A2,2 0 0,0 7,19A2,2 0 0,0 9,17A2,2 0 0,0 7,15Z</StreamGeometry>
+    <SolidColorBrush x:Key="BarBg" Color="#0B0B0D" />
+    <SolidColorBrush x:Key="CardBg" Color="#18181C" />
+    <SolidColorBrush x:Key="CardBorder" Color="#29292F" />
+    <SolidColorBrush x:Key="Outline" Color="#34343B" />
+    <SolidColorBrush x:Key="MutedText" Color="#9A9AA2" />
+    <SolidColorBrush x:Key="SectionOrange" Color="#FF7A1A" />
+    <SolidColorBrush x:Key="SectionGreen" Color="#4CD38A" />
+    <SolidColorBrush x:Key="SectionBlue" Color="#4AA8FF" />
+    <SolidColorBrush x:Key="SectionPink" Color="#FF5C8A" />
+    <SolidColorBrush x:Key="SectionPurple" Color="#B57BFF" />
   </Styles.Resources>
+
+  <!-- Window chrome: top bar, cards with a coloured dot and title -->
+  <Style Selector="Border.topbar">
+    <Setter Property="Background" Value="{StaticResource BarBg}" />
+    <Setter Property="BorderBrush" Value="{StaticResource CardBorder}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="Padding" Value="12,7" />
+  </Style>
+  <Style Selector="Border.card, Border.panel">
+    <Setter Property="Background" Value="{StaticResource CardBg}" />
+    <Setter Property="BorderBrush" Value="{StaticResource CardBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Padding" Value="12,9" />
+  </Style>
+  <Style Selector="TextBlock.cardTitle">
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="LetterSpacing" Value="1.2" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Ellipse.dot">
+    <Setter Property="Width" Value="8" />
+    <Setter Property="Height" Value="8" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.logo">
+    <Setter Property="FontSize" Value="17" />
+    <Setter Property="FontWeight" Value="Black" />
+    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.logoSub">
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LetterSpacing" Value="1.5" />
+    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <!-- Top bar buttons -->
+  <Style Selector="Button.tool">
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="Padding" Value="11,5" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Background" Value="#1D1D22" />
+    <Setter Property="BorderBrush" Value="{StaticResource Outline}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+  <Style Selector="Button.icon">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="Padding" Value="8,2" />
+    <Setter Property="MinWidth" Value="32" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="PathIcon">
+    <Setter Property="Width" Value="14" />
+    <Setter Property="Height" Value="14" />
+  </Style>
+  <Style Selector="Button.icon PathIcon">
+    <Setter Property="Width" Value="16" />
+    <Setter Property="Height" Value="16" />
+  </Style>
+  <Style Selector="Rectangle.divider">
+    <Setter Property="Width" Value="1" />
+    <Setter Property="Height" Value="20" />
+    <Setter Property="Fill" Value="{StaticResource Outline}" />
+    <Setter Property="Margin" Value="8,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <!-- Outlined segmented buttons: the selected one lights up in its colour -->
+  <Style Selector="ToggleButton.seg, Button.seg">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{StaticResource Outline}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Foreground" Value="#C2C2CA" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Padding" Value="11,4" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ToggleButton.seg /template/ ContentPresenter, Button.seg /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ToggleButton.seg:pointerover /template/ ContentPresenter, Button.seg:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#22FFFFFF" />
+    <Setter Property="BorderBrush" Value="#55555E" />
+  </Style>
+  <Style Selector="ToggleButton.seg:checked /template/ ContentPresenter, Button.seg.active /template/ ContentPresenter">
+    <Setter Property="Background" Value="#1FFF7A1A" />
+    <Setter Property="BorderBrush" Value="{StaticResource T8Orange}" />
+    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+  </Style>
+  <Style Selector="ToggleButton.seg.green:checked /template/ ContentPresenter, Button.seg.green.active /template/ ContentPresenter">
+    <Setter Property="Background" Value="#1F4CD38A" />
+    <Setter Property="BorderBrush" Value="{StaticResource SectionGreen}" />
+    <Setter Property="Foreground" Value="{StaticResource SectionGreen}" />
+  </Style>
+  <Style Selector="ToggleButton.seg.blue:checked /template/ ContentPresenter">
+    <Setter Property="Background" Value="#1F4AA8FF" />
+    <Setter Property="BorderBrush" Value="{StaticResource SectionBlue}" />
+    <Setter Property="Foreground" Value="{StaticResource SectionBlue}" />
+  </Style>
+  <Style Selector="Button.seg:disabled /template/ ContentPresenter">
+    <Setter Property="Opacity" Value="0.45" />
+  </Style>
+
+  <!-- Bank × pattern grid -->
+  <Style Selector="Button.slot">
+    <Setter Property="Width" Value="40" />
+    <Setter Property="Height" Value="22" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Margin" Value="0,0,4,0" />
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Background" Value="#202025" />
+    <Setter Property="BorderBrush" Value="{StaticResource Outline}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Foreground" Value="#D8D8DE" />
+  </Style>
+  <Style Selector="Button.slot.empty">
+    <Setter Property="Foreground" Value="#5E5E66" />
+    <Setter Property="Background" Value="#18181C" />
+  </Style>
+  <Style Selector="Button.slot.fill /template/ ContentPresenter">
+    <Setter Property="BorderBrush" Value="{StaticResource SectionBlue}" />
+  </Style>
+  <Style Selector="Button.slot.selected /template/ ContentPresenter">
+    <Setter Property="Background" Value="#2AFF7A1A" />
+    <Setter Property="BorderBrush" Value="{StaticResource T8Orange}" />
+    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+  <Style Selector="TextBlock.bankLabel">
+    <Setter Property="FontSize" Value="10.5" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+    <Setter Property="Width" Value="52" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <!-- Tabs: smaller, like the S1 editor's -->
+  <Style Selector="TabControl > TabItem">
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="MinHeight" Value="34" />
+    <Setter Property="Padding" Value="14,0" />
+  </Style>
 
   <!-- Rhythm grid cells -->
   <Style Selector="ToggleButton.cell">
@@ -91,17 +262,10 @@
   </Style>
 
   <!-- Bass generator -->
-  <Style Selector="Border.panel">
-    <Setter Property="Background" Value="#16161A" />
-    <Setter Property="BorderBrush" Value="#2E2E34" />
-    <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="6" />
-    <Setter Property="Padding" Value="12,10" />
-  </Style>
-  <Style Selector="Border.panel TextBlock.label">
+  <Style Selector="Border.card TextBlock.label">
     <Setter Property="VerticalAlignment" Value="Center" />
-    <Setter Property="Margin" Value="12,0,6,0" />
-    <Setter Property="Opacity" Value="0.8" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
   </Style>
   <Style Selector="Border.panel WrapPanel > ComboBox">
     <Setter Property="Margin" Value="0,2" />
