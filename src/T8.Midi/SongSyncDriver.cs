@@ -60,8 +60,9 @@ public sealed class SongSyncDriver : IDisposable
             return;
         if (!_loop && step >= _plan.TotalSteps)
         {
-            _finished = true;
+            // Report finished only once Stop has been sent.
             Stop();
+            _finished = true;
             return;
         }
 
