@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/T8.Cli/T8.Cli.csproj" />
     <Project Path="src/T8.Core/T8.Core.csproj" />
+    <Project Path="src/T8.Midi/T8.Midi.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/T8.Core.Tests/T8.Core.Tests.csproj" />
