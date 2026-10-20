@@ -512,6 +512,7 @@ It builds the six packages, tags `v<version>`, and creates the GitHub release wi
 
 ### Plans
 
+Next step: **Setlist T-8**, a VST3/AU plugin that plays the editor's songs in sync with a DAW (parked for now).
 Features planned for later are written up in [docs/plans](docs/plans): a Mac App Store version, and song mode
 in a DAW (a VST3/AU plugin first, then MIDI export and following the DAW's clock).
 

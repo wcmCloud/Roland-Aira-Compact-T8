@@ -1,6 +1,6 @@
 # Song mode in a DAW
 
-**Status:** planned · **Priority: the VST3/AU plugin (option C) first** · **Goal:** use the editor's songs from a
+**Status:** parked — **next step** · **Priority: the VST3/AU plugin (option C) first** · **Goal:** use the editor's songs from a
 DAW (Ableton, Logic, Reaper, Cubase, Bitwig…)
 
 ## Options compared
