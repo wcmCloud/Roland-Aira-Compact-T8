@@ -87,7 +87,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         {
             Settings.RhythmGenerator = options;
             SaveSettings();
-        }, OnPatternGenerated);
+        }, OnPatternGenerated,
+            () => (SelectedBank, SelectedPattern),
+            (bank, pattern) => Library.Rhythm[bank - 1, pattern - 1]);
         LoadSelectedPattern();
         RefreshPorts();
     }
@@ -454,7 +456,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
                 return;
             }
 
-            t8.PlayPreview(CurrentBass, CurrentRhythm, Bpm);
+            t8.PlayPreview(CurrentBass, CurrentRhythm, Bpm, fill: FillRhythm);
             IsPlaying = true;
             Status = $"Playing {PatternLabel} at {Bpm:0} BPM through {SelectedPort!.Name}.";
         }
@@ -463,6 +465,33 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
             IsPlaying = false;
             Status = $"Couldn't play: {ex.Message}";
         }
+    }
+
+    /// <summary>The rhythm the Fill button plays: the generator's fill pattern in this bank, if it isn't this one.</summary>
+    private RhythmPattern? FillRhythm =>
+        RhythmGenerator.FillPattern == SelectedPattern ? null : Library.Rhythm[SelectedBank - 1, RhythmGenerator.FillPattern - 1];
+
+    /// <summary>
+    /// Plays the fill pattern once at the end of the current loop, then the main pattern again, like
+    /// FILL TRG on the T-8. Starts playback first if needed.
+    /// </summary>
+    [RelayCommand]
+    private void PlayFill()
+    {
+        if (Settings.PlayMode == PlayMode.SyncT8Sequencer)
+        {
+            Status = "The T-8 is running its own sequencer: press SHIFT + STEP 7 on the T-8 to play its fill.";
+            return;
+        }
+        if (FillRhythm is null)
+        {
+            Status = $"Pattern {SelectedPattern} is the fill pattern itself. Pick another fill pattern on the Rhythm tab.";
+            return;
+        }
+        if (!IsPlaying)
+            StartPlayback();
+        if (_controller?.QueueFill() == true)
+            Status = $"Fill: bank {SelectedBank} pattern {RhythmGenerator.FillPattern} plays after this loop, then {PatternLabel} again.";
     }
 
     private void StopPlayback()

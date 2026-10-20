@@ -19,8 +19,13 @@
           <ToggleButton Classes="instrument" Content="CH" IsChecked="{Binding ClosedHat}" ToolTip.Tip="Closed hi-hat" />
           <ToggleButton Classes="instrument" Content="OH" IsChecked="{Binding OpenHat}" ToolTip.Tip="Open hi-hat" />
         </StackPanel>
-        <CheckBox x:Name="FillCheck" Content="Fill at the end" IsChecked="{Binding Fill}" Margin="16,0,0,0"
+        <CheckBox x:Name="FillCheck" Content="Build-up at the end" IsChecked="{Binding Fill}" Margin="16,0,0,0"
                   ToolTip.Tip="Snare and tom fill in the last four steps" />
+        <TextBlock Classes="label" Text="Fill pattern" Margin="24,0,6,0" />
+        <ComboBox x:Name="FillPatternPicker" ItemsSource="{x:Static vm:RhythmGeneratorViewModel.PatternNumbers}" SelectedItem="{Binding FillPattern}" Width="70"
+                  ToolTip.Tip="Pattern in this bank that Make fill writes to and the Fill button plays" />
+        <Button x:Name="MakeFillButton" Content="Make fill" Command="{Binding MakeFillCommand}" Margin="8,0,0,0"
+                ToolTip.Tip="Write a fill for this pattern into the fill pattern: the groove, then a build-up. On the T-8, SHIFT + STEP 8 picks it as the fill" />
       </WrapPanel>
 
       <!-- Chances -->

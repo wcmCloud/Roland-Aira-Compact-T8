@@ -302,6 +302,29 @@ public class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Fill_button_queues_the_fill_pattern_while_previewing()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        _vm.RhythmGenerator.FillPattern = 16;
+
+        _vm.PlayFillCommand.Execute(null);
+
+        Assert.True(_vm.IsPlaying);
+        Assert.Contains("pattern 16 plays after this loop", _vm.Status);
+        _vm.StopCommand.Execute(null);
+    }
+
+    [Fact]
+    public void Fill_button_explains_when_it_cannot_play_a_fill()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        _vm.RhythmGenerator.FillPattern = 1; // the pattern being edited
+        _vm.PlayFillCommand.Execute(null);
+        Assert.Contains("is the fill pattern itself", _vm.Status);
+        Assert.False(_vm.IsPlaying);
+    }
+
+    [Fact]
     public void Commands_without_a_port_explain_what_to_do()
     {
         using var vm = new MainWindowViewModel(new FakePortProvider(), _dialogs);

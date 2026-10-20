@@ -141,6 +141,47 @@ public class ControllerTests
     }
 
     [Fact]
+    public void Queued_fill_plays_once_after_the_loop_then_the_main_pattern_returns()
+    {
+        var main = new RhythmPattern { Length = 4 };
+        main.Steps[0][RhythmTrack.BD].On = true;
+        main.Steps[0][RhythmTrack.BD].Velocity = 9;
+        var fill = new RhythmPattern { Length = 4 };
+        fill.Steps[0][RhythmTrack.SD].On = true;
+        fill.Steps[0][RhythmTrack.SD].Velocity = 9;
+
+        using var t8 = CreateController();
+        var finished = new ManualResetEventSlim();
+        t8.FillFinished += (_, _) => finished.Set();
+        Assert.False(t8.QueueFill()); // nothing playing yet
+
+        t8.PlayPreview(null, main, bpm: 300, fill: fill); // a step is 50 ms, a loop 200 ms
+        Thread.Sleep(250);
+        Assert.DoesNotContain(_device.Events, e => e is NoteOnEvent n && n.NoteNumber == 38);
+
+        Assert.True(t8.QueueFill());
+        Assert.True(t8.IsFillPending);
+        Assert.True(finished.Wait(TimeSpan.FromSeconds(3)));
+        Assert.False(t8.IsFillPending);
+        var afterFill = _device.Events.Count;
+        Thread.Sleep(300);
+        t8.StopPreview();
+
+        var notes = _device.Events.OfType<NoteOnEvent>().Select(n => (int)n.NoteNumber).ToList();
+        Assert.Equal(1, notes.Count(n => n == 38));
+        Assert.Contains(_device.Events.Skip(afterFill), e => e is NoteOnEvent n && n.NoteNumber == 36);
+    }
+
+    [Fact]
+    public void Preview_without_a_fill_cannot_queue_one()
+    {
+        using var t8 = CreateController();
+        t8.PlayPreview(null, new RhythmPattern(), bpm: 120);
+        Assert.False(t8.QueueFill());
+        t8.StopPreview();
+    }
+
+    [Fact]
     public void Starting_a_new_preview_replaces_the_old_one()
     {
         using var t8 = CreateController();

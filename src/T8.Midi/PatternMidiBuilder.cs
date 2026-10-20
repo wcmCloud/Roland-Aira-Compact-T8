@@ -41,10 +41,12 @@ public sealed class PatternMidiBuilder
         static int Gcd(int x, int y) => y == 0 ? x : Gcd(y, x % y);
     }
 
-    public List<TimedEvent> Build(BassPattern? bass, RhythmPattern? rhythm)
+    public List<TimedEvent> Build(BassPattern? bass, RhythmPattern? rhythm) => Build(bass, rhythm, LoopSteps(bass, rhythm));
+
+    /// <summary>Events for a given number of steps, each part looping on its own length.</summary>
+    public List<TimedEvent> Build(BassPattern? bass, RhythmPattern? rhythm, int totalSteps)
     {
         var random = Seed is { } seed ? new Random(seed) : new Random();
-        var totalSteps = LoopSteps(bass, rhythm);
         var events = new List<TimedEvent>();
 
         if (rhythm is not null)

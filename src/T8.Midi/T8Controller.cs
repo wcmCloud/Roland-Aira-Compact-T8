@@ -64,16 +64,40 @@ public sealed class T8Controller : IDisposable
     /// </summary>
     public bool IsPreviewPlaying => _preview?.IsRunning == true;
 
-    public Playback PlayPreview(BassPattern? bass, RhythmPattern? rhythm, double bpm, bool loop = true, int? seed = null)
+    private long _loopTicks;
+    private long _fillTicks;
+
+    /// <summary>Raised (on the playback thread) when a queued fill has played and the main loop is back.</summary>
+    public event EventHandler? FillFinished;
+
+    /// <summary>True while a fill set up by <see cref="PlayPreview"/> is queued or playing.</summary>
+    public bool IsFillPending => _preview is { } p && p.PlaybackEnd is MidiTimeSpan end && end.TimeSpan > _loopTicks;
+
+    /// <param name="fill">
+    /// A rhythm to play once in place of the main rhythm when <see cref="QueueFill"/> is called, like
+    /// the T-8's FILL TRG. The bass keeps playing under it.
+    /// </param>
+    public Playback PlayPreview(BassPattern? bass, RhythmPattern? rhythm, double bpm, bool loop = true, int? seed = null, RhythmPattern? fill = null)
     {
         StopPreview();
 
         var builder = new PatternMidiBuilder { Map = Map, Seed = seed };
         var events = builder.Build(bass, rhythm);
         var length = builder.LengthInTicks(bass, rhythm);
+        _loopTicks = length;
+        _fillTicks = 0;
+        if (fill is not null)
+        {
+            // The fill sits after the main loop; PlaybackEnd keeps it out until it is queued.
+            var fillEvents = builder.Build(bass, fill, fill.Length);
+            foreach (var e in fillEvents)
+                e.Time += length;
+            events.AddRange(fillEvents);
+            _fillTicks = (long)fill.Length * PatternMidiBuilder.TicksPerStep;
+        }
         // Playback ends at its last event, not at PlaybackEnd, so without this the loop would restart
         // right after the last note instead of at the end of the last step. Meta events aren't sent to the T-8.
-        events.Add(new TimedEvent(new MarkerEvent("Loop end"), length));
+        events.Add(new TimedEvent(new MarkerEvent("Loop end"), length + _fillTicks));
         var tempoMap = PatternMidiBuilder.CreateTempoMap(bpm);
         var settings = new PlaybackSettings
         {
@@ -89,8 +113,30 @@ public sealed class T8Controller : IDisposable
             InterruptNotesOnStop = true,
             PlaybackEnd = new MidiTimeSpan(length),
         };
+        _preview.RepeatStarted += OnRepeatStarted;
         _preview.Start();
         return _preview;
+    }
+
+    /// <summary>
+    /// Plays the fill given to <see cref="PlayPreview"/> once, starting at the end of the current loop,
+    /// then goes back to the main loop. False when there is no fill or no preview playing.
+    /// </summary>
+    public bool QueueFill()
+    {
+        if (_preview is not { IsRunning: true } preview || _fillTicks == 0)
+            return false;
+        preview.PlaybackEnd = new MidiTimeSpan(_loopTicks + _fillTicks);
+        return true;
+    }
+
+    private void OnRepeatStarted(object? sender, EventArgs e)
+    {
+        if (sender is not Playback preview || preview.PlaybackEnd is not MidiTimeSpan end || end.TimeSpan <= _loopTicks)
+            return;
+        // Wrapping to the start with the end past the main loop means the fill has just played.
+        preview.PlaybackEnd = new MidiTimeSpan(_loopTicks);
+        FillFinished?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -102,7 +148,11 @@ public sealed class T8Controller : IDisposable
         get
         {
             if (_preview is { IsRunning: true } preview)
-                return preview.GetCurrentTime<MidiTimeSpan>().TimeSpan / PatternMidiBuilder.TicksPerStep;
+            {
+                var ticks = preview.GetCurrentTime<MidiTimeSpan>().TimeSpan;
+                // During a fill the main pattern isn't playing, so there is no step of it to show.
+                return ticks >= _loopTicks ? null : ticks / PatternMidiBuilder.TicksPerStep;
+            }
             return Clock.IsRunning ? Clock.CurrentStep : null;
         }
     }

@@ -60,6 +60,8 @@
       <NumericUpDown x:Name="BpmInput" Value="{Binding Bpm}" Minimum="20" Maximum="300" Increment="1" FormatString="0" Width="120" />
       <Button x:Name="PlayButton" Content="► Play" Command="{Binding PlayCommand}" ToolTip.Tip="Play this pattern through the T-8's sounds" />
       <Button x:Name="StopButton" Content="■ Stop" Command="{Binding StopCommand}" />
+      <Button x:Name="FillButton" Content="Fill" Command="{Binding PlayFillCommand}"
+              ToolTip.Tip="Play the fill pattern once after this loop, like FILL TRG on the T-8 (set the fill pattern on the Rhythm tab)" />
       <Button x:Name="SelectOnT8Button" Content="Select on T-8" Command="{Binding SelectOnT8Command}"
               ToolTip.Tip="Switch the T-8 to this bank and pattern (needs RX Program Change on)" />
       <CheckBox x:Name="AuditionCheck" Content="Audition steps" IsChecked="{Binding AuditionEnabled}" />

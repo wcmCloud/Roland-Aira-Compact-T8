@@ -51,6 +51,9 @@ public sealed class RhythmGeneratorOptions
 
     public int Seed { get; set; } = 1;
 
+    /// <summary>Pattern number (1–16) in the current bank that Make fill writes to.</summary>
+    public int FillPattern { get; set; } = 16;
+
     public RhythmGeneratorOptions Clone() => (RhythmGeneratorOptions)MemberwiseClone();
 }
 
@@ -247,6 +250,79 @@ public static class RhythmGenerator
             if (step.Cells.Any(c => c.On) && random.Next(100) < accentChance)
                 Hit(step[RhythmTrack.AC], velocity: 10);
         }
+    }
+
+    /// <summary>
+    /// Writes a fill for <paramref name="source"/> into <paramref name="target"/>: the same length,
+    /// shuffle and flam, the groove kept for the first half, then a build-up of snare and tom hits
+    /// that get denser, louder and rolled towards the end, finishing on kick, open hat and accent.
+    /// Assign the target on the T-8 as its fill pattern (SHIFT + STEP 8) and trigger it with
+    /// SHIFT + STEP 7.
+    /// </summary>
+    public static void GenerateFill(RhythmPattern source, RhythmPattern target, RhythmGeneratorOptions options)
+    {
+        var random = new Random(options.Seed ^ 0x5F11);
+        target.Length = source.Length;
+        target.Scale = source.Scale;
+        target.Shuffle = source.Shuffle;
+        target.Flam = source.Flam;
+        for (var s = 0; s < RhythmPattern.StepCount; s++)
+        {
+            for (var t = 0; t < RhythmPattern.TrackCount; t++)
+                Copy(source.Steps[s].Cells[t], target.Steps[s].Cells[t]);
+        }
+
+        var length = source.Length;
+        var start = length >= 8 ? length / 2 : 0;
+        for (var n = start; n < length; n++)
+        {
+            var step = target.Steps[n];
+            // 0 at the start of the build-up, 1 on the last step.
+            var t = length - 1 == start ? 1.0 : (double)(n - start) / (length - 1 - start);
+
+            // Make room: the groove's snare, tom, clap and closed hat give way to the fill.
+            foreach (var track in new[] { RhythmTrack.SD, RhythmTrack.LT, RhythmTrack.HT, RhythmTrack.CH })
+            {
+                if (random.NextDouble() < 0.4 + 0.5 * t)
+                    Reset(step[track]);
+            }
+            if (n % 4 != 0)
+                Reset(step[RhythmTrack.BD]);
+
+            var drum = options.Tom && (!options.Snare || random.NextDouble() < 0.35 + 0.2 * t) ? RhythmTrack.LT : RhythmTrack.SD;
+            if (!Enabled(options, drum))
+                drum = Enabled(options, RhythmTrack.SD) ? RhythmTrack.SD : RhythmTrack.LT;
+            if (Enabled(options, drum) && random.NextDouble() < 0.35 + 0.6 * t)
+            {
+                var cell = step[drum];
+                Hit(cell, Math.Clamp(5 + (int)Math.Round(5 * t) + random.Next(2) - 1, 4, 10));
+                var roll = random.NextDouble();
+                if (roll < 0.15 + 0.5 * t)
+                    cell.SubStep = t > 0.6 && random.Next(2) == 0 ? SubStep.Quarter : t > 0.3 ? SubStep.Third : SubStep.Half;
+                if (random.Next(100) < options.AccentChance + (int)(40 * t))
+                    Hit(step[RhythmTrack.AC], velocity: 10);
+            }
+        }
+
+        // Land on the last step: kick, open hat and accent, like a crash.
+        var last = target.Steps[length - 1];
+        if (options.BassDrum)
+            Hit(last[RhythmTrack.BD], 10);
+        if (options.OpenHat)
+        {
+            Hit(last[RhythmTrack.OH], 10);
+            Reset(last[RhythmTrack.CH]);
+        }
+        Hit(last[RhythmTrack.AC], 10);
+    }
+
+    private static void Copy(RhythmCell from, RhythmCell to)
+    {
+        to.On = from.On;
+        to.Velocity = from.Velocity;
+        to.SubStep = from.SubStep;
+        to.Probability = from.Probability;
+        to.SubStepProbability = from.SubStepProbability;
     }
 
     public static bool Enabled(RhythmGeneratorOptions options, RhythmTrack track) => track switch

@@ -50,7 +50,13 @@ Settings are saved in your user profile (`T8Editor/settings.json` in the app dat
   four-on-the-floor kick) and hits that play by chance; **Density** thins or fills those, **Variation** adds
   and drops hits off the style. Pick which instruments to use, and the chances of accents, ghost notes and
   rolls. **Live variation** gives some hits a T-8 step probability below 100%, so the T-8 itself varies the
-  pattern on every loop. **Fill at the end** adds a snare/tom fill in the last four steps.
+  pattern on every loop. **Build-up at the end** adds snare/tom hits in the last four steps.
+- **Fills.** On the T-8 a fill is another pattern: SHIFT + STEP 8 (FILL PTN) picks it, SHIFT + STEP 7 (FILL TRG)
+  plays it once. **Make fill** writes a fill for the current pattern into the **Fill pattern** of the same bank
+  (16 by default): the groove for the first half, then snare and tom hits that get denser, louder and rolled,
+  landing on kick, open hat and accent. The **Fill** button next to Stop plays it once after the current loop
+  and returns to the pattern, so you can hear the transition before writing to the T-8. The T-8 has no MIDI
+  messages for its fill, so pick the fill pattern on the T-8 itself.
 - With **Show playing step** on, the step being played and the bass note sounding light up in yellow.
 
 ### Getting patterns on and off the T-8

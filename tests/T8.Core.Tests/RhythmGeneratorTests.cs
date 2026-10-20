@@ -125,3 +125,69 @@ public class RhythmGeneratorTests
     private static string Describe(RhythmPattern pattern) =>
         string.Join(",", pattern.Steps.SelectMany(s => s.Cells).Select(c => c.ToString()));
 }
+
+public class RhythmFillTests
+{
+    private static RhythmPattern Groove()
+    {
+        var groove = new RhythmPattern { Length = 16, Shuffle = 40 };
+        RhythmGenerator.Generate(groove, new RhythmGeneratorOptions { Style = RhythmStyle.House, Variation = 0 });
+        return groove;
+    }
+
+    [Fact]
+    public void Keeps_the_groove_for_the_first_half_and_settings()
+    {
+        var groove = Groove();
+        var fill = new RhythmPattern();
+        RhythmGenerator.GenerateFill(groove, fill, new RhythmGeneratorOptions());
+
+        Assert.Equal((16, 40), (fill.Length, fill.Shuffle));
+        for (var n = 0; n < 8; n++)
+            Assert.Equal(groove.Steps[n].Cells.Select(c => c.ToString()), fill.Steps[n].Cells.Select(c => c.ToString()));
+        Assert.NotEqual(Describe(groove), Describe(fill));
+    }
+
+    [Fact]
+    public void Builds_up_with_snare_or_tom_and_lands_on_kick_open_hat_and_accent()
+    {
+        for (var seed = 1; seed <= 10; seed++)
+        {
+            var fill = new RhythmPattern();
+            RhythmGenerator.GenerateFill(Groove(), fill, new RhythmGeneratorOptions { Seed = seed });
+
+            var secondHalf = fill.Steps.Skip(8).Take(8).Count(s => s[RhythmTrack.SD].On || s[RhythmTrack.LT].On);
+            Assert.True(secondHalf >= 2, $"seed {seed}: {secondHalf} hits");
+            var last = fill.Steps[15];
+            Assert.True(last[RhythmTrack.BD].On && last[RhythmTrack.OH].On && last[RhythmTrack.AC].On);
+            Assert.False(last[RhythmTrack.CH].On);
+        }
+    }
+
+    [Fact]
+    public void Gets_denser_towards_the_end()
+    {
+        var early = 0;
+        var late = 0;
+        for (var seed = 1; seed <= 40; seed++)
+        {
+            var fill = new RhythmPattern();
+            RhythmGenerator.GenerateFill(Groove(), fill, new RhythmGeneratorOptions { Seed = seed });
+            early += fill.Steps.Skip(8).Take(3).Count(s => s[RhythmTrack.SD].On || s[RhythmTrack.LT].On);
+            late += fill.Steps.Skip(12).Take(3).Count(s => s[RhythmTrack.SD].On || s[RhythmTrack.LT].On);
+        }
+        Assert.True(late > early, $"early {early}, late {late}");
+    }
+
+    [Fact]
+    public void Leaves_the_source_untouched()
+    {
+        var groove = Groove();
+        var before = Describe(groove);
+        RhythmGenerator.GenerateFill(groove, new RhythmPattern(), new RhythmGeneratorOptions());
+        Assert.Equal(before, Describe(groove));
+    }
+
+    private static string Describe(RhythmPattern pattern) =>
+        string.Join(",", pattern.Steps.SelectMany(s => s.Cells).Select(c => c.ToString()));
+}
