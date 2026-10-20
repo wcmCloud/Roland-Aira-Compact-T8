@@ -510,6 +510,11 @@ It builds the six packages, tags `v<version>`, and creates the GitHub release wi
 | `src/T8.Cli` | Command-line tool (`t8`) for the MIDI side |
 | `tests/*.Tests` | One test project per project above, including headless UI tests of the editor |
 
+### Plans
+
+Features planned for later are written up in [docs/plans](docs/plans): a Mac App Store version, and song mode
+in a DAW (MIDI export, following the DAW's clock, a VST3/AU plugin).
+
 ### Tests and screenshots
 
 ```sh
