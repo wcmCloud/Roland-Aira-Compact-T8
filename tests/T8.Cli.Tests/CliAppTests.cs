@@ -55,6 +55,27 @@ public class CliAppTests
     }
 
     [Fact]
+    public void Detect_prints_the_channels_to_use()
+    {
+        var ports = FakePortProvider.WithT8();
+        ports.InputEvents.Add(new NoteOnEvent((Melanchall.DryWetMidi.Common.SevenBitNumber)36, (Melanchall.DryWetMidi.Common.SevenBitNumber)100)
+        {
+            Channel = (Melanchall.DryWetMidi.Common.FourBitNumber)4,
+        });
+
+        Assert.Equal(0, Run(ports, "detect", "--seconds", "0.1"));
+        Assert.Contains("Detected rhythm 5.", _out.ToString());
+        Assert.Contains("Use: --bass-ch 2 --rhythm-ch 5 --pc-ch 16", _out.ToString());
+    }
+
+    [Fact]
+    public void Detect_fails_when_the_t8_plays_nothing()
+    {
+        Assert.Equal(1, Run("detect", "--seconds", "0.1"));
+        Assert.Contains("Press Start on the T-8", _out.ToString());
+    }
+
+    [Fact]
     public void Test_fails_when_the_t8_is_silent()
     {
         var ports = FakePortProvider.WithT8();

@@ -87,6 +87,9 @@ internal sealed class FakePortProvider(params MidiPortInfo[] ports) : IMidiPortP
 
     public bool FailOutputs { get; set; }
 
+    /// <summary>More events opened inputs send when listening starts, like notes from the T-8's sequencer.</summary>
+    public List<MidiEvent> InputEvents { get; } = new();
+
     public IReadOnlyList<MidiPortInfo> ListOutputs() => ports;
 
     public IOutputDevice OpenOutput(MidiPortInfo port)
@@ -105,6 +108,7 @@ internal sealed class FakePortProvider(params MidiPortInfo[] ports) : IMidiPortP
         var device = new FakeInputDevice();
         if (InputsRespond)
             device.SendOnStart.Add(new ActiveSensingEvent());
+        device.SendOnStart.AddRange(InputEvents);
         OpenedInputs.Add(device);
         return device;
     }

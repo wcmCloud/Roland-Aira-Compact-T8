@@ -13,6 +13,7 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
 
           ports                                   List MIDI outputs and inputs
           test                                    Test the connection: play test sounds and listen for the T-8
+          detect [--seconds 20]                   Find the T-8's bass and rhythm channels: press Start on the T-8
           select <bank> <pattern>                 Switch the T-8 to a pattern (needs rXPc on)
           preview <folder> <bank> <pattern>       Play a .PRM pattern through the T-8's sounds
                   [--bpm 120] [--part both|bass|rhythm]
@@ -43,6 +44,7 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
             {
                 "ports" => ListPorts(),
                 "test" => TestConnection(),
+                "detect" => DetectChannels(),
                 "select" => Select(),
                 "preview" => Preview(),
                 "clock" => RunClock(),
@@ -82,6 +84,21 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
             output.WriteLine($"  {line}");
         output.WriteLine(result.Summary);
         return result.Success ? 0 : 1;
+    }
+
+    private int DetectChannels()
+    {
+        var port = FindOutput();
+        var seconds = Option("--seconds", 20.0);
+        output.WriteLine($"Listening to {port.Name} for up to {seconds.ToString(CultureInfo.InvariantCulture)} s. " +
+            "Press Start on the T-8 and let a pattern with drums and bass play.");
+        var result = new ChannelDetector(ports).RunAsync(port, TimeSpan.FromSeconds(seconds)).GetAwaiter().GetResult();
+        output.WriteLine(result.Summary);
+        if (!result.FoundAny)
+            return 1;
+        var map = result.ApplyTo(new T8MidiMap());
+        output.WriteLine($"Use: --bass-ch {map.BassChannel} --rhythm-ch {map.RhythmChannel} --pc-ch {map.ProgramChangeChannel}");
+        return 0;
     }
 
     private T8MidiMap Map()

@@ -43,6 +43,13 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
     private bool _isTesting;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(DetectChannelsCommand))]
+    private bool _isDetecting;
+
+    [ObservableProperty]
+    private string _detectResult = "";
+
+    [ObservableProperty]
     private string _testResult = "";
 
     [ObservableProperty]
@@ -139,6 +146,40 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
         finally
         {
             IsTesting = false;
+        }
+    }
+
+    /// <summary>How long Detect listens for the T-8 before giving up.</summary>
+    public TimeSpan DetectTime { get; init; } = TimeSpan.FromSeconds(20);
+
+    private bool CanDetect() => !IsDetecting;
+
+    [RelayCommand(CanExecute = nameof(CanDetect))]
+    private async Task DetectChannelsAsync()
+    {
+        if (SelectedPort is null)
+        {
+            DetectResult = "Pick a MIDI output first. If the T-8 isn't listed, check the USB cable and press Refresh.";
+            return;
+        }
+
+        IsDetecting = true;
+        DetectResult = $"Listening for {DetectTime.TotalSeconds:0} s… press Start on the T-8 and let a pattern with drums and bass play.";
+        try
+        {
+            var result = await new ChannelDetector(_ports, BuildMap()).RunAsync(SelectedPort, DetectTime);
+            BassChannel = result.BassChannel ?? BassChannel;
+            RhythmChannel = result.RhythmChannel ?? RhythmChannel;
+            ProgramChangeChannel = result.ProgramChangeChannel ?? ProgramChangeChannel;
+            DetectResult = result.Summary + (result.FoundAny ? " Press Save to keep them." : "");
+        }
+        catch (Exception ex)
+        {
+            DetectResult = $"Detect failed: {ex.Message}";
+        }
+        finally
+        {
+            IsDetecting = false;
         }
     }
 

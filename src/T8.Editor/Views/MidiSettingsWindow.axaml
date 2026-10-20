@@ -30,7 +30,12 @@
 
     <!-- Channels -->
     <StackPanel Spacing="6">
-      <TextBlock Classes="header" Text="MIDI channels (must match the T-8)" />
+      <DockPanel>
+        <Button x:Name="DetectChannelsButton" DockPanel.Dock="Right" Content="Detect from T-8" Command="{Binding DetectChannelsCommand}" />
+        <TextBlock Classes="header" Text="MIDI channels (must match the T-8)" VerticalAlignment="Center" />
+      </DockPanel>
+      <TextBlock x:Name="DetectResultText" Text="{Binding DetectResult}" TextWrapping="Wrap" FontSize="12"
+                 IsVisible="{Binding DetectResult, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
       <Grid ColumnDefinitions="200,100" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
         <TextBlock Text="Bass (bACh)" VerticalAlignment="Center" />
         <ComboBox x:Name="BassChannelPicker" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.Channels}" SelectedItem="{Binding BassChannel}" />

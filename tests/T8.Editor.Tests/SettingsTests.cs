@@ -232,6 +232,31 @@ public class MidiSettingsViewModelTests
     }
 
     [Fact]
+    public async Task Detect_fills_in_the_t8_channels()
+    {
+        _ports.InputEvents.Add(new Melanchall.DryWetMidi.Core.ProgramChangeEvent((Melanchall.DryWetMidi.Common.SevenBitNumber)1)
+        {
+            Channel = (Melanchall.DryWetMidi.Common.FourBitNumber)6,
+        });
+        var vm = new MidiSettingsViewModel(_ports, new EditorSettings()) { DetectTime = TimeSpan.FromMilliseconds(100) };
+
+        await vm.DetectChannelsCommand.ExecuteAsync(null);
+
+        Assert.Equal((2, 10, 7), (vm.BassChannel, vm.RhythmChannel, vm.ProgramChangeChannel));
+        Assert.Contains("Detected pattern select 7.", vm.DetectResult);
+        Assert.Contains("Press Save", vm.DetectResult);
+        Assert.False(vm.IsDetecting);
+    }
+
+    [Fact]
+    public async Task Detect_without_a_port_explains()
+    {
+        var vm = new MidiSettingsViewModel(new FakePortProvider(), new EditorSettings());
+        await vm.DetectChannelsCommand.ExecuteAsync(null);
+        Assert.Contains("Pick a MIDI output first", vm.DetectResult);
+    }
+
+    [Fact]
     public void Refresh_keeps_the_choice()
     {
         var vm = Create();

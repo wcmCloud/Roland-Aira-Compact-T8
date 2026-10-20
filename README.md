@@ -25,7 +25,8 @@ Open the `BACKUP` folder (or the T-8 drive itself), edit, and save. Pick the T-8
 1. Connect the T-8 by USB. It appears as a MIDI port named T-8; press **Refresh** if it isn't listed.
 2. Open **MIDI settings…** and make the channels match the T-8's menu (hold SHIFT, press OCT+ (MENU)):
    bass `bACh` (default 2), rhythm `rhCh` (default 10), pattern select `Pc.Ch` (default 16).
-   Drum note numbers can be changed there too.
+   Or press **Detect from T-8**, then press Start on the T-8: the editor reads the bass and rhythm channels
+   from the notes the T-8 sends (set pattern select by hand). Drum note numbers can be changed there too.
 3. Press **Test connection**. You should hear kick, snare, closed and open hat and a bass note, and the editor
    checks that the T-8 answers on its MIDI input.
 4. Choose what **Play** does: play the edited pattern through the T-8's sounds, or run the T-8's own
@@ -59,6 +60,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs the tests on all three OSes and
 ```sh
 dotnet test
 dotnet run --project src/T8.Cli -- ports
+dotnet run --project src/T8.Cli -- detect
 dotnet run --project src/T8.Cli -- test --rhythm-ch 10 --bass-ch 2
 dotnet run --project src/T8.Cli -- select 2 5
 dotnet run --project src/T8.Cli -- preview BACKUP 1 1 --bpm 125
