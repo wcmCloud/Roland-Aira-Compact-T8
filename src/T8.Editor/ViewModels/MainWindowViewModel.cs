@@ -15,6 +15,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly ISettingsStore? _settingsStore;
     private readonly Func<IEnumerable<string>> _driveCandidates;
     private T8Controller? _controller;
+    private bool _playheadShown;
     private (BassPattern Bass, RhythmPattern Rhythm)? _clipboard;
 
     [ObservableProperty]
@@ -54,6 +55,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     private bool _auditionEnabled = true;
 
     [ObservableProperty]
+    private bool _showPlayhead = true;
+
+    [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(TestConnectionCommand))]
     private bool _isTestingConnection;
 
@@ -72,6 +76,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         Settings = settingsStore?.Load() ?? new EditorSettings();
         _bpm = Settings.Bpm;
         _auditionEnabled = Settings.AuditionEnabled;
+        _showPlayhead = Settings.ShowPlayhead;
         Library = PatternLibrary.CreateBlank();
         LoadSelectedPattern();
         RefreshPorts();
@@ -121,6 +126,27 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
             _controller!.Clock.Bpm = value;
         else if (IsPlaying)
             StartPlayback();
+    }
+
+    partial void OnShowPlayheadChanged(bool value)
+    {
+        Settings.ShowPlayhead = value;
+        SaveSettings();
+        UpdatePlayhead();
+    }
+
+    /// <summary>
+    /// Moves the bass and rhythm highlights to the step being played. The window calls this on a
+    /// timer; it clears them when stopped or when <see cref="ShowPlayhead"/> is off.
+    /// </summary>
+    public void UpdatePlayhead()
+    {
+        var position = IsPlaying && ShowPlayhead ? _controller?.CurrentStep : null;
+        if (position is null && !_playheadShown)
+            return;
+        Bass.ShowPlayingStep(position);
+        Rhythm.ShowPlayingStep(position);
+        _playheadShown = position is not null;
     }
 
     partial void OnAuditionEnabledChanged(bool value)
@@ -422,6 +448,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         _controller?.StopPreview();
         _controller?.Clock.Stop();
         IsPlaying = false;
+        UpdatePlayhead();
         Status = "Stopped.";
     }
 

@@ -61,4 +61,24 @@ public class ClockTests
         clock.Dispose();
         Assert.IsType<StopEvent>(device.Events[^1]);
     }
+
+    [Fact]
+    public void Current_step_counts_six_clocks_per_step_from_start()
+    {
+        var device = new FakeOutputDevice();
+        using var clock = new MidiClockSender(device, bpm: 300);
+        Assert.Null(clock.CurrentStep);
+
+        clock.Start();
+        Thread.Sleep(300);
+        clock.Stop();
+
+        var clocks = device.Events.Count(e => e is TimingClockEvent);
+        Assert.Equal(clocks, clock.ClocksSent);
+        Assert.Equal((clocks - 1) / 6, clock.CurrentStep);
+
+        clock.Start();
+        Assert.True(clock.ClocksSent < clocks);
+        clock.Stop();
+    }
 }

@@ -63,6 +63,8 @@
       <Button x:Name="SelectOnT8Button" Content="Select on T-8" Command="{Binding SelectOnT8Command}"
               ToolTip.Tip="Switch the T-8 to this bank and pattern (needs RX Program Change on)" />
       <CheckBox x:Name="AuditionCheck" Content="Audition steps" IsChecked="{Binding AuditionEnabled}" />
+      <CheckBox x:Name="PlayheadCheck" Content="Show playing step" IsChecked="{Binding ShowPlayhead}"
+                ToolTip.Tip="Highlight the step being played, and the bass note on the keyboard" />
     </StackPanel>
 
     <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">

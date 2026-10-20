@@ -63,6 +63,28 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
             cell.On = false;
     }
 
+    private int? _playingStep;
+
+    /// <summary>Highlights the step column at a position counted from the start of playback; null clears it.</summary>
+    public void ShowPlayingStep(long? position)
+    {
+        int? step = position is { } p ? (int)(p % Length) : null;
+        if (step == _playingStep)
+            return;
+        foreach (var track in Tracks)
+        {
+            if (_playingStep is { } old)
+                track.Cells[old].IsPlaying = false;
+            if (step is { } now)
+                track.Cells[now].IsPlaying = true;
+        }
+        _playingStep = step;
+        OnPropertyChanged(nameof(PlayingStepNumber));
+    }
+
+    /// <summary>1-based number of the step being played, or null when stopped.</summary>
+    public int? PlayingStepNumber => _playingStep + 1;
+
     internal void Select(RhythmCellViewModel cell)
     {
         if (SelectedCell is not null)
@@ -129,6 +151,9 @@ public sealed partial class RhythmCellViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isInLength = true;
+
+    [ObservableProperty]
+    private bool _isPlaying;
 
     public RhythmCellViewModel(RhythmCell cell, RhythmTrack track, int stepNumber, RhythmEditorViewModel editor, Action changed, Action<RhythmTrack>? audition)
     {

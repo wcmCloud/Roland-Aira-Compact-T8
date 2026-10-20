@@ -24,6 +24,9 @@ public sealed class EditorSettings
     public bool FollowSelection { get; set; }
 
     public bool AuditionEnabled { get; set; } = true;
+
+    /// <summary>Highlight the step being played, and the bass note on the keyboard.</summary>
+    public bool ShowPlayhead { get; set; } = true;
     public double Bpm { get; set; } = 120;
     public string? LastFolder { get; set; }
 
@@ -34,6 +37,7 @@ public sealed class EditorSettings
         PlayMode = PlayMode,
         FollowSelection = FollowSelection,
         AuditionEnabled = AuditionEnabled,
+        ShowPlayhead = ShowPlayhead,
         Bpm = Bpm,
         LastFolder = LastFolder,
     };

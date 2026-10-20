@@ -16,6 +16,11 @@ public sealed partial class BassEditorViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(SelectedNote), nameof(SelectionLabel))]
     private BassStepViewModel? _selectedStep;
 
+    /// <summary>The step being played, highlighted while Play runs; null when stopped.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PlayingNote))]
+    private BassStepViewModel? _playingStep;
+
     /// <summary>After a key is played on the keyboard, move the selection to the next step.</summary>
     [ObservableProperty]
     private bool _advanceAfterNote = true;
@@ -41,6 +46,41 @@ public sealed partial class BassEditorViewModel : ObservableObject
     public string SelectionLabel => SelectedStep is { } step
         ? $"Step {step.Number}: {(step.HasNote ? step.NoteName : "off")}{(step.State == BassStepState.Tie ? " (tie)" : "")}"
         : "No step selected";
+
+    /// <summary>
+    /// The note sounding at <see cref="PlayingStep"/>: its own note, the tied note before it for a
+    /// tie, or null for an off step.
+    /// </summary>
+    public int? PlayingNote
+    {
+        get
+        {
+            if (PlayingStep is not { } step)
+                return null;
+            var index = step.Number - 1;
+            for (var i = 0; i < Length; i++)
+            {
+                var candidate = Steps[((index - i) % Length + Length) % Length];
+                if (candidate.State == BassStepState.Note)
+                    return candidate.Note;
+                if (candidate.State == BassStepState.Off)
+                    return null;
+            }
+            return null;
+        }
+    }
+
+    /// <summary>Highlights the step at a position counted from the start of playback; null clears it.</summary>
+    public void ShowPlayingStep(long? position) =>
+        PlayingStep = position is { } p ? Steps[(int)(p % Length)] : null;
+
+    partial void OnPlayingStepChanged(BassStepViewModel? oldValue, BassStepViewModel? newValue)
+    {
+        if (oldValue is not null)
+            oldValue.IsPlaying = false;
+        if (newValue is not null)
+            newValue.IsPlaying = true;
+    }
 
     partial void OnSelectedStepChanged(BassStepViewModel? oldValue, BassStepViewModel? newValue)
     {
@@ -132,6 +172,7 @@ public sealed partial class BassEditorViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(SelectedNote));
         OnPropertyChanged(nameof(SelectionLabel));
+        OnPropertyChanged(nameof(PlayingNote));
         _changed();
     }
 }
@@ -153,6 +194,9 @@ public sealed partial class BassStepViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isSelected;
+
+    [ObservableProperty]
+    private bool _isPlaying;
 
     public BassStepViewModel(BassStep step, int number, Action changed, Action<int>? audition, Action<BassStepViewModel>? select = null)
     {

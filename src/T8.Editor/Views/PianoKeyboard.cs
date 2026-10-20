@@ -22,6 +22,9 @@ public sealed class PianoKeyboard : Control
     public static readonly StyledProperty<int?> HighlightedNoteProperty =
         AvaloniaProperty.Register<PianoKeyboard, int?>(nameof(HighlightedNote));
 
+    public static readonly StyledProperty<int?> PlayingNoteProperty =
+        AvaloniaProperty.Register<PianoKeyboard, int?>(nameof(PlayingNote));
+
     public static readonly StyledProperty<ICommand?> CommandProperty =
         AvaloniaProperty.Register<PianoKeyboard, ICommand?>(nameof(Command));
 
@@ -35,6 +38,7 @@ public sealed class PianoKeyboard : Control
     private static readonly IBrush BlackBrush = new SolidColorBrush(Color.Parse("#1A1A1C"));
     private static readonly IBrush BlackHoverBrush = new SolidColorBrush(Color.Parse("#48484E"));
     private static readonly IBrush HighlightBrush = new SolidColorBrush(Color.Parse("#FF7A1A"));
+    private static readonly IBrush PlayingBrush = new SolidColorBrush(Color.Parse("#FFD23F"));
     private static readonly IBrush LabelBrush = new SolidColorBrush(Color.Parse("#606066"));
     private static readonly IPen KeyPen = new Pen(new SolidColorBrush(Color.Parse("#0E0E10")), 1);
 
@@ -43,7 +47,7 @@ public sealed class PianoKeyboard : Control
     static PianoKeyboard()
     {
         AffectsMeasure<PianoKeyboard>(LowestNoteProperty, HighestNoteProperty);
-        AffectsRender<PianoKeyboard>(HighlightedNoteProperty);
+        AffectsRender<PianoKeyboard>(HighlightedNoteProperty, PlayingNoteProperty);
     }
 
     public PianoKeyboard() => Cursor = new Cursor(StandardCursorType.Hand);
@@ -64,6 +68,13 @@ public sealed class PianoKeyboard : Control
     {
         get => GetValue(HighlightedNoteProperty);
         set => SetValue(HighlightedNoteProperty, value);
+    }
+
+    /// <summary>The note being played, drawn in yellow over the highlight.</summary>
+    public int? PlayingNote
+    {
+        get => GetValue(PlayingNoteProperty);
+        set => SetValue(PlayingNoteProperty, value);
     }
 
     public ICommand? Command
@@ -109,7 +120,7 @@ public sealed class PianoKeyboard : Control
     {
         foreach (var (note, rect) in WhiteKeys())
         {
-            var brush = note == HighlightedNote ? HighlightBrush : note == _hoverNote ? WhiteHoverBrush : WhiteBrush;
+            var brush = KeyBrush(note, WhiteHoverBrush, WhiteBrush);
             context.DrawRectangle(brush, KeyPen, rect, 2, 2);
             if (note % 12 == 0)
             {
@@ -120,10 +131,16 @@ public sealed class PianoKeyboard : Control
         }
         foreach (var (note, rect) in BlackKeys())
         {
-            var brush = note == HighlightedNote ? HighlightBrush : note == _hoverNote ? BlackHoverBrush : BlackBrush;
+            var brush = KeyBrush(note, BlackHoverBrush, BlackBrush);
             context.DrawRectangle(brush, KeyPen, rect, 0, 2);
         }
     }
+
+    private IBrush KeyBrush(int note, IBrush hover, IBrush normal) =>
+        note == PlayingNote ? PlayingBrush
+        : note == HighlightedNote ? HighlightBrush
+        : note == _hoverNote ? hover
+        : normal;
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {

@@ -153,6 +153,14 @@ public class MainWindowTests
             frame!.Save(Path.Combine(output, "rhythm.png"));
             window.FindControl<TabControl>("Tabs")!.SelectedIndex = 1;
             window.CaptureRenderedFrame()!.Save(Path.Combine(output, "bass.png"));
+
+            vm.Bass.ShowPlayingStep(4);
+            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            window.CaptureRenderedFrame()!.Save(Path.Combine(output, "bass-playing.png"));
+            vm.Rhythm.ShowPlayingStep(4);
+            window.FindControl<TabControl>("Tabs")!.SelectedIndex = 0;
+            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            window.CaptureRenderedFrame()!.Save(Path.Combine(output, "rhythm-playing.png"));
         }
         window.Close();
         vm.Dispose();

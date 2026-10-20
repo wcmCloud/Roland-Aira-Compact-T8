@@ -138,4 +138,20 @@ public class RhythmEditorViewModelTests
     [Fact]
     public void Sub_step_options_list_every_mode() =>
         Assert.Equal([SubStep.Off, SubStep.Half, SubStep.Third, SubStep.Quarter, SubStep.Flam], RhythmEditorViewModel.SubStepOptions);
+
+    [Fact]
+    public void Playing_step_lights_the_whole_column()
+    {
+        var vm = Create();
+        vm.Length = 16;
+        vm.ShowPlayingStep(17);
+
+        Assert.Equal(2, vm.PlayingStepNumber);
+        Assert.All(vm.Tracks, t => Assert.True(t.Cells[1].IsPlaying));
+        Assert.Equal(vm.Tracks.Count, vm.Tracks.SelectMany(t => t.Cells).Count(c => c.IsPlaying));
+
+        vm.ShowPlayingStep(null);
+        Assert.Null(vm.PlayingStepNumber);
+        Assert.DoesNotContain(vm.Tracks.SelectMany(t => t.Cells), c => c.IsPlaying);
+    }
 }

@@ -16,6 +16,7 @@ public sealed class MidiClockSender : IDisposable
     private Thread? _thread;
     private volatile bool _running;
     private double _bpm;
+    private long _clocksSent;
 
     public MidiClockSender(IOutputDevice output, double bpm = 120)
     {
@@ -31,12 +32,22 @@ public sealed class MidiClockSender : IDisposable
 
     public bool IsRunning => _running;
 
+    /// <summary>Timing clocks sent since the last <see cref="Start"/>.</summary>
+    public long ClocksSent => Interlocked.Read(ref _clocksSent);
+
+    /// <summary>
+    /// The 16th-note step the T-8's sequencer is on, counted from Start (6 clocks per step), or null
+    /// before the first clock. The T-8 loops each part on its own length, so take it modulo the length.
+    /// </summary>
+    public long? CurrentStep => ClocksSent is > 0 and var clocks ? (clocks - 1) / (ClocksPerQuarterNote / 4) : null;
+
     public void Start()
     {
         if (_running)
             return;
 
         _running = true;
+        Interlocked.Exchange(ref _clocksSent, 0);
         _output.SendEvent(new StartEvent());
         _thread = new Thread(Run) { IsBackground = true, Priority = ThreadPriority.Highest, Name = "T-8 MIDI clock" };
         _thread.Start();
@@ -62,6 +73,7 @@ public sealed class MidiClockSender : IDisposable
         while (_running)
         {
             _output.SendEvent(clock);
+            Interlocked.Increment(ref _clocksSent);
             nextTick += 60_000.0 / (Bpm * ClocksPerQuarterNote);
 
             // Sleep most of the gap, then spin for the last millisecond for steady timing.

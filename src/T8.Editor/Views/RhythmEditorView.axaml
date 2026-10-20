@@ -71,6 +71,7 @@
                                     Classes.beat="{Binding IsBeat}"
                                     Classes.selected="{Binding IsSelected}"
                                     Classes.outside="{Binding !IsInLength}"
+                                    Classes.playing="{Binding IsPlaying}"
                                     IsChecked="{Binding On}"
                                     Command="{Binding ActivateCommand}"
                                     ToolTip.Tip="{Binding Description}" />

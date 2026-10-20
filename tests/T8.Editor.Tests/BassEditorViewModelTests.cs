@@ -214,4 +214,39 @@ public class BassEditorViewModelTests
         Assert.Equal(12, groups[0].Notes[0]);
         Assert.Equal([96], groups[^1].Notes);
     }
+
+    [Fact]
+    public void Playing_step_wraps_at_the_length_and_lights_one_step()
+    {
+        var vm = Create(); // length 8
+        vm.ShowPlayingStep(10);
+
+        Assert.Same(vm.Steps[2], vm.PlayingStep);
+        Assert.True(vm.Steps[2].IsPlaying);
+
+        vm.ShowPlayingStep(3);
+        Assert.False(vm.Steps[2].IsPlaying);
+        Assert.True(vm.Steps[3].IsPlaying);
+
+        vm.ShowPlayingStep(null);
+        Assert.Null(vm.PlayingStep);
+        Assert.DoesNotContain(vm.Steps, s => s.IsPlaying);
+    }
+
+    [Fact]
+    public void Playing_note_follows_ties_back_to_their_note_and_is_null_when_off()
+    {
+        var vm = Create();
+        vm.Steps[0].SetNote(40);
+        vm.Steps[1].State = BassStepState.Tie;
+        vm.Steps[2].State = BassStepState.Tie;
+        vm.Steps[3].State = BassStepState.Off;
+
+        vm.ShowPlayingStep(0);
+        Assert.Equal(40, vm.PlayingNote);
+        vm.ShowPlayingStep(2);
+        Assert.Equal(40, vm.PlayingNote);
+        vm.ShowPlayingStep(3);
+        Assert.Null(vm.PlayingNote);
+    }
 }

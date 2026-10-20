@@ -5,6 +5,8 @@
     <SolidColorBrush x:Key="T8OrangeDim" Color="#7A3A0C" />
     <SolidColorBrush x:Key="CellOff" Color="#2A2A2E" />
     <SolidColorBrush x:Key="CellOffBeat" Color="#3A3A40" />
+    <SolidColorBrush x:Key="Playing" Color="#FFD23F" />
+    <SolidColorBrush x:Key="PlayingDim" Color="#5C4A12" />
   </Styles.Resources>
 
   <!-- Rhythm grid cells -->
@@ -28,6 +30,15 @@
   </Style>
   <Style Selector="ToggleButton.cell.selected /template/ ContentPresenter">
     <Setter Property="BorderBrush" Value="White" />
+  </Style>
+  <Style Selector="ToggleButton.cell.playing">
+    <Setter Property="BorderBrush" Value="{StaticResource Playing}" />
+  </Style>
+  <Style Selector="ToggleButton.cell.playing /template/ ContentPresenter">
+    <Setter Property="BorderBrush" Value="{StaticResource Playing}" />
+  </Style>
+  <Style Selector="ToggleButton.cell.playing:not(:checked) /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource PlayingDim}" />
   </Style>
   <Style Selector="ToggleButton.cell.outside">
     <Setter Property="Opacity" Value="0.3" />
@@ -61,6 +72,10 @@
     <Setter Property="BorderBrush" Value="White" />
     <Setter Property="BorderThickness" Value="2" />
     <Setter Property="Padding" Value="0,2" />
+  </Style>
+  <Style Selector="Border.bassStep.playing">
+    <Setter Property="Background" Value="{StaticResource PlayingDim}" />
+    <Setter Property="BoxShadow" Value="0 0 0 2 #FFD23F" />
   </Style>
   <Style Selector="Button.note">
     <Setter Property="FontSize" Value="13" />

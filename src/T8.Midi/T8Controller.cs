@@ -93,6 +93,20 @@ public sealed class T8Controller : IDisposable
         return _preview;
     }
 
+    /// <summary>
+    /// The 16th-note step being played, counted from the start of the loop (preview) or from Start
+    /// (clock), or null when nothing is playing. Take it modulo a part's length to get its step.
+    /// </summary>
+    public long? CurrentStep
+    {
+        get
+        {
+            if (_preview is { IsRunning: true } preview)
+                return preview.GetCurrentTime<MidiTimeSpan>().TimeSpan / PatternMidiBuilder.TicksPerStep;
+            return Clock.IsRunning ? Clock.CurrentStep : null;
+        }
+    }
+
     public void StopPreview()
     {
         if (_preview is null)

@@ -247,6 +247,27 @@ public class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Playhead_follows_playback_and_can_be_turned_off()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        _vm.PlayCommand.Execute(null);
+        Thread.Sleep(50);
+
+        _vm.UpdatePlayhead();
+        Assert.NotNull(_vm.Bass.PlayingStep);
+        Assert.NotNull(_vm.Rhythm.PlayingStepNumber);
+
+        _vm.ShowPlayhead = false;
+        Assert.Null(_vm.Bass.PlayingStep);
+        Assert.False(_vm.Settings.ShowPlayhead);
+
+        _vm.ShowPlayhead = true;
+        _vm.StopCommand.Execute(null);
+        Assert.Null(_vm.Bass.PlayingStep);
+        Assert.Null(_vm.Rhythm.PlayingStepNumber);
+    }
+
+    [Fact]
     public void Commands_without_a_port_explain_what_to_do()
     {
         using var vm = new MainWindowViewModel(new FakePortProvider(), _dialogs);

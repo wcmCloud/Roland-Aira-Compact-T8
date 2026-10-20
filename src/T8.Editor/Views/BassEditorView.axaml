@@ -33,7 +33,7 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:BassStepViewModel">
               <Border Classes="bassStep" Classes.beat="{Binding IsBeat}" Classes.outside="{Binding !IsInLength}"
-                      Classes.selected="{Binding IsSelected}" ContextRequested="OnStepContextRequested">
+                      Classes.selected="{Binding IsSelected}" Classes.playing="{Binding IsPlaying}" ContextRequested="OnStepContextRequested">
                 <StackPanel Spacing="3">
                   <TextBlock Text="{Binding Number}" HorizontalAlignment="Center" FontSize="11" Opacity="0.6" />
                   <Button Classes="note" Classes.on="{Binding HasNote}" Content="{Binding NoteName}"
@@ -65,6 +65,7 @@
                              LowestNote="{x:Static vm:BassEditorViewModel.LowestNote}"
                              HighestNote="{x:Static vm:BassEditorViewModel.HighestNote}"
                              HighlightedNote="{Binding SelectedNote}"
+                             PlayingNote="{Binding PlayingNote}"
                              Command="{Binding EnterNoteCommand}" />
       </StackPanel>
     </ScrollViewer>

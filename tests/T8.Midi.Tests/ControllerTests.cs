@@ -121,6 +121,26 @@ public class ControllerTests
     }
 
     [Fact]
+    public void Current_step_follows_the_preview_and_the_clock()
+    {
+        var rhythm = new RhythmPattern { Length = 16 };
+        using var t8 = CreateController();
+        Assert.Null(t8.CurrentStep);
+
+        t8.PlayPreview(null, rhythm, bpm: 120);
+        Thread.Sleep(300); // 120 BPM: a step is 125 ms
+        Assert.InRange(t8.CurrentStep!.Value, 1, 15);
+        t8.StopPreview();
+        Assert.Null(t8.CurrentStep);
+
+        t8.Clock.Start();
+        Thread.Sleep(100);
+        Assert.NotNull(t8.CurrentStep);
+        t8.Clock.Stop();
+        Assert.Null(t8.CurrentStep);
+    }
+
+    [Fact]
     public void Starting_a_new_preview_replaces_the_old_one()
     {
         using var t8 = CreateController();
