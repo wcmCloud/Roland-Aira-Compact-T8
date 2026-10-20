@@ -92,9 +92,26 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
         $"and Pc.Ch to {ProgramChangeChannel}. Turn rXPc on so the editor can switch patterns, tXPc on so the editor follows " +
         "the patterns you pick on the T-8, and set SYnC to AUTO or USB so the T-8 follows the editor's clock.";
 
-    partial void OnBassChannelChanged(int value) => OnPropertyChanged(nameof(T8SetupHelp));
-    partial void OnRhythmChannelChanged(int value) => OnPropertyChanged(nameof(T8SetupHelp));
-    partial void OnProgramChangeChannelChanged(int value) => OnPropertyChanged(nameof(T8SetupHelp));
+    /// <summary>The T-8 menu settings that match these settings, shown as chips: setting, value, what it's for.</summary>
+    public IReadOnlyList<T8MenuSetting> T8MenuSettings =>
+    [
+        new("bACh", T8MidiMap.ChannelName(BassChannel), "Bass channel"),
+        new("rhCh", T8MidiMap.ChannelName(RhythmChannel), "Rhythm channel"),
+        new("Pc.Ch", ProgramChangeChannel.ToString(System.Globalization.CultureInfo.InvariantCulture), "Pattern select channel"),
+        new("rXPc", "On", "The editor can switch the T-8's pattern"),
+        new("tXPc", "On", "The editor follows the pattern picked on the T-8"),
+        new("SYnC", "AUTO / USB", "The T-8 follows the editor's clock (sync mode, songs)"),
+    ];
+
+    partial void OnBassChannelChanged(int value) => OnSetupChanged();
+    partial void OnRhythmChannelChanged(int value) => OnSetupChanged();
+    partial void OnProgramChangeChannelChanged(int value) => OnSetupChanged();
+
+    private void OnSetupChanged()
+    {
+        OnPropertyChanged(nameof(T8SetupHelp));
+        OnPropertyChanged(nameof(T8MenuSettings));
+    }
 
     [RelayCommand]
     private void RefreshPorts()
@@ -243,3 +260,6 @@ public sealed partial class DrumNoteViewModel(RhythmTrack track, int note, Actio
         }
     }
 }
+
+/// <summary>One T-8 menu setting to match the editor, e.g. bACh = 6.</summary>
+public sealed record T8MenuSetting(string Name, string Value, string Purpose);

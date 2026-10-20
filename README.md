@@ -156,7 +156,8 @@ The editor and the T-8 must use the same MIDI channels. Open the MIDI settings w
   the editor shows its playing step and tempo.
 
 > [!TIP]
-> The box at the bottom of the window always says which T-8 menu settings match the editor.
+> The **On the T-8** card lists the T-8 menu settings that match the editor (bACh, rhCh, Pc.Ch, rXPc, tXPc, SYnC);
+> hover over one to see what it's for.
 >
 > Every message in the T-8's MIDI Implementation Chart, and what the editor does with it, is listed in
 > [docs/MIDI.md](docs/MIDI.md).

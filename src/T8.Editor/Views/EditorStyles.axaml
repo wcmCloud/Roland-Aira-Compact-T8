@@ -264,6 +264,42 @@
     <Setter Property="Foreground" Value="{StaticResource SectionGreen}" />
   </Style>
 
+  <!-- MIDI settings -->
+  <Style Selector="TextBlock.settingName">
+    <Setter Property="FontSize" Value="10.5" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="LetterSpacing" Value="0.8" />
+    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+  </Style>
+  <Style Selector="RadioButton.option">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="Padding" Value="10,8" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Background" Value="#14FFFFFF" />
+    <Setter Property="BorderBrush" Value="{StaticResource Outline}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="5" />
+  </Style>
+  <Style Selector="RadioButton.option:checked">
+    <Setter Property="Background" Value="#1FFF5C8A" />
+    <Setter Property="BorderBrush" Value="{StaticResource SectionPink}" />
+  </Style>
+  <Style Selector="ToggleSwitch.compact">
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+  <Style Selector="ToggleSwitch.compact /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="IsVisible" Value="False" />
+  </Style>
+  <Style Selector="Border.menuChip">
+    <Setter Property="Background" Value="#1D1D22" />
+    <Setter Property="BorderBrush" Value="{StaticResource Outline}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Padding" Value="10,6" />
+    <Setter Property="Margin" Value="0,0,6,6" />
+  </Style>
+
   <!-- Tabs: smaller, like the S1 editor's -->
   <Style Selector="TabControl > TabItem">
     <Setter Property="FontSize" Value="15" />
