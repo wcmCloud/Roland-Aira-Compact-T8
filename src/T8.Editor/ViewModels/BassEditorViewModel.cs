@@ -10,15 +10,79 @@ public sealed partial class BassEditorViewModel : ObservableObject
 {
     private readonly BassPattern _pattern;
     private readonly Action _changed;
+    private readonly Action<int>? _audition;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SelectedNote), nameof(SelectionLabel))]
+    private BassStepViewModel? _selectedStep;
+
+    /// <summary>After a key is played on the keyboard, move the selection to the next step.</summary>
+    [ObservableProperty]
+    private bool _advanceAfterNote = true;
 
     public BassEditorViewModel(BassPattern pattern, Action changed, Action<int>? audition = null)
     {
         _pattern = pattern;
         _changed = changed;
+        _audition = audition;
         Steps = new ObservableCollection<BassStepViewModel>(
-            pattern.Steps.Select((step, i) => new BassStepViewModel(step, i + 1, OnStepChanged, audition)));
+            pattern.Steps.Select((step, i) => new BassStepViewModel(step, i + 1, OnStepChanged, audition, Select)));
         UpdateLength();
+        SelectedStep = Steps[0];
     }
+
+    /// <summary>Lowest and highest keys on the keyboard: the T-8's bass range.</summary>
+    public static int LowestNote => BassStepViewModel.MinNote;
+    public static int HighestNote => BassStepViewModel.MaxNote;
+
+    /// <summary>The selected step's note, shown on the keyboard; null when the step is off.</summary>
+    public int? SelectedNote => SelectedStep is { HasNote: true } step ? step.Note : null;
+
+    public string SelectionLabel => SelectedStep is { } step
+        ? $"Step {step.Number}: {(step.HasNote ? step.NoteName : "off")}{(step.State == BassStepState.Tie ? " (tie)" : "")}"
+        : "No step selected";
+
+    partial void OnSelectedStepChanged(BassStepViewModel? oldValue, BassStepViewModel? newValue)
+    {
+        if (oldValue is not null)
+            oldValue.IsSelected = false;
+        if (newValue is not null)
+            newValue.IsSelected = true;
+    }
+
+    /// <summary>
+    /// Plays a key on the keyboard: sets the selected step's note (turning it on if it was off or a
+    /// tie), auditions it and, if <see cref="AdvanceAfterNote"/> is on, selects the next step.
+    /// Without a selection the key is only auditioned.
+    /// </summary>
+    [RelayCommand]
+    private void EnterNote(int note)
+    {
+        if (SelectedStep is not { } step)
+        {
+            _audition?.Invoke(note);
+            return;
+        }
+
+        step.SetNote(note);
+        if (AdvanceAfterNote)
+            SelectNext();
+    }
+
+    [RelayCommand]
+    private void SelectNext() => MoveSelection(1);
+
+    [RelayCommand]
+    private void SelectPrevious() => MoveSelection(-1);
+
+    private void MoveSelection(int by)
+    {
+        var index = SelectedStep is null ? 0 : SelectedStep.Number - 1 + by;
+        // Wrap within the pattern's length, like the T-8's step entry.
+        SelectedStep = Steps[((index % Length) + Length) % Length];
+    }
+
+    private void Select(BassStepViewModel step) => SelectedStep = step;
 
     public ObservableCollection<BassStepViewModel> Steps { get; }
 
@@ -64,7 +128,12 @@ public sealed partial class BassEditorViewModel : ObservableObject
             step.IsInLength = step.Number <= _pattern.Length;
     }
 
-    private void OnStepChanged() => _changed();
+    private void OnStepChanged()
+    {
+        OnPropertyChanged(nameof(SelectedNote));
+        OnPropertyChanged(nameof(SelectionLabel));
+        _changed();
+    }
 }
 
 public sealed partial class BassStepViewModel : ObservableObject
@@ -77,17 +146,29 @@ public sealed partial class BassStepViewModel : ObservableObject
     private readonly BassStep _step;
     private readonly Action _changed;
     private readonly Action<int>? _audition;
+    private readonly Action<BassStepViewModel>? _select;
 
     [ObservableProperty]
     private bool _isInLength = true;
 
-    public BassStepViewModel(BassStep step, int number, Action changed, Action<int>? audition)
+    [ObservableProperty]
+    private bool _isSelected;
+
+    public BassStepViewModel(BassStep step, int number, Action changed, Action<int>? audition, Action<BassStepViewModel>? select = null)
     {
         _step = step;
         Number = number;
         _changed = changed;
         _audition = audition;
+        _select = select;
     }
+
+    /// <summary>Note names for the step's right-click menu, one group per octave of the T-8's range.</summary>
+    public static IReadOnlyList<(string Octave, IReadOnlyList<int> Notes)> NoteGroups { get; } =
+        Enumerable.Range(MinNote, MaxNote - MinNote + 1)
+            .GroupBy(n => n / 12 - 1)
+            .Select(g => ($"Octave {g.Key}", (IReadOnlyList<int>)g.ToList()))
+            .ToList();
 
     public int Number { get; }
 
@@ -175,6 +256,26 @@ public sealed partial class BassStepViewModel : ObservableObject
             _ => BassStepState.Off,
         };
         if (State == BassStepState.Note)
+            _audition?.Invoke(Note);
+    }
+
+    /// <summary>Selects this step, so the keyboard below edits it.</summary>
+    [RelayCommand]
+    private void Select() => _select?.Invoke(this);
+
+    /// <summary>Sets the note and turns the step on (from off or tie), auditioning it.</summary>
+    public void SetNote(int note)
+    {
+        Note = note;
+        State = BassStepState.Note;
+        _audition?.Invoke(Note);
+    }
+
+    [RelayCommand]
+    private void SetState(BassStepState state)
+    {
+        State = state;
+        if (state == BassStepState.Note)
             _audition?.Invoke(Note);
     }
 

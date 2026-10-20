@@ -35,7 +35,7 @@
 
   <!-- Bass step columns -->
   <Style Selector="Border.bassStep">
-    <Setter Property="Width" Value="46" />
+    <Setter Property="Width" Value="41" />
     <Setter Property="VerticalAlignment" Value="Top" />
     <Setter Property="Padding" Value="2,4" />
     <Setter Property="CornerRadius" Value="4" />
@@ -56,6 +56,20 @@
   </Style>
   <Style Selector="Border.bassStep ToggleButton:checked /template/ ContentPresenter">
     <Setter Property="Background" Value="{StaticResource T8Orange}" />
+  </Style>
+  <Style Selector="Border.bassStep.selected">
+    <Setter Property="BorderBrush" Value="White" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="Padding" Value="0,2" />
+  </Style>
+  <Style Selector="Button.note">
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Padding" Value="0,6" />
+    <Setter Property="Opacity" Value="0.45" />
+  </Style>
+  <Style Selector="Button.note.on">
+    <Setter Property="Opacity" Value="1" />
   </Style>
   <Style Selector="Button.state.on /template/ ContentPresenter">
     <Setter Property="Background" Value="{StaticResource T8Orange}" />

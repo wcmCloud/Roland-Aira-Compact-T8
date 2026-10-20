@@ -145,4 +145,73 @@ public class BassEditorViewModelTests
         var vm = Create();
         Assert.Equal([1, 5, 9, 13, 17, 21, 25, 29], vm.Steps.Where(s => s.IsBeat).Select(s => s.Number));
     }
+
+    [Fact]
+    public void First_step_starts_selected_and_selection_moves_the_highlight()
+    {
+        var vm = Create();
+        Assert.Same(vm.Steps[0], vm.SelectedStep);
+        Assert.True(vm.Steps[0].IsSelected);
+
+        vm.Steps[5].SelectCommand.Execute(null);
+
+        Assert.Same(vm.Steps[5], vm.SelectedStep);
+        Assert.False(vm.Steps[0].IsSelected);
+        Assert.True(vm.Steps[5].IsSelected);
+    }
+
+    [Fact]
+    public void Entering_a_note_turns_the_step_on_auditions_and_advances()
+    {
+        var vm = Create();
+        vm.Steps[1].SelectCommand.Execute(null);
+
+        vm.EnterNoteCommand.Execute(48);
+
+        Assert.Equal(48, vm.Steps[1].Note);
+        Assert.Equal(BassStepState.Note, vm.Steps[1].State);
+        Assert.Equal([48], _auditioned);
+        Assert.Same(vm.Steps[2], vm.SelectedStep);
+    }
+
+    [Fact]
+    public void Selection_wraps_within_the_pattern_length()
+    {
+        var vm = Create(); // length 8
+        vm.Steps[7].SelectCommand.Execute(null);
+        vm.EnterNoteCommand.Execute(40);
+        Assert.Same(vm.Steps[0], vm.SelectedStep);
+
+        vm.SelectPreviousCommand.Execute(null);
+        Assert.Same(vm.Steps[7], vm.SelectedStep);
+    }
+
+    [Fact]
+    public void Without_advance_the_selection_stays()
+    {
+        var vm = Create();
+        vm.AdvanceAfterNote = false;
+        vm.EnterNoteCommand.Execute(50);
+        Assert.Same(vm.Steps[0], vm.SelectedStep);
+        Assert.Equal(50, vm.SelectedNote);
+        Assert.Contains("D3", vm.SelectionLabel);
+    }
+
+    [Fact]
+    public void Selected_note_is_null_for_an_off_step()
+    {
+        var vm = Create();
+        vm.Steps[0].State = BassStepState.Off;
+        Assert.Null(vm.SelectedNote);
+        Assert.Equal("Step 1: off", vm.SelectionLabel);
+    }
+
+    [Fact]
+    public void Note_groups_cover_the_t8_range_by_octave()
+    {
+        var groups = BassStepViewModel.NoteGroups;
+        Assert.Equal("Octave 0", groups[0].Octave);
+        Assert.Equal(12, groups[0].Notes[0]);
+        Assert.Equal([96], groups[^1].Notes);
+    }
 }

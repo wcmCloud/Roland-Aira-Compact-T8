@@ -96,6 +96,50 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Clicking_a_piano_key_sets_the_selected_steps_note()
+    {
+        var (window, vm) = Show();
+        window.FindControl<TabControl>("Tabs")!.SelectedIndex = 1;
+        window.UpdateLayout();
+        var bass = window.GetVisualDescendants().OfType<BassEditorView>().Single();
+        var keyboard = bass.FindControl<PianoKeyboard>("BassKeyboard")!;
+        vm.Bass.SelectedStep = vm.Bass.Steps[2];
+
+        // The first white key is C0 (12); the second is D0 (14). Click low on the key, below the black keys.
+        var point = keyboard.TranslatePoint(new Point(PianoKeyboard.WhiteWidth * 1.5, 100), window)!.Value;
+        window.MouseDown(point, MouseButton.Left);
+        window.MouseUp(point, MouseButton.Left);
+
+        Assert.Equal(14, vm.Bass.Steps[2].Note);
+        Assert.Equal(T8.Core.Patterns.BassStepState.Note, vm.Bass.Steps[2].State);
+        Assert.Same(vm.Bass.Steps[3], vm.Bass.SelectedStep);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
+    public void Step_menu_lists_every_note_by_octave_and_sets_it()
+    {
+        var (window, vm) = Show();
+        var step = vm.Bass.Steps[0];
+        var menu = BassEditorView.BuildStepMenu(step);
+        var groups = menu.ItemsSource!.OfType<MenuItem>().Where(m => ((string)m.Header!).StartsWith("Octave")).ToList();
+
+        Assert.Equal(8, groups.Count);
+        Assert.Equal(85, groups.Sum(g => ((IEnumerable<MenuItem>)g.ItemsSource!).Count()));
+        var g3 = ((IEnumerable<MenuItem>)groups[2].ItemsSource!).Single(m => (string)m.Header! == "G2");
+        g3.Command!.Execute(null);
+        Assert.Equal(43, step.Note);
+        Assert.True(step.HasNote);
+
+        var tie = menu.ItemsSource!.OfType<MenuItem>().Single(m => (string)m.Header! == "Tie");
+        tie.Command!.Execute(tie.CommandParameter);
+        Assert.Equal(T8.Core.Patterns.BassStepState.Tie, step.State);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Renders_a_screenshot()
     {
         var (window, vm) = Show();

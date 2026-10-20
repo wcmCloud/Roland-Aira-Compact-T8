@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:T8.Editor.ViewModels"
+             xmlns:views="using:T8.Editor.Views"
              x:Class="T8.Editor.Views.BassEditorView"
              x:DataType="vm:BassEditorViewModel">
   <DockPanel Margin="0,8,0,0">
@@ -23,31 +24,49 @@
       </Button>
     </StackPanel>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Auto">
-      <ItemsControl x:Name="BassSteps" ItemsSource="{Binding Steps}">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="3" /></ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        <ItemsControl.ItemTemplate>
-          <DataTemplate x:DataType="vm:BassStepViewModel">
-            <Border Classes="bassStep" Classes.beat="{Binding IsBeat}" Classes.outside="{Binding !IsInLength}">
-              <StackPanel Spacing="3">
-                <TextBlock Text="{Binding Number}" HorizontalAlignment="Center" FontSize="11" Opacity="0.6" />
-                <Button Classes="state" Classes.on="{Binding HasNote}" Content="{Binding StateLabel}"
-                        Command="{Binding CycleStateCommand}" ToolTip.Tip="Off → Note → Tie" />
-                <Button Content="+12" Command="{Binding OctaveUpCommand}" />
-                <Button Content="▲" Command="{Binding NoteUpCommand}" />
-                <TextBlock Text="{Binding NoteName}" HorizontalAlignment="Center" FontWeight="SemiBold"
-                           Opacity="{Binding HasNote, Converter={x:Static vm:Converters.HasNoteOpacity}}" />
-                <Button Content="▼" Command="{Binding NoteDownCommand}" />
-                <Button Content="−12" Command="{Binding OctaveDownCommand}" />
-                <ToggleButton Content="Acc" IsChecked="{Binding Accent}" ToolTip.Tip="Accent" />
-                <ToggleButton Content="Slide" IsChecked="{Binding Slide}" ToolTip.Tip="Slide" />
-              </StackPanel>
-            </Border>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+      <StackPanel HorizontalAlignment="Left">
+        <ItemsControl x:Name="BassSteps" ItemsSource="{Binding Steps}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="3" /></ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:BassStepViewModel">
+              <Border Classes="bassStep" Classes.beat="{Binding IsBeat}" Classes.outside="{Binding !IsInLength}"
+                      Classes.selected="{Binding IsSelected}" ContextRequested="OnStepContextRequested">
+                <StackPanel Spacing="3">
+                  <TextBlock Text="{Binding Number}" HorizontalAlignment="Center" FontSize="11" Opacity="0.6" />
+                  <Button Classes="note" Classes.on="{Binding HasNote}" Content="{Binding NoteName}"
+                          Command="{Binding SelectCommand}" ToolTip.Tip="Select, then play a key below (right-click for all notes)" />
+                  <Button Classes="state" Classes.on="{Binding HasNote}" Content="{Binding StateLabel}"
+                          Command="{Binding CycleStateCommand}" ToolTip.Tip="Off → Note → Tie" />
+                  <UniformGrid Columns="2">
+                    <Button Content="▲" Command="{Binding NoteUpCommand}" ToolTip.Tip="Semitone up" />
+                    <Button Content="▼" Command="{Binding NoteDownCommand}" ToolTip.Tip="Semitone down" />
+                  </UniformGrid>
+                  <ToggleButton Content="Acc" IsChecked="{Binding Accent}" ToolTip.Tip="Accent" />
+                  <ToggleButton Content="Slide" IsChecked="{Binding Slide}" ToolTip.Tip="Slide" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- Keyboard: plays a note into the selected step -->
+        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,16,0,6">
+          <Button Content="◀" Command="{Binding SelectPreviousCommand}" ToolTip.Tip="Select the previous step" />
+          <TextBlock x:Name="SelectionText" Classes="header" Text="{Binding SelectionLabel}" MinWidth="150" />
+          <Button Content="▶" Command="{Binding SelectNextCommand}" ToolTip.Tip="Select the next step" />
+          <CheckBox x:Name="AdvanceCheck" Content="Go to the next step after a note" IsChecked="{Binding AdvanceAfterNote}" Margin="8,0,0,0" />
+          <TextBlock Text="Click a step, then a key. Right-click a step for all notes." Opacity="0.6" FontSize="12"
+                     VerticalAlignment="Center" Margin="8,0,0,0" />
+        </StackPanel>
+        <views:PianoKeyboard x:Name="BassKeyboard" HorizontalAlignment="Left"
+                             LowestNote="{x:Static vm:BassEditorViewModel.LowestNote}"
+                             HighestNote="{x:Static vm:BassEditorViewModel.HighestNote}"
+                             HighlightedNote="{Binding SelectedNote}"
+                             Command="{Binding EnterNoteCommand}" />
+      </StackPanel>
     </ScrollViewer>
   </DockPanel>
 </UserControl>
