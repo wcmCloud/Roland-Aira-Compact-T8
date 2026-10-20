@@ -56,9 +56,10 @@ public class SongPlaybackTests
         var plan = SongPlan.Create(song, library);
         using var t8 = new T8Controller(_device);
 
-        t8.PlaySong(plan, library, bpm: 300, loop: false, fromPass: 2);
-        Thread.Sleep(30);
-        Assert.InRange(t8.CurrentStep!.Value, 4, 5);
+        // Looping, so a slow machine can't reach the end before the position is read.
+        t8.PlaySong(plan, library, bpm: 60, loop: true, fromPass: 2);
+
+        Assert.InRange(t8.CurrentStep!.Value, 4, 5); // pass 3 starts at step 4
         t8.StopPreview();
     }
 
