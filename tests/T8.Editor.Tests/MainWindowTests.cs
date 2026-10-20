@@ -87,6 +87,25 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Pattern_knobs_set_last_step_shuffle_and_flam()
+    {
+        var (window, vm) = Show();
+        window.UpdateLayout();
+        var rhythm = window.GetVisualDescendants().OfType<RhythmEditorView>().Single();
+
+        rhythm.FindControl<Knob>("RhythmLength")!.Value = 12;
+        rhythm.FindControl<Knob>("ShuffleInput")!.Value = 60;
+        rhythm.FindControl<Knob>("FlamInput")!.Nudge(2);
+
+        Assert.Equal(12, vm.CurrentRhythm.Length);
+        Assert.Equal(60, vm.CurrentRhythm.Shuffle);
+        Assert.Equal(vm.Rhythm.Flam, (int)rhythm.FindControl<Knob>("FlamInput")!.Value);
+        Assert.True(vm.IsDirty);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Knobs_turn_with_a_drag_and_the_wheel_and_reset()
     {
         var knob = new Knob { Minimum = 0, Maximum = 100, Value = 50, DefaultValue = 20 };

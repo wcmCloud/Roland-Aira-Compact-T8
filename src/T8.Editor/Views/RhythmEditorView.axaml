@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:T8.Editor.ViewModels"
+             xmlns:views="using:T8.Editor.Views"
              x:Class="T8.Editor.Views.RhythmEditorView"
              x:DataType="vm:RhythmEditorViewModel">
   <DockPanel Margin="0,8,0,0">
@@ -8,14 +9,14 @@
     <ScrollViewer DockPanel.Dock="Right" Width="256" Margin="16,0,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Width="240" Spacing="8" HorizontalAlignment="Left">
       <TextBlock Classes="header" Text="Pattern" />
-      <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
-        <TextBlock Text="Last step" VerticalAlignment="Center" />
-        <NumericUpDown x:Name="RhythmLength" Grid.Column="1" Value="{Binding Length}" Minimum="1" Maximum="32" FormatString="0" />
-        <TextBlock Grid.Row="1" Text="Shuffle" VerticalAlignment="Center" />
-        <NumericUpDown x:Name="ShuffleInput" Grid.Row="1" Grid.Column="1" Value="{Binding Shuffle}" Minimum="0" Maximum="200" Increment="10" FormatString="0" />
-        <TextBlock Grid.Row="2" Text="Flam" VerticalAlignment="Center" />
-        <NumericUpDown x:Name="FlamInput" Grid.Row="2" Grid.Column="1" Value="{Binding Flam}" Minimum="0" Maximum="100" FormatString="0" />
-      </Grid>
+      <StackPanel Orientation="Horizontal" Spacing="4">
+        <views:Knob x:Name="RhythmLength" Value="{Binding Length}" Minimum="1" Maximum="32" DefaultValue="16" Label="Last step"
+                    ToolTip.Tip="Steps 1 to this one play; the rest are skipped" />
+        <views:Knob x:Name="ShuffleInput" Value="{Binding Shuffle}" Minimum="0" Maximum="200" DefaultValue="0" Label="Shuffle"
+                    ToolTip.Tip="Delays every second 16th note (0 = straight)" />
+        <views:Knob x:Name="FlamInput" Value="{Binding Flam}" Minimum="0" Maximum="100" DefaultValue="36" Label="Flam"
+                    ToolTip.Tip="Spacing of the two hits of a flam sub step" />
+      </StackPanel>
 
       <StackPanel x:Name="Inspector" Spacing="6" Margin="0,12,0,0" IsVisible="{Binding SelectedCell, Converter={x:Static ObjectConverters.IsNotNull}}">
         <TextBlock Classes="header" Text="{Binding SelectedCell.Description, FallbackValue=''}" />

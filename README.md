@@ -117,15 +117,17 @@ Double-click a knob to put it back to its default.
 
 ![The rhythm grid and the step inspector](docs/images/rhythm-editor.png)
 
-Each row is one of the T-8's tracks: Accent, Bass drum, Snare, Tom, Clap, CY (stored in the file but the T-8 has no
-cymbal sound), Closed hat and Open hat. Each column is one of 32 steps; the brighter columns are the beats.
+Each row is one of the T-8's tracks: Accent, Bass drum, Snare, Tom, Clap, CY, Closed hat and Open hat. CY is a
+cymbal slot that the T-8's pattern files have, but the T-8 has no cymbal sound, so it never plays; the editor keeps
+whatever is in it so files round-trip unchanged, and the generators leave it empty. Each column is one of 32 steps; the brighter columns are the beats.
 
 - Click a cell to turn it on or off. The cell you clicked is outlined in white and shown in the inspector on
   the right.
 - **Inspector:** On, **Velocity** (v.0–v.10, the T-8 uses v.7 for new notes), **Probability** (how often the step
   plays, as on the T-8), **Sub step** (Half, Third or Quarter: 2, 3 or 4 hits in the step; Flam: a quiet hit just
   before) and the sub step's own probability.
-- **Pattern:** **Last step** (1–32, steps after it are dimmed), **Shuffle** and **Flam** amount.
+- **Pattern** knobs: **Last step** (1–32, steps after it are dimmed), **Shuffle** (0–200, delays every second
+  16th) and **Flam** (0–100, the spacing of a flam's two hits).
 - Click a track's name to clear the whole track.
 
 ## Generating rhythms
