@@ -334,7 +334,9 @@ The **Song** tab chains patterns from the banks into a song.
 
 Press **PLAY SONG** to play it. The playing entry is outlined in green, the timeline fills up as the song plays,
 and the bottom row shows what's playing now (with the repeat, e.g. 2/4), what comes next, the step and the time.
-**PREVIOUS** and **NEXT** jump between entries. **LOOP SONG** starts again from the top after the last entry,
+**PREVIOUS** and **NEXT** jump between entries. **Click a block on the timeline** to play that part next: it
+starts as soon as the pattern playing now has finished (outlined in white until then), so you can perform the
+song live; when the song is stopped, clicking a block plays the song from there. **LOOP SONG** starts again from the top after the last entry,
 and **Loop** can instead keep repeating a single entry while you work on it.
 
 What PLAY SONG does follows the Play mode in the MIDI settings:

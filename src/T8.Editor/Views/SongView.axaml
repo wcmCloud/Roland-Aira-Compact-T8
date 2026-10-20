@@ -64,19 +64,21 @@
         </DockPanel>
 
         <!-- Timeline: one block per entry and per fill, as wide as its share of the song -->
-        <ItemsControl x:Name="SongTimeline" ItemsSource="{Binding Timeline}" Height="34">
+        <ItemsControl x:Name="SongTimeline" ItemsSource="{Binding Timeline}" Height="30">
           <ItemsControl.ItemsPanel>
             <ItemsPanelTemplate><views:ProportionalPanel Gap="3" /></ItemsPanelTemplate>
           </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:TimelineBlock">
-              <Panel ToolTip.Tip="{Binding Label}">
+              <Panel Classes="timelineBlock" Classes.queued="{Binding IsQueued}" Cursor="Hand"
+                     ToolTip.Tip="Click to play this part next (as soon as the pattern playing now ends)">
                 <ProgressBar Classes="timeline" Minimum="0" Maximum="1" Value="{Binding Progress}"
                              Background="{Binding Color, Converter={x:Static vm:Converters.HexTint}}"
                              Foreground="{Binding Color, Converter={x:Static vm:Converters.HexBrush}}"
                              Opacity="{Binding IsFill, Converter={x:Static vm:Converters.FillOpacity}}" />
                 <TextBlock Text="{Binding Label}" FontSize="11" FontWeight="SemiBold" Margin="8,0" VerticalAlignment="Center"
                            TextTrimming="CharacterEllipsis" Foreground="White" />
+                <Border Classes="queuedOutline" IsVisible="{Binding IsQueued}" />
               </Panel>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
@@ -125,7 +127,7 @@
         </DockPanel>
 
         <!-- Column headings -->
-        <Grid DockPanel.Dock="Top" Classes="songColumns" ColumnDefinitions="44,72,80,96,56,*,70,72,48,170" Margin="10,0,10,4">
+        <Grid DockPanel.Dock="Top" Classes="songColumns" ColumnDefinitions="36,60,64,84,44,*,52,60,36,150" Margin="10,0,10,4">
           <TextBlock Text="#" Classes="miniLabel" />
           <TextBlock Grid.Column="1" Text="BANK" Classes="miniLabel" />
           <TextBlock Grid.Column="2" Text="PATTERN" Classes="miniLabel" />
@@ -133,7 +135,7 @@
           <TextBlock Grid.Column="4" Text="STEPS" Classes="miniLabel" />
           <TextBlock Grid.Column="5" Text="NAME" Classes="miniLabel" />
           <TextBlock Grid.Column="6" Grid.ColumnSpan="2" Text="FILL INTO NEXT" Classes="miniLabel" />
-          <TextBlock Grid.Column="8" Text="COLOUR" Classes="miniLabel" />
+          <TextBlock Grid.Column="8" Grid.ColumnSpan="2" Text="COLOUR" Classes="miniLabel" />
         </Grid>
 
         <Panel>
@@ -144,25 +146,25 @@
             <ItemsControl x:Name="SongEntries" ItemsSource="{Binding Entries}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:SongEntryViewModel">
-                  <Border Classes="songRow" Classes.current="{Binding IsCurrent}"
-                          Background="{Binding Color, Converter={x:Static vm:Converters.HexTint}}" Margin="0,0,0,4">
-                    <Grid Classes="songColumns" ColumnDefinitions="44,72,80,96,56,*,70,72,48,170">
+                  <Border Classes="songRow" Classes.current="{Binding IsCurrent}" Classes.queued="{Binding IsQueued}"
+                          Background="{Binding Color, Converter={x:Static vm:Converters.HexTint}}" Margin="0,0,0,3">
+                    <Grid Classes="songColumns" ColumnDefinitions="36,60,64,84,44,*,52,60,36,150">
                       <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                        <PathIcon Data="{StaticResource IconPlay}" Width="10" Height="10" Foreground="{StaticResource SectionGreen}"
+                        <PathIcon Data="{StaticResource IconPlay}" Width="9" Height="9" Foreground="{StaticResource SectionGreen}"
                                   IsVisible="{Binding IsCurrent}" />
-                        <TextBlock Text="{Binding Number}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Number}" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
                       </StackPanel>
                       <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:SongViewModel.Banks}" SelectedItem="{Binding Bank}" HorizontalAlignment="Stretch" />
                       <ComboBox Grid.Column="2" ItemsSource="{x:Static vm:SongViewModel.Patterns}" SelectedItem="{Binding Pattern}" HorizontalAlignment="Stretch" />
                       <NumericUpDown Grid.Column="3" Value="{Binding Repeats}" Minimum="1" Maximum="99" FormatString="0" HorizontalAlignment="Stretch" />
-                      <TextBlock Grid.Column="4" Text="{Binding Steps}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                      <TextBlock Grid.Column="4" Text="{Binding Steps}" FontSize="12" Opacity="0.8" VerticalAlignment="Center" HorizontalAlignment="Center" />
                       <TextBox Grid.Column="5" Text="{Binding Name}" Watermark="Name" />
                       <ToggleButton Grid.Column="6" Classes="seg blue" Content="FILL" IsChecked="{Binding HasFill}"
                                     ToolTip.Tip="After the repeats, play a fill pattern once as a bridge into the next entry" />
                       <ComboBox Grid.Column="7" ItemsSource="{x:Static vm:SongViewModel.Patterns}" SelectedItem="{Binding FillPattern}"
                                 IsEnabled="{Binding HasFill}" HorizontalAlignment="Stretch" ToolTip.Tip="Fill pattern, in the same bank" />
                       <Button Grid.Column="8" Classes="swatch" Command="{Binding NextColorCommand}" ToolTip.Tip="Change the colour">
-                        <Border Background="{Binding Color, Converter={x:Static vm:Converters.HexBrush}}" CornerRadius="3" Width="28" Height="18" />
+                        <Border Background="{Binding Color, Converter={x:Static vm:Converters.HexBrush}}" CornerRadius="3" Width="22" Height="14" />
                       </Button>
                       <StackPanel Grid.Column="9" Orientation="Horizontal" Spacing="3" HorizontalAlignment="Right">
                         <Button Classes="seg mini" Command="{Binding PlayFromHereCommand}" ToolTip.Tip="Play the song from here">

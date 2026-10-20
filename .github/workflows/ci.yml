@@ -5,6 +5,11 @@ on:
     branches: [master, main]
   pull_request:
 
+# A newer push to the same branch cancels the runs still testing older commits.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     strategy:

@@ -398,6 +398,7 @@ public sealed partial class SongViewModel : ObservableObject
         StopPlayers();
         IsPlaying = false;
         _time.Reset();
+        SetQueued(-1);
         foreach (var entry in Entries)
             entry.IsCurrent = false;
         foreach (var block in Timeline)
@@ -418,6 +419,51 @@ public sealed partial class SongViewModel : ObservableObject
         _player?.Clock.Stop();
         _player = null;
     }
+
+    /// <summary>The entry that starts when the pass playing now ends; -1 for none.</summary>
+    [ObservableProperty]
+    private int _queuedEntry = -1;
+
+    /// <summary>
+    /// Clicking an entry on the timeline: while the song plays, that entry starts as soon as the
+    /// pattern playing now finishes; when stopped, the song plays from that entry.
+    /// </summary>
+    public void QueueEntry(int entry)
+    {
+        if (entry < 0 || entry >= Entries.Count)
+            return;
+        if (!IsPlaying || _plan is null)
+        {
+            PlayFrom(entry);
+            return;
+        }
+        var target = _plan.FirstPassOf(entry);
+        if (target < 0)
+        {
+            _host.ShowStatus("Loop is set to one entry. Set Loop to \"Whole song\" to move between entries.");
+            return;
+        }
+        if (CurrentPass() is not { } pass)
+            return;
+
+        if (_sync is not null)
+            _sync.QueuePass(target);
+        else
+            _player?.QueueSongJump(pass.EndStep, _plan.Passes[target].StartStep);
+        SetQueued(entry);
+        _host.ShowStatus($"{Entries[entry].Name} starts when this pattern ends.");
+    }
+
+    private void SetQueued(int entry)
+    {
+        QueuedEntry = entry;
+        foreach (var block in Timeline)
+            block.IsQueued = block.Entry == entry && !block.IsFill;
+        for (var i = 0; i < Entries.Count; i++)
+            Entries[i].IsQueued = i == entry;
+    }
+
+    private bool JumpPending => _sync?.IsJumpPending ?? _player?.IsSongJumpPending ?? false;
 
     private bool CanStep() => IsPlaying;
 
@@ -462,6 +508,8 @@ public sealed partial class SongViewModel : ObservableObject
         }
 
         TimeText = _time.Elapsed.ToString(_time.Elapsed.TotalHours >= 1 ? @"h\:mm\:ss" : @"mm\:ss");
+        if (QueuedEntry >= 0 && !JumpPending)
+            SetQueued(-1); // the queued entry has started
         if (CurrentStep() is not { } step)
             return;
         var passIndex = _plan.PassAt(step);
@@ -494,6 +542,12 @@ public sealed partial class SongViewModel : ObservableObject
         CurrentText = pass.IsFill
             ? $"Fill: bank {pass.Bank} pattern {pass.Pattern} → next"
             : $"{entry.SlotLabel} {entry.Name}  ({pass.Repeat}/{entry.Model.Repeats})";
+        if (QueuedEntry >= 0)
+        {
+            NextText = $"{Entries[QueuedEntry].Name} (queued)";
+            PositionText = $"Step {inSong - pass.StartStep + 1} / {pass.Steps} · {_host.Bpm:0} BPM";
+            return;
+        }
         var nextIndex = passIndex + 1 < _plan.Passes.Count ? passIndex + 1 : (_song.Loop || LoopChoice is { Value: >= 0 }) ? 0 : -1;
         NextText = nextIndex < 0
             ? "End of song"
@@ -516,6 +570,10 @@ public sealed partial class SongEntryViewModel : ObservableObject
     /// <summary>The entry playing now.</summary>
     [ObservableProperty]
     private bool _isCurrent;
+
+    /// <summary>The entry that starts when the pattern playing now ends.</summary>
+    [ObservableProperty]
+    private bool _isQueued;
 
     public SongEntryViewModel(SongEntry model, SongViewModel song, ISongHost host)
     {
@@ -644,6 +702,10 @@ public sealed partial class TimelineBlock(int entry, bool isFill, double share, 
 {
     [ObservableProperty]
     private double _progress;
+
+    /// <summary>Clicked while playing: starts when the pattern playing now ends.</summary>
+    [ObservableProperty]
+    private bool _isQueued;
 
     public int Entry { get; } = entry;
     public bool IsFill { get; } = isFill;

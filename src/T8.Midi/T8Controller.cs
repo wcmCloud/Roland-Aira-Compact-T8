@@ -145,6 +145,54 @@ public sealed class T8Controller : IDisposable
         return playback;
     }
 
+    private Thread? _jumpWatcher;
+    private volatile bool _jumpPending;
+
+    /// <summary>
+    /// When the song preview reaches <paramref name="atStep"/> (the end of the pass playing now),
+    /// carries on from <paramref name="toStep"/> instead, so a chosen part starts right after the
+    /// current one. A later call replaces an earlier one.
+    /// </summary>
+    public void QueueSongJump(long atStep, long toStep)
+    {
+        if (_preview is not { IsRunning: true } preview)
+            return;
+        var atTicks = atStep * PatternMidiBuilder.TicksPerStep;
+        var toTicks = toStep * PatternMidiBuilder.TicksPerStep;
+        _jumpPending = false;
+        _jumpWatcher?.Join();
+        _jumpPending = true;
+        _jumpWatcher = new Thread(() =>
+        {
+            // Jump a moment before the boundary, keeping the distance to it, so no note of the
+            // following pass sounds first.
+            const long lead = 2;
+            var last = -1L;
+            while (_jumpPending && preview.IsRunning)
+            {
+                var now = preview.GetCurrentTime<MidiTimeSpan>().TimeSpan;
+                if (now >= atTicks - lead)
+                {
+                    preview.MoveToTime(new MidiTimeSpan(Math.Max(0, toTicks - (atTicks - now))));
+                    break;
+                }
+                if (now < last)
+                {
+                    // The song looped round before the boundary was seen: carry on from the target.
+                    preview.MoveToTime(new MidiTimeSpan(toTicks + now));
+                    break;
+                }
+                last = now;
+                Thread.Sleep(1);
+            }
+            _jumpPending = false;
+        }) { IsBackground = true, Priority = ThreadPriority.Highest, Name = "T-8 song jump" };
+        _jumpWatcher.Start();
+    }
+
+    /// <summary>True while a jump queued with <see cref="QueueSongJump"/> hasn't happened yet.</summary>
+    public bool IsSongJumpPending => _jumpPending;
+
     /// <summary>True when a preview started by <see cref="PlaySong"/> or <see cref="PlayPreview"/> has played to its end.</summary>
     public bool PreviewFinished => _preview is { IsRunning: false } && !_paused;
 
@@ -246,6 +294,7 @@ public sealed class T8Controller : IDisposable
 
     public void StopPreview()
     {
+        _jumpPending = false;
         if (_preview is null)
             return;
         _preview.Stop();

@@ -13,7 +13,8 @@ public sealed class SongSyncDriver : IDisposable
     private readonly T8Controller _t8;
     private readonly SongPlan _plan;
     private readonly bool _loop;
-    private readonly int _offset;
+    private long _offset;
+    private int _queuedPass = -1;
     private int _lastPass = -1;
     private volatile bool _finished;
 
@@ -27,7 +28,22 @@ public sealed class SongSyncDriver : IDisposable
     }
 
     /// <summary>The song step being played, from the clocks sent, or null before the first clock.</summary>
-    public long? CurrentStep => _t8.Clock.CurrentStep is { } step ? step + _offset : null;
+    public long? CurrentStep => _t8.Clock.CurrentStep is { } step ? step + Interlocked.Read(ref _offset) : null;
+
+    /// <summary>
+    /// Makes pass <paramref name="pass"/> follow the pass playing now: its pattern is sent at once (the
+    /// T-8 queues it in place of the one it had up next), and the song carries on from there.
+    /// </summary>
+    public void QueuePass(int pass)
+    {
+        if (pass < 0 || pass >= _plan.Passes.Count)
+            return;
+        Volatile.Write(ref _queuedPass, pass);
+        var target = _plan.Passes[pass];
+        _t8.SelectPattern(target.Bank, target.Pattern);
+    }
+
+    public bool IsJumpPending => Volatile.Read(ref _queuedPass) >= 0;
 
     /// <summary>True once a song without loop has played its last pass.</summary>
     public bool Finished => _finished;
@@ -51,7 +67,27 @@ public sealed class SongSyncDriver : IDisposable
         _t8.Clock.Stop();
     }
 
-    private void OnStepStarted(long clockStep) => OnStep(clockStep + _offset);
+    private void OnStepStarted(long clockStep)
+    {
+        var step = clockStep + Interlocked.Read(ref _offset);
+        // A queued pass starts where the current pass ends: shift the song position onto it.
+        var queued = Volatile.Read(ref _queuedPass);
+        if (queued >= 0 && _lastPass >= 0)
+        {
+            var current = _plan.Passes[_lastPass];
+            var inSong = step % _plan.TotalSteps;
+            // The current pass has ended (or the song looped round past its last pass).
+            if (inSong >= current.EndStep || inSong < current.StartStep)
+            {
+                // Put the song position at the start of the queued pass (also past the end of a song that doesn't loop).
+                Interlocked.Add(ref _offset, _plan.Passes[queued].StartStep - step);
+                step = clockStep + Interlocked.Read(ref _offset);
+                Volatile.Write(ref _queuedPass, -1);
+                _lastPass = -1; // so the pattern after the new pass gets queued
+            }
+        }
+        OnStep(step);
+    }
 
     /// <summary>At each step: queues the next pattern when a pass starts, and stops at the end of the song.</summary>
     internal void OnStep(long step)

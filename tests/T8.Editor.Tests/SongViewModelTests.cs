@@ -181,6 +181,31 @@ public class SongViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Clicking_an_entry_on_the_timeline_plays_it_next_or_starts_there()
+    {
+        Song.AddEntry(1, 1);
+        Song.AddEntry(1, 2);
+        Song.AddEntry(1, 3);
+
+        Song.QueueEntry(2); // stopped: plays from there
+        Assert.True(Song.IsPlaying);
+        Song.UpdatePosition();
+        Assert.True(Song.Entries[2].IsCurrent);
+
+        Song.QueueEntry(0); // playing: queued for when the pattern playing now ends
+        Assert.Equal(0, Song.QueuedEntry);
+        Assert.True(Song.Entries[0].IsQueued);
+        Assert.True(Song.Timeline.Single(b => b.Entry == 0).IsQueued);
+        Assert.Contains("starts when this pattern ends", _vm.Status);
+        Song.UpdatePosition();
+        Assert.Contains("(queued)", Song.NextText);
+
+        Song.StopCommand.Execute(null);
+        Assert.Equal(-1, Song.QueuedEntry);
+        Assert.DoesNotContain(Song.Entries, e => e.IsQueued);
+    }
+
+    [Fact]
     public void Loop_choices_follow_the_entries()
     {
         Song.AddEntry(1, 1).Name = "Intro";
