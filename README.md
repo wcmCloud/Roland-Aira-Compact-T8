@@ -8,10 +8,19 @@ A cross-platform (.NET 10) editor for the Roland AIRA Compact T-8: load the patt
 |---|---|
 | `src/T8.Core` | Reads and writes the T-8's `.PRM` pattern files ([format](docs/PRM-FORMAT.md)) |
 | `src/T8.Midi` | USB MIDI with [DryWetMIDI](https://github.com/melanchall/drywetmidi): pattern select, preview through the T-8's sounds, MIDI clock, `.mid` export ([notes](docs/MIDI.md)) |
-| `src/T8.Cli` | Command-line tool for trying the MIDI side before the editor UI exists |
-| `tests/T8.Core.Tests` | Round-trip tests on the factory patterns, plus MIDI conversion tests |
+| `src/T8.Editor` | The desktop editor (Avalonia): rhythm grid with a step inspector, bass lane, bank/pattern picker, copy/paste, preview and audition on the T-8 |
+| `src/T8.Cli` | Command-line tool (`t8`) for the MIDI side |
+| `tests/*.Tests` | One test project per project above, including headless UI tests of the editor |
 
-## Try it
+## Run the editor
+
+```sh
+dotnet run --project src/T8.Editor
+```
+
+Open the `BACKUP` folder (or the T-8 drive itself), edit, and save. Pick the T-8 under **MIDI out** to preview patterns and hear steps as you click them.
+
+## Command line
 
 ```sh
 dotnet test

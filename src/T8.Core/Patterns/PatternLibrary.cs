@@ -18,6 +18,35 @@ public sealed class PatternLibrary
     public static string RhythmPath(string root, int bank, int pattern) =>
         Path.Combine(root, "RHYTHM", $"PTN_BANK{bank:00}", $"T8_RHYTHM_PTN{bank:00}_{pattern:00}.PRM");
 
+    /// <summary>A library of 64 blank patterns.</summary>
+    public static PatternLibrary CreateBlank()
+    {
+        var library = new PatternLibrary();
+        for (var b = 0; b < BankCount; b++)
+        {
+            for (var p = 0; p < PatternsPerBank; p++)
+            {
+                library.Bass[b, p] = new BassPattern();
+                library.Rhythm[b, p] = new RhythmPattern();
+            }
+        }
+        return library;
+    }
+
+    /// <summary>
+    /// Finds the folder holding BASS and RHYTHM: the folder itself, or its BACKUP subfolder
+    /// (so the T-8 drive root can be picked directly). Null if neither has them.
+    /// </summary>
+    public static string? ResolveRoot(string folder)
+    {
+        foreach (var candidate in new[] { folder, Path.Combine(folder, "BACKUP") })
+        {
+            if (Directory.Exists(Path.Combine(candidate, "BASS")) && Directory.Exists(Path.Combine(candidate, "RHYTHM")))
+                return candidate;
+        }
+        return null;
+    }
+
     /// <summary>Loads from a folder containing BASS and RHYTHM subfolders. Bank and pattern numbers are 1-based in file names.</summary>
     public static PatternLibrary Load(string root)
     {

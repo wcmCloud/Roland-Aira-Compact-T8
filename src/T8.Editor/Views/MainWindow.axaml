@@ -1,0 +1,71 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:T8.Editor.ViewModels"
+        xmlns:views="using:T8.Editor.Views"
+        xmlns:ports="using:T8.Midi.Ports"
+        x:Class="T8.Editor.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="{Binding Title}"
+        Width="1480" Height="760" MinWidth="900" MinHeight="560">
+  <DockPanel Margin="12">
+    <!-- File and pattern commands -->
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="6" Margin="0,0,0,8">
+      <Button x:Name="NewButton" Content="New" Command="{Binding NewLibraryCommand}" ToolTip.Tip="64 blank patterns" />
+      <Button x:Name="OpenButton" Content="Open…" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open a BACKUP folder or the T-8 drive" />
+      <Button x:Name="SaveButton" Content="Save" Command="{Binding SaveCommand}" HotKey="Ctrl+S" />
+      <Button x:Name="SaveAsButton" Content="Save as…" Command="{Binding SaveAsCommand}" />
+      <Separator Width="16" />
+      <Button x:Name="CopyButton" Content="Copy pattern" Command="{Binding CopyPatternCommand}" />
+      <Button x:Name="PasteButton" Content="Paste pattern" Command="{Binding PastePatternCommand}" />
+      <Button x:Name="ClearButton" Content="Clear pattern" Command="{Binding ClearPatternCommand}" />
+    </StackPanel>
+
+    <!-- Bank / pattern selector -->
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+      <TextBlock Classes="header" Text="Bank" />
+      <ListBox x:Name="BankPicker" Classes="picker" ItemsSource="{Binding BankNumbers}" SelectedItem="{Binding SelectedBank}">
+        <ListBox.ItemsPanel>
+          <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
+      </ListBox>
+      <TextBlock Classes="header" Text="Pattern" Margin="12,0,0,0" />
+      <ListBox x:Name="PatternPicker" Classes="picker" ItemsSource="{Binding PatternNumbers}" SelectedItem="{Binding SelectedPattern}">
+        <ListBox.ItemsPanel>
+          <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
+      </ListBox>
+    </StackPanel>
+
+    <!-- MIDI -->
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+      <TextBlock Classes="header" Text="MIDI out" />
+      <ComboBox x:Name="PortPicker" MinWidth="200" ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}"
+                PlaceholderText="No MIDI outputs">
+        <ComboBox.ItemTemplate>
+          <DataTemplate x:DataType="ports:MidiPortInfo">
+            <TextBlock Text="{Binding Name}" />
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+      <Button x:Name="RefreshButton" Content="Refresh" Command="{Binding RefreshPortsCommand}" />
+      <TextBlock Classes="header" Text="BPM" Margin="12,0,0,0" />
+      <NumericUpDown x:Name="BpmInput" Value="{Binding Bpm}" Minimum="20" Maximum="300" Increment="1" FormatString="0" Width="120" />
+      <Button x:Name="PlayButton" Content="▶ Play" Command="{Binding PlayCommand}" ToolTip.Tip="Play this pattern through the T-8's sounds" />
+      <Button x:Name="StopButton" Content="■ Stop" Command="{Binding StopCommand}" />
+      <Button x:Name="SelectOnT8Button" Content="Select on T-8" Command="{Binding SelectOnT8Command}"
+              ToolTip.Tip="Switch the T-8 to this bank and pattern (needs RX Program Change on)" />
+      <CheckBox x:Name="AuditionCheck" Content="Audition steps" IsChecked="{Binding AuditionEnabled}" />
+    </StackPanel>
+
+    <TextBlock DockPanel.Dock="Bottom" x:Name="StatusText" Text="{Binding Status}" Margin="0,8,0,0" Opacity="0.8" />
+
+    <TabControl x:Name="Tabs">
+      <TabItem Header="Rhythm">
+        <views:RhythmEditorView DataContext="{Binding Rhythm}" />
+      </TabItem>
+      <TabItem Header="Bass">
+        <views:BassEditorView DataContext="{Binding Bass}" />
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</Window>

@@ -130,3 +130,62 @@ public class PatternModelTests
         Assert.ThrowsAny<IOException>(() => PatternLibrary.Load(temp.Path));
     }
 }
+
+public class PatternEditingTests
+{
+    [Fact]
+    public void Pattern_clones_are_deep_copies()
+    {
+        var library = PatternLibrary.Load(TestPaths.Backup);
+        var bass = library.Bass[0, 0];
+        var rhythm = library.Rhythm[0, 0];
+
+        var bassCopy = bass.Clone();
+        var rhythmCopy = rhythm.Clone();
+        bassCopy.Steps[0].Note = 99;
+        rhythmCopy.Steps[0][RhythmTrack.BD].On = false;
+
+        Assert.Equal(bass.ToPrm().ToString(), bass.Clone().ToPrm().ToString());
+        Assert.Equal(46, bass.Steps[0].Note);
+        Assert.True(rhythm.Steps[0][RhythmTrack.BD].On);
+        Assert.Equal(rhythm.ToPrm().ToString(), rhythm.Clone().ToPrm().ToString());
+    }
+
+    [Fact]
+    public void Clear_resets_to_blank_patterns()
+    {
+        var library = PatternLibrary.Load(TestPaths.Backup);
+        var bass = library.Bass[0, 0];
+        var rhythm = library.Rhythm[0, 0];
+
+        bass.Clear();
+        rhythm.Clear();
+
+        Assert.Equal(new BassPattern().ToPrm().ToString(), bass.ToPrm().ToString());
+        Assert.Equal(new RhythmPattern().ToPrm().ToString(), rhythm.ToPrm().ToString());
+    }
+
+    [Fact]
+    public void Blank_library_has_64_blank_patterns_and_saves()
+    {
+        var library = PatternLibrary.CreateBlank();
+        using var temp = TestPaths.CreateTempFolder();
+
+        library.Save(temp.Path);
+
+        Assert.Equal(64, Directory.GetFiles(Path.Combine(temp.Path, "BASS"), "*.PRM", SearchOption.AllDirectories).Length);
+        Assert.Equal(64, Directory.GetFiles(Path.Combine(temp.Path, "RHYTHM"), "*.PRM", SearchOption.AllDirectories).Length);
+        Assert.Equal(16, PatternLibrary.Load(temp.Path).Rhythm[3, 15].Length);
+    }
+
+    [Fact]
+    public void Resolve_root_accepts_backup_folder_or_its_parent()
+    {
+        var backup = TestPaths.Backup;
+        Assert.Equal(backup, PatternLibrary.ResolveRoot(backup));
+        Assert.Equal(backup, PatternLibrary.ResolveRoot(Path.GetDirectoryName(backup)!));
+
+        using var temp = TestPaths.CreateTempFolder();
+        Assert.Null(PatternLibrary.ResolveRoot(temp.Path));
+    }
+}

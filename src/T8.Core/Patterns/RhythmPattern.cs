@@ -152,6 +152,22 @@ public sealed class RhythmPattern
         return doc;
     }
 
+    public RhythmPattern Clone() => FromPrm(ToPrm());
+
+    /// <summary>Resets every step to the blank state the T-8 writes for an empty pattern.</summary>
+    public void Clear()
+    {
+        Length = 16;
+        Scale = 1;
+        Shuffle = 0;
+        Flam = 36;
+        foreach (var step in Steps)
+        {
+            for (var t = 0; t < TrackCount; t++)
+                step.Cells[t] = new RhythmCell();
+        }
+    }
+
     public static RhythmPattern Load(string path) => FromPrm(PrmDocument.Load(path));
     public void Save(string path) => ToPrm().Save(path);
 }

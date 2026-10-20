@@ -1,0 +1,141 @@
+using T8.Core.Patterns;
+using T8.Editor.ViewModels;
+
+namespace T8.Editor.Tests;
+
+public class RhythmEditorViewModelTests
+{
+    private int _changes;
+    private readonly List<RhythmTrack> _auditioned = new();
+    private readonly RhythmPattern _pattern = new() { Length = 16 };
+
+    private RhythmEditorViewModel Create() => new(_pattern, () => _changes++, _auditioned.Add);
+
+    [Fact]
+    public void Grid_has_8_tracks_of_32_steps_in_file_order()
+    {
+        var vm = Create();
+        Assert.Equal(Enum.GetValues<RhythmTrack>(), vm.Tracks.Select(t => t.Track));
+        Assert.All(vm.Tracks, t => Assert.Equal(32, t.Cells.Count));
+        Assert.Equal("Tom", vm[RhythmTrack.LT].Name);
+        Assert.Equal("Clap", vm[RhythmTrack.HT].Name);
+    }
+
+    [Fact]
+    public void Turning_a_cell_on_writes_the_model_with_default_velocity()
+    {
+        var cell = Create()[RhythmTrack.BD].Cells[4];
+        cell.On = true;
+
+        Assert.True(_pattern.Steps[4][RhythmTrack.BD].On);
+        Assert.Equal(7, cell.Velocity);
+        Assert.Equal("170AA", _pattern.Steps[4][RhythmTrack.BD].ToString());
+        Assert.Equal(1, _changes);
+    }
+
+    [Fact]
+    public void Turning_a_cell_on_keeps_an_existing_velocity()
+    {
+        _pattern.Steps[0][RhythmTrack.SD].Velocity = 3;
+        var cell = Create()[RhythmTrack.SD].Cells[0];
+        cell.On = true;
+        Assert.Equal(3, cell.Velocity);
+    }
+
+    [Fact]
+    public void Activating_a_cell_selects_it_and_auditions_playable_tracks()
+    {
+        var vm = Create();
+        var snare = vm[RhythmTrack.SD].Cells[2];
+        var accent = vm[RhythmTrack.AC].Cells[2];
+        snare.On = true;
+        accent.On = true;
+
+        snare.ActivateCommand.Execute(null);
+        Assert.Same(snare, vm.SelectedCell);
+        Assert.True(snare.IsSelected);
+
+        accent.ActivateCommand.Execute(null);
+        Assert.False(snare.IsSelected);
+        Assert.Same(accent, vm.SelectedCell);
+        Assert.Equal([RhythmTrack.SD], _auditioned);
+    }
+
+    [Fact]
+    public void Activating_an_off_cell_does_not_audition()
+    {
+        var vm = Create();
+        vm[RhythmTrack.CH].Cells[0].ActivateCommand.Execute(null);
+        Assert.Empty(_auditioned);
+    }
+
+    [Fact]
+    public void Inspector_values_write_through()
+    {
+        var cell = Create()[RhythmTrack.CH].Cells[1];
+        cell.On = true;
+        cell.Velocity = 4;
+        cell.ProbabilityPercent = 50;
+        cell.SubStep = SubStep.Third;
+        cell.SubStepProbabilityPercent = 30;
+
+        Assert.Equal("14253", _pattern.Steps[1][RhythmTrack.CH].ToString());
+        Assert.True(cell.HasSubStep);
+    }
+
+    [Theory]
+    [InlineData(44, 40)]
+    [InlineData(45, 50)]
+    [InlineData(150, 100)]
+    [InlineData(-5, 0)]
+    public void Probability_rounds_to_the_t8s_10_percent_steps(int requested, int expected)
+    {
+        var cell = Create()[RhythmTrack.BD].Cells[0];
+        cell.ProbabilityPercent = requested;
+        Assert.Equal(expected, cell.ProbabilityPercent);
+    }
+
+    [Fact]
+    public void Velocity_is_clamped()
+    {
+        var cell = Create()[RhythmTrack.BD].Cells[0];
+        cell.Velocity = 20;
+        Assert.Equal(10, cell.Velocity);
+    }
+
+    [Fact]
+    public void Pattern_settings_write_through_and_clamp()
+    {
+        var vm = Create();
+        vm.Length = 12;
+        vm.Shuffle = 500;
+        vm.Flam = 20;
+
+        Assert.Equal(12, _pattern.Length);
+        Assert.Equal(200, _pattern.Shuffle);
+        Assert.Equal(20, _pattern.Flam);
+        Assert.False(vm[RhythmTrack.BD].Cells[12].IsInLength);
+        Assert.True(vm[RhythmTrack.BD].Cells[11].IsInLength);
+        Assert.Equal(3, _changes);
+    }
+
+    [Fact]
+    public void Clear_track_turns_all_its_steps_off()
+    {
+        foreach (var step in _pattern.Steps)
+        {
+            step[RhythmTrack.OH].On = true;
+            step[RhythmTrack.BD].On = true;
+        }
+        var vm = Create();
+
+        vm.ClearTrackCommand.Execute(vm[RhythmTrack.OH]);
+
+        Assert.All(_pattern.Steps, s => Assert.False(s[RhythmTrack.OH].On));
+        Assert.All(_pattern.Steps, s => Assert.True(s[RhythmTrack.BD].On));
+    }
+
+    [Fact]
+    public void Sub_step_options_list_every_mode() =>
+        Assert.Equal([SubStep.Off, SubStep.Half, SubStep.Third, SubStep.Quarter, SubStep.Flam], RhythmEditorViewModel.SubStepOptions);
+}

@@ -1,0 +1,81 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+    <SolidColorBrush x:Key="T8Orange" Color="#FF7A1A" />
+    <SolidColorBrush x:Key="T8OrangeDim" Color="#7A3A0C" />
+    <SolidColorBrush x:Key="CellOff" Color="#2A2A2E" />
+    <SolidColorBrush x:Key="CellOffBeat" Color="#3A3A40" />
+  </Styles.Resources>
+
+  <!-- Rhythm grid cells -->
+  <Style Selector="ToggleButton.cell">
+    <Setter Property="Width" Value="26" />
+    <Setter Property="Height" Value="26" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="BorderThickness" Value="2" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Background" Value="{StaticResource CellOff}" />
+  </Style>
+  <Style Selector="ToggleButton.cell.beat">
+    <Setter Property="Background" Value="{StaticResource CellOffBeat}" />
+  </Style>
+  <Style Selector="ToggleButton.cell:checked /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource T8Orange}" />
+  </Style>
+  <Style Selector="ToggleButton.cell.selected">
+    <Setter Property="BorderBrush" Value="White" />
+  </Style>
+  <Style Selector="ToggleButton.cell.selected /template/ ContentPresenter">
+    <Setter Property="BorderBrush" Value="White" />
+  </Style>
+  <Style Selector="ToggleButton.cell.outside">
+    <Setter Property="Opacity" Value="0.3" />
+  </Style>
+
+  <!-- Bass step columns -->
+  <Style Selector="Border.bassStep">
+    <Setter Property="Width" Value="46" />
+    <Setter Property="VerticalAlignment" Value="Top" />
+    <Setter Property="Padding" Value="2,4" />
+    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="Background" Value="{StaticResource CellOff}" />
+  </Style>
+  <Style Selector="Border.bassStep.beat">
+    <Setter Property="Background" Value="{StaticResource CellOffBeat}" />
+  </Style>
+  <Style Selector="Border.bassStep.outside">
+    <Setter Property="Opacity" Value="0.3" />
+  </Style>
+  <Style Selector="Border.bassStep Button, Border.bassStep ToggleButton">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="Padding" Value="0,2" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="MinHeight" Value="0" />
+  </Style>
+  <Style Selector="Border.bassStep ToggleButton:checked /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource T8Orange}" />
+  </Style>
+  <Style Selector="Button.state.on /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource T8Orange}" />
+  </Style>
+
+  <Style Selector="TextBlock.header">
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ListBox.picker">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.picker ListBoxItem">
+    <Setter Property="MinWidth" Value="34" />
+    <Setter Property="Padding" Value="8,4" />
+    <Setter Property="Margin" Value="1" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="Background" Value="{StaticResource CellOff}" />
+  </Style>
+  <Style Selector="ListBox.picker ListBoxItem:selected /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource T8Orange}" />
+  </Style>
+</Styles>

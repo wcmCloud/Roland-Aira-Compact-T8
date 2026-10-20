@@ -73,6 +73,17 @@ public sealed class BassPattern
         return doc;
     }
 
+    public BassPattern Clone() => FromPrm(ToPrm());
+
+    /// <summary>Resets every step to the blank state the T-8 writes for an empty pattern.</summary>
+    public void Clear()
+    {
+        Length = 16;
+        Triplet = 0;
+        for (var i = 0; i < StepCount; i++)
+            Steps[i] = new BassStep();
+    }
+
     public static BassPattern Load(string path) => FromPrm(PrmDocument.Load(path));
     public void Save(string path) => ToPrm().Save(path);
 }

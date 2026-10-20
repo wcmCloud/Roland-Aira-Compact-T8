@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:T8.Editor.ViewModels"
+             x:Class="T8.Editor.Views.RhythmEditorView"
+             x:DataType="vm:RhythmEditorViewModel">
+  <DockPanel Margin="0,8,0,0">
+    <!-- Pattern settings and cell inspector -->
+    <StackPanel DockPanel.Dock="Right" Width="240" Spacing="8" Margin="16,0,0,0">
+      <TextBlock Classes="header" Text="Pattern" />
+      <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
+        <TextBlock Text="Last step" VerticalAlignment="Center" />
+        <NumericUpDown x:Name="RhythmLength" Grid.Column="1" Value="{Binding Length}" Minimum="1" Maximum="32" FormatString="0" />
+        <TextBlock Grid.Row="1" Text="Shuffle" VerticalAlignment="Center" />
+        <NumericUpDown x:Name="ShuffleInput" Grid.Row="1" Grid.Column="1" Value="{Binding Shuffle}" Minimum="0" Maximum="200" Increment="10" FormatString="0" />
+        <TextBlock Grid.Row="2" Text="Flam" VerticalAlignment="Center" />
+        <NumericUpDown x:Name="FlamInput" Grid.Row="2" Grid.Column="1" Value="{Binding Flam}" Minimum="0" Maximum="100" FormatString="0" />
+      </Grid>
+
+      <StackPanel x:Name="Inspector" Spacing="6" Margin="0,12,0,0" IsVisible="{Binding SelectedCell, Converter={x:Static ObjectConverters.IsNotNull}}">
+        <TextBlock Classes="header" Text="{Binding SelectedCell.Description, FallbackValue=''}" />
+        <CheckBox Content="On" IsChecked="{Binding SelectedCell.On, FallbackValue=False}" />
+        <TextBlock Text="{Binding SelectedCell.Velocity, StringFormat='Velocity v.{0}', FallbackValue=''}" />
+        <Slider x:Name="VelocitySlider" Minimum="0" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True"
+                Value="{Binding SelectedCell.Velocity, FallbackValue=0}" />
+        <TextBlock Text="{Binding SelectedCell.ProbabilityPercent, StringFormat='Probability {0}%', FallbackValue=''}" />
+        <Slider x:Name="ProbabilitySlider" Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True"
+                Value="{Binding SelectedCell.ProbabilityPercent, FallbackValue=100}" />
+        <TextBlock Text="Sub step" />
+        <ComboBox x:Name="SubStepPicker" HorizontalAlignment="Stretch"
+                  ItemsSource="{x:Static vm:RhythmEditorViewModel.SubStepOptions}"
+                  SelectedItem="{Binding SelectedCell.SubStep, FallbackValue={x:Null}}" />
+        <TextBlock Text="{Binding SelectedCell.SubStepProbabilityPercent, StringFormat='Sub step probability {0}%', FallbackValue=''}"
+                   IsVisible="{Binding SelectedCell.HasSubStep, FallbackValue=False}" />
+        <Slider Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True"
+                Value="{Binding SelectedCell.SubStepProbabilityPercent, FallbackValue=100}"
+                IsVisible="{Binding SelectedCell.HasSubStep, FallbackValue=False}" />
+      </StackPanel>
+    </StackPanel>
+
+    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="4">
+        <!-- Step numbers -->
+        <StackPanel Orientation="Horizontal" Margin="140,0,0,0">
+          <ItemsControl ItemsSource="{Binding Tracks[0].Cells}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="3" /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:RhythmCellViewModel">
+                <TextBlock Width="26" TextAlignment="Center" FontSize="11" Opacity="0.6" Text="{Binding StepNumber}" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <ItemsControl x:Name="TrackRows" ItemsSource="{Binding Tracks}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:RhythmTrackViewModel">
+              <StackPanel Orientation="Horizontal" Margin="0,2">
+                <Button Width="132" Margin="0,0,8,0" HorizontalContentAlignment="Left" Content="{Binding Name}"
+                        ToolTip.Tip="Click to clear this track"
+                        Command="{Binding $parent[UserControl].((vm:RhythmEditorViewModel)DataContext).ClearTrackCommand, FallbackValue={x:Null}}"
+                        CommandParameter="{Binding}" />
+                <ItemsControl ItemsSource="{Binding Cells}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="3" /></ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:RhythmCellViewModel">
+                      <ToggleButton Classes="cell"
+                                    Classes.beat="{Binding IsBeat}"
+                                    Classes.selected="{Binding IsSelected}"
+                                    Classes.outside="{Binding !IsInLength}"
+                                    IsChecked="{Binding On}"
+                                    Command="{Binding ActivateCommand}"
+                                    ToolTip.Tip="{Binding Description}" />
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>
