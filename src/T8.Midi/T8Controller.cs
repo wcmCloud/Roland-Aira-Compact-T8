@@ -66,6 +66,8 @@ public sealed class T8Controller : IDisposable
 
     private long _loopTicks;
     private long _fillTicks;
+    private double _msPerTick;
+    private readonly System.Diagnostics.Stopwatch _sinceFillQueued = new();
 
     /// <summary>Raised (on the playback thread) when a queued fill has played and the main loop is back.</summary>
     public event EventHandler? FillFinished;
@@ -86,6 +88,8 @@ public sealed class T8Controller : IDisposable
         var length = builder.LengthInTicks(bass, rhythm);
         _loopTicks = length;
         _fillTicks = 0;
+        _msPerTick = 60_000.0 / (bpm * PatternMidiBuilder.TicksPerQuarterNote);
+        _sinceFillQueued.Reset();
         if (fill is not null)
         {
             // The fill sits after the main loop; PlaybackEnd keeps it out until it is queued.
@@ -127,6 +131,7 @@ public sealed class T8Controller : IDisposable
         if (_preview is not { IsRunning: true } preview || _fillTicks == 0)
             return false;
         preview.PlaybackEnd = new MidiTimeSpan(_loopTicks + _fillTicks);
+        _sinceFillQueued.Restart();
         return true;
     }
 
@@ -134,7 +139,12 @@ public sealed class T8Controller : IDisposable
     {
         if (sender is not Playback preview || preview.PlaybackEnd is not MidiTimeSpan end || end.TimeSpan <= _loopTicks)
             return;
+        // A wrap this soon after queuing is the main loop wrapping as the fill was queued: the
+        // fill hasn't played yet and will follow this pass of the main loop.
+        if (_sinceFillQueued.Elapsed.TotalMilliseconds < _fillTicks * _msPerTick / 2)
+            return;
         // Wrapping to the start with the end past the main loop means the fill has just played.
+        _sinceFillQueued.Reset();
         preview.PlaybackEnd = new MidiTimeSpan(_loopTicks);
         FillFinished?.Invoke(this, EventArgs.Empty);
     }

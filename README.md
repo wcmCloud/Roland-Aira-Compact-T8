@@ -1,26 +1,83 @@
+<div align="center">
+
 # Roland Aira Compact T-8 Editor
 
-A desktop editor for the Roland AIRA Compact T-8 beat machine, for macOS, Windows and Linux. Load the patterns
-from the T-8, edit the drums and the bass line, generate new ones in a key or a style, hear them on the T-8 over
-USB MIDI, and write them back.
+**Edit, generate and play the patterns of your AIRA Compact T-8 — drums and bass — from your computer, over USB.**
 
-![The editor with a techno pattern on the Rhythm tab](docs/images/main-rhythm.png)
+[![Latest release](https://img.shields.io/github/v/release/wcmCloud/Roland-Aira-Compact-T8?label=release&color=FF7A1A&style=for-the-badge)](https://github.com/wcmCloud/Roland-Aira-Compact-T8/releases/latest)
+[![Platforms](https://img.shields.io/badge/macOS%20·%20Windows%20·%20Linux-arm64%20%2B%20x64-2C2C32?style=for-the-badge)](#getting-started)
+[![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/download)
+[![CI](https://img.shields.io/github/actions/workflow/status/wcmCloud/Roland-Aira-Compact-T8/ci.yml?branch=master&label=tests&style=for-the-badge)](https://github.com/wcmCloud/Roland-Aira-Compact-T8/actions/workflows/ci.yml)
+
+[**⬇&nbsp;Download**](https://github.com/wcmCloud/Roland-Aira-Compact-T8/releases/latest) &nbsp;·&nbsp;
+[**📖&nbsp;User guide**](#getting-started) &nbsp;·&nbsp;
+[**🎛&nbsp;Connect the T-8**](#connecting-the-t-8) &nbsp;·&nbsp;
+[**🛠&nbsp;Build from source**](#build-packages)
+
+<br>
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/main-rhythm.png" alt="Rhythm tab: a generated techno pattern with the step inspector and the rhythm generator"></td>
+    <td width="50%"><img src="docs/screenshots/main-bass.png" alt="Bass tab: a generated E minor pentatonic line, the piano keyboard and the bass line generator"></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Rhythm</b> — 7-track step grid, step inspector, style-based generator and fills</td>
+    <td align="center"><b>Bass</b> — piano-keyboard step entry and a key, scale and chord aware line generator</td>
+  </tr>
+</table>
+
+</div>
+
+## Highlights
+
+<table>
+  <tr>
+    <td width="33%" valign="top">
+      <h3>🥁 Rhythm editing</h3>
+      Click-to-edit grid for all seven T-8 drum tracks, with velocity, probability, sub steps and flams per step,
+      and knobs for last step, shuffle and flam.
+    </td>
+    <td width="33%" valign="top">
+      <h3>🎹 Bass editing</h3>
+      Select a step and play the note on a C0–C7 piano keyboard; ties, slides and accents; a right-click menu with every note.
+    </td>
+    <td width="33%" valign="top">
+      <h3>🎲 Generators</h3>
+      Rhythms in 9 styles from techno to drum &amp; bass, and bass lines in 13 scales over chord progressions —
+      seeded, so you can tweak and regenerate.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <h3>🔥 Fills</h3>
+      Make a build-up fill for any pattern and hear it with the <b>Fill</b> button, just like FILL TRG on the T-8.
+    </td>
+    <td valign="top">
+      <h3>▶️ Play on the T-8</h3>
+      Hear your edits through the T-8's own sounds, or drive its sequencer as clock master — with the playing step lit up.
+    </td>
+    <td valign="top">
+      <h3>💾 Load &amp; write</h3>
+      Read all 64 patterns from the T-8's USB drive, save sets on your computer, and write them back.
+    </td>
+  </tr>
+</table>
+
+> [!TIP]
+> New here? Download the app for your computer, then follow [Connecting the T-8](#connecting-the-t-8) —
+> **Detect from T-8** sets up the MIDI channels for you.
 
 ## Contents
 
-- [Getting started](#getting-started)
-- [Connecting the T-8](#connecting-the-t-8)
-- [The window](#the-window)
-- [Editing rhythms](#editing-rhythms)
-- [Generating rhythms](#generating-rhythms)
-- [Fills](#fills)
-- [Editing bass lines](#editing-bass-lines)
-- [Generating bass lines](#generating-bass-lines)
-- [Playing patterns](#playing-patterns)
-- [Getting patterns on and off the T-8](#getting-patterns-on-and-off-the-t-8)
-- [Command line](#command-line)
-- [Build packages](#build-packages)
-- [For developers](#for-developers)
+| Use the editor | Go further |
+|---|---|
+| [Getting started](#getting-started) | [Getting patterns on and off the T-8](#getting-patterns-on-and-off-the-t-8) |
+| [Connecting the T-8](#connecting-the-t-8) | [Command line](#command-line) |
+| [The window](#the-window) | [Build packages](#build-packages) |
+| [Editing rhythms](#editing-rhythms) · [Generating rhythms](#generating-rhythms) · [Fills](#fills) | [For developers](#for-developers) |
+| [Editing bass lines](#editing-bass-lines) · [Generating bass lines](#generating-bass-lines) | |
+| [Playing patterns](#playing-patterns) | |
 
 ## Getting started
 
@@ -42,6 +99,9 @@ The downloads are self-contained, so there is nothing else to install:
 - **Windows:** unzip and run `T8Editor.exe`. If SmartScreen warns, choose **More info → Run anyway**.
 - **Linux:** unpack and run `./T8Editor`. Your user needs access to the MIDI devices (usually the `audio` group).
 
+> [!NOTE]
+> The apps aren't signed by Apple or Microsoft, so your system asks once before opening them — that's expected.
+
 Or run it from source with the [.NET 10 SDK](https://dotnet.microsoft.com/download):
 
 ```sh
@@ -50,7 +110,7 @@ dotnet run --project src/T8.Editor
 
 The version is shown in the title bar, and the ⓘ button in the top bar (or the app menu on macOS) opens the About window.
 
-<img src="docs/images/about.png" alt="The About window" width="440">
+<img src="docs/screenshots/about.png" alt="The About window" width="440">
 
 The editor starts with 64 blank patterns. To edit your own, get the T-8's patterns with
 [Load from T-8](#getting-patterns-on-and-off-the-t-8), or **Open…** a `BACKUP` folder you copied earlier.
@@ -62,7 +122,7 @@ Connect the T-8 to the computer with a USB cable. It shows up as a MIDI port cal
 
 The editor and the T-8 must use the same MIDI channels. Open the MIDI settings with the gear button:
 
-![MIDI settings after detecting the T-8's channels](docs/images/midi-settings.png)
+![MIDI settings after detecting the T-8's channels](docs/screenshots/midi-settings.png)
 
 - **Detect from T-8** finds the bass and rhythm channels for you: press it, then press Start on the T-8 and let a
   pattern with drums and bass play. The editor listens to the notes the T-8 sends and fills in the channels.
@@ -76,22 +136,25 @@ The editor and the T-8 must use the same MIDI channels. Open the MIDI settings w
 - **Switch the T-8 to the pattern I pick in the editor** sends a pattern change whenever you pick a pattern.
   It needs `rXPc` (receive program change) turned on in the T-8's menu.
 
-The box at the bottom always says which T-8 menu settings match the editor. Press **Save** to keep the settings;
+> [!TIP]
+> The box at the bottom of the window always says which T-8 menu settings match the editor.
+
+ Press **Save** to keep the settings;
 they are remembered between runs.
 
 ## The window
 
-![The Bass tab with a generated line](docs/images/main-bass.png)
+The screenshots at the top show the whole window on each tab. From top to bottom:
 
 - **Top bar:** New (64 blank patterns), Open…, Save, Save as…; Load from T-8 and Write to T-8; Copy, Paste and Clear
-  for the current pattern (bass and rhythm together); and on the right the MIDI output, refresh, Test and settings.
+  for the current pattern (bass and rhythm together); and on the right the MIDI output, refresh, Test, settings and About (ⓘ).
 - **Patterns** and **Transport** cards, described below.
 - **Rhythm** and **Bass** tabs with the editors and their generators.
 - **Status bar:** what just happened on the left, the MIDI channels in use on the right.
 
 ### Patterns
 
-![The pattern grid](docs/images/patterns.png)
+![The pattern grid](docs/screenshots/patterns.png)
 
 The T-8 has 4 banks of 16 patterns; each pattern has a rhythm part and a bass part. Click any cell to edit that
 pattern. The current pattern is outlined in orange, empty patterns are dimmed, and the fill pattern (see
@@ -99,7 +162,7 @@ pattern. The current pattern is outlined in orange, empty patterns are dimmed, a
 
 ### Transport
 
-![The transport](docs/images/transport.png)
+![The transport](docs/screenshots/transport.png)
 
 - **BPM** knob: the tempo for Play.
 - **Play**, **Stop**: play the current pattern (Play lights green while playing).
@@ -115,7 +178,7 @@ Double-click a knob to put it back to its default.
 
 ## Editing rhythms
 
-![The rhythm grid and the step inspector](docs/images/rhythm-editor.png)
+![The rhythm grid and the step inspector](docs/screenshots/rhythm-editor.png)
 
 Each row is one of the T-8's tracks: Accent, Bass drum, Snare, Tom, Clap, Closed hat and Open hat. (The T-8's
 pattern files also have a CY cymbal track, but the T-8 has no cymbal sound, so the editor hides it; anything
@@ -132,7 +195,7 @@ stored in it is kept when you save.) Each column is one of 32 steps; the brighte
 
 ## Generating rhythms
 
-![The rhythm generator](docs/images/rhythm-generator.png)
+![The rhythm generator](docs/screenshots/rhythm-generator.png)
 
 The rhythm generator writes a new drum pattern into the current pattern, up to its last step.
 
@@ -164,7 +227,7 @@ The generator never puts the closed and open hat on the same step, because the T
 On the T-8 a fill is just another pattern: SHIFT + STEP 8 (FILL PTN) picks which pattern is the fill, and
 SHIFT + STEP 7 (FILL TRG) plays it once before going back to the main pattern.
 
-![A fill made from the techno pattern](docs/images/fill-pattern.png)
+![A fill made from the techno pattern](docs/screenshots/fill-pattern.png)
 
 - Set **Fill pattern** in the rhythm generator (pattern 16 of the current bank by default) and press **Make fill**.
   It writes a fill for the pattern you're editing into that slot: the same groove for the first half, then snare
@@ -172,12 +235,13 @@ SHIFT + STEP 7 (FILL TRG) plays it once before going back to the main pattern.
   the generator's instrument switches and seed; **Undo** takes it back.
 - Press **Fill** in the transport while a pattern plays: the fill plays once, starting exactly at the end of the
   current loop, then the pattern carries on. The bass keeps playing under it.
-- After **Write to T-8**, pick the fill on the T-8 itself with SHIFT + STEP 8 (the T-8 has no MIDI messages for
-  this), then trigger it with SHIFT + STEP 7.
+> [!IMPORTANT]
+> After **Write to T-8**, pick the fill on the T-8 itself with **SHIFT + STEP 8** (the T-8 has no MIDI messages for
+> this), then trigger it with **SHIFT + STEP 7**.
 
 ## Editing bass lines
 
-![The bass steps and keyboard](docs/images/bass-editor.png)
+![The bass steps and keyboard](docs/screenshots/bass-editor.png)
 
 Each column is one step: its note, its state, semitone up/down, and Accent and Slide.
 
@@ -189,11 +253,11 @@ Each column is one step: its note, its state, semitone up/down, and Accent and S
 - **Last step**, **Triplet** and **Transpose** (−12, −1, +1, +12 for the whole line) are above the steps.
 - **Right-click a step** for every note in the T-8's range (C0–C7) by octave, plus Off/Note/Tie, Accent and Slide:
 
-  ![The step menu](docs/images/bass-step-menu.png)
+  ![The step menu](docs/screenshots/bass-step-menu.png)
 
 ## Generating bass lines
 
-![The bass line generator](docs/images/bass-generator.png)
+![The bass line generator](docs/screenshots/bass-generator.png)
 
 The bass line generator writes a new line into the current pattern, up to its last step, following a key and a scale.
 
@@ -238,7 +302,10 @@ Switch the T-8 on while holding **PLAY**; it appears on the computer as a drive 
 
 - **Load from T-8** opens the 64 patterns in the drive's `BACKUP` folder.
 - **Write to T-8** writes all 64 patterns to the drive's `RESTORE` folder. Then eject the drive and press
-  **ACCENT** on the T-8, and wait for `dOnE` before switching it off.
+  **ACCENT** on the T-8.
+
+> [!WARNING]
+> Wait until the T-8 shows `dOnE` before switching it off, or the patterns may not be restored.
 - **Save** and **Save as…** store the patterns in a folder on the computer, in the same layout as the T-8's
   backup, so you can keep several sets and open them again later.
 
@@ -304,5 +371,5 @@ The screenshots in this guide are rendered by the editor's UI tests at a MacBook
 (1470 points wide) at Retina 2×. To update them:
 
 ```sh
-T8_DOCS_DIR=$PWD/docs/images dotnet test tests/T8.Editor.Tests --filter DocsScreenshots
+T8_DOCS_DIR=$PWD/docs/screenshots dotnet test tests/T8.Editor.Tests --filter DocsScreenshots
 ```

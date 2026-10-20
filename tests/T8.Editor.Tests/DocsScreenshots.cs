@@ -13,9 +13,9 @@ using T8.Tests.Shared;
 namespace T8.Editor.Tests;
 
 /// <summary>
-/// Renders the screenshots in docs/images for the README, at a MacBook Air 13" window size
+/// Renders the screenshots in docs/screenshots for the README, at a MacBook Air 13" window size
 /// (1470 points wide) and Retina 2× scale. Runs only when T8_DOCS_DIR is set:
-/// <c>T8_DOCS_DIR=$PWD/docs/images dotnet test tests/T8.Editor.Tests --filter DocsScreenshots</c>.
+/// <c>T8_DOCS_DIR=$PWD/docs/screenshots dotnet test tests/T8.Editor.Tests --filter DocsScreenshots</c>.
 /// </summary>
 public class DocsScreenshots
 {
