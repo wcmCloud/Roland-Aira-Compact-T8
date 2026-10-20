@@ -72,9 +72,9 @@
 
 | Use the editor | Go further |
 |---|---|
-| [Getting started](#getting-started) | [Getting patterns on and off the T-8](#getting-patterns-on-and-off-the-t-8) |
-| [Connecting the T-8](#connecting-the-t-8) | [Command line](#command-line) |
-| [The window](#the-window) | [Build packages](#build-packages) |
+| [Getting started](#getting-started) | [Loading patterns from the T-8](#loading-patterns-from-the-t-8) (and the factory banks) |
+| [Connecting the T-8](#connecting-the-t-8) | [Sending patterns back to the T-8](#sending-patterns-back-to-the-t-8) |
+| [The window](#the-window) | [Command line](#command-line) · [Build packages](#build-packages) |
 | [Editing rhythms](#editing-rhythms) · [Generating rhythms](#generating-rhythms) · [Fills](#fills) | [For developers](#for-developers) |
 | [Editing bass lines](#editing-bass-lines) · [Generating bass lines](#generating-bass-lines) | |
 | [Playing patterns](#playing-patterns) | |
@@ -113,7 +113,7 @@ The version is shown in the title bar, and the ⓘ button in the top bar (or the
 <img src="docs/screenshots/about.png" alt="The About window" width="440">
 
 The editor starts with 64 blank patterns. To edit your own, get the T-8's patterns with
-[Load from T-8](#getting-patterns-on-and-off-the-t-8), or **Open…** a `BACKUP` folder you copied earlier.
+[Load from T-8](#loading-patterns-from-the-t-8), or **Open…** a `BACKUP` folder you copied earlier.
 
 ## Connecting the T-8
 
@@ -296,18 +296,79 @@ What **Play** does is set in the MIDI settings:
 With **Show playing step** on, the playing step is outlined in yellow on both tabs, and the bass note being played
 lights up yellow on the keyboard. Each part loops on its own length, as on the T-8.
 
-## Getting patterns on and off the T-8
+## Loading patterns from the T-8
 
-Switch the T-8 on while holding **PLAY**; it appears on the computer as a drive named `T-8`.
+The T-8 doesn't send its patterns over MIDI. Instead it can show up on your computer as a USB drive with a
+`BACKUP` folder holding all 64 patterns (4 banks × 16), one file per pattern for the rhythm and one for the bass.
 
-- **Load from T-8** opens the 64 patterns in the drive's `BACKUP` folder.
-- **Write to T-8** writes all 64 patterns to the drive's `RESTORE` folder. Then eject the drive and press
-  **ACCENT** on the T-8.
+### 1. Switch the T-8 into drive mode
+
+1. Connect the T-8 to the computer with a USB cable (the same one used for MIDI).
+2. Switch the T-8 **off**.
+3. **Hold down the PLAY button and switch the T-8 on.** Keep holding PLAY until the step buttons start lighting up.
+4. Wait about a minute: the step buttons light up one after another to show the progress. When the drive is
+   ready, a drive named **T-8** appears on the computer (in Finder on macOS, in File Explorer on Windows, under
+   `/media` on Linux).
+
+> [!NOTE]
+> While the T-8 is in drive mode it isn't a MIDI device, so Play, Test and Detect don't work until you switch
+> it off and on again normally.
+
+### 2. Load the patterns into the editor
+
+Press **Load from T-8** in the top bar. The editor finds the T-8 drive and opens its `BACKUP` folder; the 64
+patterns appear in the pattern grid.
+
+Then press **Save as…** and pick a folder on your computer, so you keep a copy after the T-8 is switched off.
+That copy is a normal backup: you can open it again any time with **Open…**, without the T-8 connected.
+
+> [!TIP]
+> If **Load from T-8** says it can't find the drive, wait until the step buttons stop counting, or use **Open…**
+> and choose the `BACKUP` folder on the T-8 drive yourself.
+
+When you're done, eject the T-8 drive (drag it to the Trash on macOS, or right-click it and choose **Eject** on
+Windows) and switch the T-8 off.
+
+### Getting the factory (default) patterns
+
+There are two ways to start from the patterns the T-8 came with:
+
+- **Without touching the T-8:** this repository includes a backup of the T-8's factory patterns in the
+  [`BACKUP`](BACKUP) folder. Download the repository (**Code → Download ZIP** on GitHub), then use **Open…** in the
+  editor and choose that `BACKUP` folder.
+- **From the T-8 itself, with a factory reset.** This puts the factory patterns back on the T-8, then you load
+  them as above.
+
+  > [!CAUTION]
+  > A factory reset **erases every pattern on the T-8**. Load and **Save as…** your own patterns first.
+
+  1. Hold down the **SLIDE (WRITE)** button and switch the T-8 on. The display shows `FACt` and the ACCENT
+     button blinks. (To cancel, just switch it off.)
+  2. Press **ACCENT**. When the display shows `dOnE` and all the buttons blink, switch the T-8 off and on again.
+  3. Follow [Switch the T-8 into drive mode](#1-switch-the-t-8-into-drive-mode) and
+     [Load the patterns into the editor](#2-load-the-patterns-into-the-editor).
+
+## Sending patterns back to the T-8
+
+The T-8 loads patterns from a `RESTORE` folder on its drive when you press ACCENT. **Write to T-8** fills that
+folder for you.
+
+1. Edit your patterns in the editor and **Save** them (so you have a copy on the computer).
+2. Put the T-8 in drive mode: switch it off, then **hold PLAY and switch it on**, and wait about a minute for the
+   **T-8** drive to appear ([details](#1-switch-the-t-8-into-drive-mode)).
+3. Press **Write to T-8** in the top bar and confirm. The editor writes all 64 patterns (bass and rhythm) into
+   the drive's `RESTORE` folder.
+4. **Eject** the T-8 drive on the computer and wait until it's gone.
+5. **Press the ACCENT button on the T-8.** It loads the patterns from the `RESTORE` folder.
+6. **Wait until the display shows `dOnE`**, then switch the T-8 off. Switch it on normally to play your patterns.
 
 > [!WARNING]
-> Wait until the T-8 shows `dOnE` before switching it off, or the patterns may not be restored.
-- **Save** and **Save as…** store the patterns in a folder on the computer, in the same layout as the T-8's
-  backup, so you can keep several sets and open them again later.
+> Writing replaces **all 64 patterns** on the T-8 with the ones in the editor, so load and save the T-8's
+> current patterns first if you want to keep them. Don't switch the T-8 off before it shows `dOnE`.
+
+> [!TIP]
+> You can try a pattern before writing it: with the T-8 connected normally (not in drive mode), press **Play** to
+> hear the pattern through the T-8's sounds straight from the editor.
 
 The file format is described in [docs/PRM-FORMAT.md](docs/PRM-FORMAT.md) and the MIDI details in [docs/MIDI.md](docs/MIDI.md).
 
