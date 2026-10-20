@@ -12,10 +12,10 @@ public class RhythmEditorViewModelTests
     private RhythmEditorViewModel Create() => new(_pattern, () => _changes++, _auditioned.Add);
 
     [Fact]
-    public void Grid_has_8_tracks_of_32_steps_in_file_order()
+    public void Grid_shows_the_7_tracks_with_a_sound_in_file_order()
     {
         var vm = Create();
-        Assert.Equal(Enum.GetValues<RhythmTrack>(), vm.Tracks.Select(t => t.Track));
+        Assert.Equal(Enum.GetValues<RhythmTrack>().Where(t => t != RhythmTrack.CY), vm.Tracks.Select(t => t.Track));
         Assert.All(vm.Tracks, t => Assert.Equal(32, t.Cells.Count));
         Assert.Equal("Tom", vm[RhythmTrack.LT].Name);
         Assert.Equal("Clap", vm[RhythmTrack.HT].Name);
@@ -153,5 +153,17 @@ public class RhythmEditorViewModelTests
         vm.ShowPlayingStep(null);
         Assert.Null(vm.PlayingStepNumber);
         Assert.DoesNotContain(vm.Tracks.SelectMany(t => t.Cells), c => c.IsPlaying);
+    }
+
+    [Fact]
+    public void Cy_is_hidden_but_its_steps_are_kept()
+    {
+        _pattern.Steps[3][RhythmTrack.CY].On = true;
+        var vm = Create();
+
+        Assert.DoesNotContain(vm.Tracks, t => t.Track == RhythmTrack.CY);
+        Assert.Equal(7, vm.Tracks.Count);
+        Assert.True(vm[RhythmTrack.CY].Cells[3].On);
+        Assert.Equal(RhythmTrack.OH, vm[RhythmTrack.OH].Track);
     }
 }

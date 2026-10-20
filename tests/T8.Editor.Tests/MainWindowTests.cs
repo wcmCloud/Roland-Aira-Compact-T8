@@ -30,7 +30,8 @@ public class MainWindowTests
 
         Assert.Equal("Roland Aira Compact T-8 Editor - v1.0 - BACKUP", window.Title);
         Assert.Contains("Loaded 64 patterns", window.FindControl<TextBlock>("StatusText")!.Text);
-        Assert.Equal(8, window.GetVisualDescendants().OfType<RhythmEditorView>().Single()
+        // CY has no sound on the T-8, so its row is hidden.
+        Assert.Equal(7, window.GetVisualDescendants().OfType<RhythmEditorView>().Single()
             .FindControl<ItemsControl>("TrackRows")!.ItemCount);
         window.Close();
         vm.Dispose();
@@ -42,7 +43,7 @@ public class MainWindowTests
         var (window, vm) = Show();
 
         var cells = window.GetVisualDescendants().OfType<ToggleButton>().Where(t => t.Classes.Contains("cell")).ToList();
-        Assert.Equal(8 * 32, cells.Count);
+        Assert.Equal(7 * 32, cells.Count); // CY is hidden
 
         var bdStep1 = cells[(int)RhythmTrack.BD * 32];
         Assert.Equal(vm.CurrentRhythm.Steps[0][RhythmTrack.BD].On, bdStep1.IsChecked);

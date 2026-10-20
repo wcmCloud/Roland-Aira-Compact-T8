@@ -117,9 +117,9 @@ Double-click a knob to put it back to its default.
 
 ![The rhythm grid and the step inspector](docs/images/rhythm-editor.png)
 
-Each row is one of the T-8's tracks: Accent, Bass drum, Snare, Tom, Clap, CY, Closed hat and Open hat. CY is a
-cymbal slot that the T-8's pattern files have, but the T-8 has no cymbal sound, so it never plays; the editor keeps
-whatever is in it so files round-trip unchanged, and the generators leave it empty. Each column is one of 32 steps; the brighter columns are the beats.
+Each row is one of the T-8's tracks: Accent, Bass drum, Snare, Tom, Clap, Closed hat and Open hat. (The T-8's
+pattern files also have a CY cymbal track, but the T-8 has no cymbal sound, so the editor hides it; anything
+stored in it is kept when you save.) Each column is one of 32 steps; the brighter columns are the beats.
 
 - Click a cell to turn it on or off. The cell you clicked is outlined in white and shown in the inspector on
   the right.

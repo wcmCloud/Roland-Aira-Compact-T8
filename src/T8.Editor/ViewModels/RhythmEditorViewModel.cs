@@ -18,11 +18,20 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
     {
         _pattern = pattern;
         _changed = changed;
-        Tracks = new ObservableCollection<RhythmTrackViewModel>(
-            Enum.GetValues<RhythmTrack>().Select(track => new RhythmTrackViewModel(track, pattern, this, changed, audition)));
+        _allTracks = Enum.GetValues<RhythmTrack>()
+            .Select(track => new RhythmTrackViewModel(track, pattern, this, changed, audition))
+            .ToList();
+        Tracks = new ObservableCollection<RhythmTrackViewModel>(_allTracks.Where(t => t.Track != RhythmTrack.CY));
         UpdateLength();
     }
 
+    /// <summary>All eight tracks in file order, including CY.</summary>
+    private readonly List<RhythmTrackViewModel> _allTracks;
+
+    /// <summary>
+    /// The tracks shown in the grid: all but CY, a cymbal slot in the T-8's files with no sound on the
+    /// T-8. CY's steps are still kept in the pattern, so files load and save unchanged.
+    /// </summary>
     public ObservableCollection<RhythmTrackViewModel> Tracks { get; }
 
     public static IReadOnlyList<SubStep> SubStepOptions { get; } = Enum.GetValues<SubStep>();
@@ -32,7 +41,7 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
     /// <summary>Re-reads every cell after the pattern was changed outside the editor (generate, undo).</summary>
     public void Refresh()
     {
-        foreach (var track in Tracks)
+        foreach (var track in _allTracks)
         {
             foreach (var cell in track.Cells)
                 cell.Refresh();
@@ -70,7 +79,7 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
         set => SetPatternValue(_pattern.Flam, Math.Clamp(value, 0, 100), v => _pattern.Flam = v);
     }
 
-    public RhythmTrackViewModel this[RhythmTrack track] => Tracks[(int)track];
+    public RhythmTrackViewModel this[RhythmTrack track] => _allTracks[(int)track];
 
     [RelayCommand]
     private void ClearTrack(RhythmTrackViewModel track)
