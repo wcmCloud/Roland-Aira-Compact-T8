@@ -5,7 +5,8 @@
              x:DataType="vm:RhythmEditorViewModel">
   <DockPanel Margin="0,8,0,0">
     <!-- Pattern settings and cell inspector -->
-    <StackPanel DockPanel.Dock="Right" Width="240" Spacing="8" Margin="16,0,0,0">
+    <ScrollViewer DockPanel.Dock="Right" Width="256" Margin="16,0,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+    <StackPanel Width="240" Spacing="8" HorizontalAlignment="Left">
       <TextBlock Classes="header" Text="Pattern" />
       <Grid ColumnDefinitions="90,*" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
         <TextBlock Text="Last step" VerticalAlignment="Center" />
@@ -36,6 +37,7 @@
                 IsVisible="{Binding SelectedCell.HasSubStep, FallbackValue=False}" />
       </StackPanel>
     </StackPanel>
+    </ScrollViewer>
 
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
       <StackPanel Spacing="4">

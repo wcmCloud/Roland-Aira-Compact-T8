@@ -285,6 +285,23 @@ public class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Generated_rhythm_marks_the_library_dirty_and_follows_the_pattern()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        Assert.Same(_vm.Rhythm, _vm.RhythmGenerator.Target);
+
+        _vm.RhythmGenerator.Style = RhythmGeneratorViewModel.Styles.Single(s => s.Value == RhythmStyle.Electro);
+        _vm.RhythmGenerator.GenerateCommand.Execute(null);
+
+        Assert.True(_vm.IsDirty);
+        Assert.Contains("Electro drums", _vm.Status);
+        Assert.Equal(RhythmStyle.Electro, _vm.Settings.RhythmGenerator.Style);
+
+        _vm.SelectedBank = 2;
+        Assert.Same(_vm.Rhythm, _vm.RhythmGenerator.Target);
+    }
+
+    [Fact]
     public void Commands_without_a_port_explain_what_to_do()
     {
         using var vm = new MainWindowViewModel(new FakePortProvider(), _dialogs);

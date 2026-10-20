@@ -27,6 +27,22 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
 
     public static IReadOnlyList<SubStep> SubStepOptions { get; } = Enum.GetValues<SubStep>();
 
+    internal RhythmPattern Pattern => _pattern;
+
+    /// <summary>Re-reads every cell after the pattern was changed outside the editor (generate, undo).</summary>
+    public void Refresh()
+    {
+        foreach (var track in Tracks)
+        {
+            foreach (var cell in track.Cells)
+                cell.Refresh();
+        }
+        UpdateLength();
+        OnPropertyChanged(nameof(Length));
+        OnPropertyChanged(nameof(Shuffle));
+        OnPropertyChanged(nameof(Flam));
+    }
+
     public int Length
     {
         get => _pattern.Length;
@@ -225,6 +241,16 @@ public sealed partial class RhythmCellViewModel : ObservableObject
     }
 
     public string Description => $"{Track} step {StepNumber}";
+
+    internal void Refresh()
+    {
+        OnPropertyChanged(nameof(On));
+        OnPropertyChanged(nameof(Velocity));
+        OnPropertyChanged(nameof(SubStep));
+        OnPropertyChanged(nameof(HasSubStep));
+        OnPropertyChanged(nameof(ProbabilityPercent));
+        OnPropertyChanged(nameof(SubStepProbabilityPercent));
+    }
 
     /// <summary>Called when the cell is clicked: the click itself toggles On through the binding.</summary>
     [RelayCommand]

@@ -158,6 +158,7 @@ public class MainWindowTests
             vm.Bass.ShowPlayingStep(4);
             Avalonia.Threading.Dispatcher.UIThread.RunJobs();
             window.CaptureRenderedFrame()!.Save(Path.Combine(output, "bass-playing.png"));
+            vm.RhythmGenerator.GenerateCommand.Execute(null);
             vm.Rhythm.ShowPlayingStep(4);
             window.FindControl<TabControl>("Tabs")!.SelectedIndex = 0;
             Avalonia.Threading.Dispatcher.UIThread.RunJobs();

@@ -45,6 +45,12 @@ Settings are saved in your user profile (`T8Editor/settings.json` in the app dat
   chord progression, the octave range and the chances of notes, chord tones, ties, slides, accents and
   octave jumps. **Generate** keeps the seed, so changing a setting and generating again keeps the feel;
   **Randomize** picks a new seed; **Undo** puts back the previous line.
+- **Generate a rhythm** (Rhythm tab) writes a drum pattern in a style: techno, house, electro, breakbeat,
+  hip-hop, trap, drum & bass, minimal/acid or random. Each style has hits that always play (like a
+  four-on-the-floor kick) and hits that play by chance; **Density** thins or fills those, **Variation** adds
+  and drops hits off the style. Pick which instruments to use, and the chances of accents, ghost notes and
+  rolls. **Live variation** gives some hits a T-8 step probability below 100%, so the T-8 itself varies the
+  pattern on every loop. **Fill at the end** adds a snare/tom fill in the last four steps.
 - With **Show playing step** on, the step being played and the bass note sounding light up in yellow.
 
 ### Getting patterns on and off the T-8

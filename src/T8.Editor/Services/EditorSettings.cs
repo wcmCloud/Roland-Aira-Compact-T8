@@ -31,6 +31,9 @@ public sealed class EditorSettings
 
     /// <summary>Last settings used in the bass line generator.</summary>
     public BassGeneratorOptions BassGenerator { get; set; } = new();
+
+    /// <summary>Last settings used in the rhythm generator.</summary>
+    public RhythmGeneratorOptions RhythmGenerator { get; set; } = new();
     public double Bpm { get; set; } = 120;
     public string? LastFolder { get; set; }
 
@@ -43,6 +46,7 @@ public sealed class EditorSettings
         AuditionEnabled = AuditionEnabled,
         ShowPlayhead = ShowPlayhead,
         BassGenerator = BassGenerator.Clone(),
+        RhythmGenerator = RhythmGenerator.Clone(),
         Bpm = Bpm,
         LastFolder = LastFolder,
     };

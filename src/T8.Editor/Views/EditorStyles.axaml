@@ -106,6 +106,14 @@
   <Style Selector="Border.panel WrapPanel > ComboBox">
     <Setter Property="Margin" Value="0,2" />
   </Style>
+  <Style Selector="ToggleButton.instrument">
+    <Setter Property="MinWidth" Value="44" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ToggleButton.instrument:checked /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource T8Orange}" />
+    <Setter Property="Foreground" Value="Black" />
+  </Style>
   <Style Selector="StackPanel.chance">
     <Setter Property="Width" Value="140" />
     <Setter Property="Margin" Value="0,0,14,0" />

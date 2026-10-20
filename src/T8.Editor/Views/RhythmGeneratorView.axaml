@@ -1,0 +1,64 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:T8.Editor.ViewModels"
+             x:Class="T8.Editor.Views.RhythmGeneratorView"
+             x:DataType="vm:RhythmGeneratorViewModel">
+  <Border Classes="panel">
+    <StackPanel Spacing="10">
+      <!-- Style and instruments -->
+      <WrapPanel Orientation="Horizontal">
+        <TextBlock Classes="header" Text="Generate a rhythm" Margin="0,0,16,0" />
+        <TextBlock Classes="label" Text="Style" />
+        <ComboBox x:Name="StylePicker" ItemsSource="{x:Static vm:RhythmGeneratorViewModel.Styles}" SelectedItem="{Binding Style}" Width="190" />
+        <TextBlock Classes="label" Text="Use" />
+        <StackPanel Orientation="Horizontal" Spacing="4">
+          <ToggleButton Classes="instrument" Content="BD" IsChecked="{Binding BassDrum}" ToolTip.Tip="Bass drum" />
+          <ToggleButton Classes="instrument" Content="SD" IsChecked="{Binding Snare}" ToolTip.Tip="Snare" />
+          <ToggleButton Classes="instrument" Content="Tom" IsChecked="{Binding Tom}" />
+          <ToggleButton Classes="instrument" Content="Clap" IsChecked="{Binding Clap}" ToolTip.Tip="Hand clap" />
+          <ToggleButton Classes="instrument" Content="CH" IsChecked="{Binding ClosedHat}" ToolTip.Tip="Closed hi-hat" />
+          <ToggleButton Classes="instrument" Content="OH" IsChecked="{Binding OpenHat}" ToolTip.Tip="Open hi-hat" />
+        </StackPanel>
+        <CheckBox x:Name="FillCheck" Content="Fill at the end" IsChecked="{Binding Fill}" Margin="16,0,0,0"
+                  ToolTip.Tip="Snare and tom fill in the last four steps" />
+      </WrapPanel>
+
+      <!-- Chances -->
+      <WrapPanel Orientation="Horizontal">
+        <StackPanel Classes="chance" ToolTip.Tip="50% follows the style; lower thins it out, higher fills it in">
+          <TextBlock Text="{Binding Density, StringFormat='Density {0}%'}" />
+          <Slider x:Name="DensitySlider" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding Density}" />
+        </StackPanel>
+        <StackPanel Classes="chance" ToolTip.Tip="Extra hits off the style's template, and dropped optional ones">
+          <TextBlock Text="{Binding Variation, StringFormat='Variation {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding Variation}" />
+        </StackPanel>
+        <StackPanel Classes="chance">
+          <TextBlock Text="{Binding AccentChance, StringFormat='Accents {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding AccentChance}" />
+        </StackPanel>
+        <StackPanel Classes="chance" ToolTip.Tip="Quiet extra snare and hat notes between the main hits">
+          <TextBlock Text="{Binding GhostChance, StringFormat='Ghost notes {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding GhostChance}" />
+        </StackPanel>
+        <StackPanel Classes="chance" ToolTip.Tip="Hat rolls (sub steps) and snare flams">
+          <TextBlock Text="{Binding RollChance, StringFormat='Rolls {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding RollChance}" />
+        </StackPanel>
+        <StackPanel Classes="chance" ToolTip.Tip="Optional hits get a T-8 step probability of 50–80%, so the T-8 varies the pattern every loop">
+          <TextBlock Text="{Binding LiveVariation, StringFormat='Live variation {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding LiveVariation}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="8,0,0,0">
+          <Button x:Name="GenerateRhythmButton" Classes="primary" Content="Generate" Command="{Binding GenerateCommand}"
+                  ToolTip.Tip="Write a pattern with these settings and seed (same seed, same pattern)" />
+          <Button x:Name="RandomizeRhythmButton" Content="🎲 Randomize" Command="{Binding RandomizeCommand}"
+                  ToolTip.Tip="New seed: a different pattern in the same style" />
+          <Button x:Name="UndoRhythmButton" Content="Undo" Command="{Binding UndoCommand}" />
+          <TextBlock Text="Seed" Classes="label" />
+          <NumericUpDown Value="{Binding Seed}" Minimum="1" Maximum="99999" FormatString="0" Width="110" ShowButtonSpinner="False" />
+        </StackPanel>
+      </WrapPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

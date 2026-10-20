@@ -82,17 +82,23 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         {
             Settings.BassGenerator = options;
             SaveSettings();
-        }, OnBassGenerated);
+        }, OnPatternGenerated);
+        RhythmGenerator = new RhythmGeneratorViewModel(Settings.RhythmGenerator.Clone(), options =>
+        {
+            Settings.RhythmGenerator = options;
+            SaveSettings();
+        }, OnPatternGenerated);
         LoadSelectedPattern();
         RefreshPorts();
     }
 
     public BassGeneratorViewModel BassGenerator { get; }
+    public RhythmGeneratorViewModel RhythmGenerator { get; }
 
-    private void OnBassGenerated()
+    private void OnPatternGenerated(string summary)
     {
         MarkDirty();
-        Status = BassGenerator.Summary;
+        Status = summary;
         // The preview plays a snapshot of the pattern, so restart it to hear the new line.
         if (IsPlaying && Settings.PlayMode == PlayMode.PreviewNotes)
             StartPlayback();
@@ -523,6 +529,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         Bass = new BassEditorViewModel(CurrentBass, MarkDirty, AuditionBass);
         Rhythm = new RhythmEditorViewModel(CurrentRhythm, MarkDirty, AuditionDrum);
         BassGenerator.Target = Bass;
+        RhythmGenerator.Target = Rhythm;
         OnPropertyChanged(nameof(PatternLabel));
     }
 

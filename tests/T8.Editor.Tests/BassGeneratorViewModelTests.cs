@@ -12,7 +12,7 @@ public class BassGeneratorViewModelTests
     private (BassGeneratorViewModel Generator, BassEditorViewModel Bass) Create()
     {
         var bass = new BassEditorViewModel(_pattern, () => { });
-        var generator = new BassGeneratorViewModel(new BassGeneratorOptions(), _saved.Add, () => _generated++) { Target = bass };
+        var generator = new BassGeneratorViewModel(new BassGeneratorOptions(), _saved.Add, _ => _generated++) { Target = bass };
         return (generator, bass);
     }
 
@@ -94,7 +94,7 @@ public class BassGeneratorViewModelTests
     [Fact]
     public void Without_a_target_generate_does_nothing()
     {
-        var generator = new BassGeneratorViewModel(new BassGeneratorOptions(), _ => { }, () => _generated++);
+        var generator = new BassGeneratorViewModel(new BassGeneratorOptions(), _ => { }, _ => _generated++);
         generator.GenerateCommand.Execute(null);
         Assert.Equal(0, _generated);
     }

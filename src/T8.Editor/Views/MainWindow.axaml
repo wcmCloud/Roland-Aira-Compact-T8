@@ -58,7 +58,7 @@
       <Button x:Name="MidiSettingsButton" Content="MIDI settings…" Command="{Binding OpenMidiSettingsCommand}" />
       <TextBlock Classes="header" Text="BPM" Margin="12,0,0,0" />
       <NumericUpDown x:Name="BpmInput" Value="{Binding Bpm}" Minimum="20" Maximum="300" Increment="1" FormatString="0" Width="120" />
-      <Button x:Name="PlayButton" Content="▶ Play" Command="{Binding PlayCommand}" ToolTip.Tip="Play this pattern through the T-8's sounds" />
+      <Button x:Name="PlayButton" Content="► Play" Command="{Binding PlayCommand}" ToolTip.Tip="Play this pattern through the T-8's sounds" />
       <Button x:Name="StopButton" Content="■ Stop" Command="{Binding StopCommand}" />
       <Button x:Name="SelectOnT8Button" Content="Select on T-8" Command="{Binding SelectOnT8Command}"
               ToolTip.Tip="Switch the T-8 to this bank and pattern (needs RX Program Change on)" />
@@ -74,7 +74,10 @@
 
     <TabControl x:Name="Tabs">
       <TabItem Header="Rhythm">
-        <views:RhythmEditorView DataContext="{Binding Rhythm}" />
+        <DockPanel>
+          <views:RhythmGeneratorView DockPanel.Dock="Bottom" DataContext="{Binding RhythmGenerator}" Margin="0,10,0,0" />
+          <views:RhythmEditorView DataContext="{Binding Rhythm}" />
+        </DockPanel>
       </TabItem>
       <TabItem Header="Bass">
         <DockPanel>

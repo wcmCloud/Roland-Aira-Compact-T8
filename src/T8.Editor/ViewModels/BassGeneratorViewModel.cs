@@ -19,14 +19,14 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
 {
     private readonly BassGeneratorOptions _options;
     private readonly Action<BassGeneratorOptions> _save;
-    private readonly Action _generated;
+    private readonly Action<string> _generated;
     private (BassEditorViewModel Target, BassStep[] Steps)? _undo;
     private BassEditorViewModel? _target;
 
     [ObservableProperty]
     private string _summary = "";
 
-    public BassGeneratorViewModel(BassGeneratorOptions options, Action<BassGeneratorOptions> save, Action generated)
+    public BassGeneratorViewModel(BassGeneratorOptions options, Action<BassGeneratorOptions> save, Action<string> generated)
     {
         _options = options;
         _save = save;
@@ -150,7 +150,7 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
         Summary = $"{Key.Name} {Scale.Name.ToLowerInvariant()}" +
                   (_options.Progression == Core.Patterns.Progression.None ? "" : $", {Progression.Name}") +
                   $" · seed {Seed} · {target.Length} steps";
-        _generated();
+        _generated(Summary);
     }
 
     /// <summary>New seed, then generate: a different line that follows the same rules.</summary>
@@ -182,7 +182,7 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
         _undo = null;
         UndoCommand.NotifyCanExecuteChanged();
         Summary = "Undone.";
-        _generated();
+        _generated(Summary);
     }
 
     private static int Percent(int value) => Math.Clamp(value, 0, 100);
