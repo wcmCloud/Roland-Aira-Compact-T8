@@ -101,7 +101,7 @@ public class ChannelDetectorTests
 
         Assert.Equal(9, result.RhythmChannel);
         Assert.Contains("Not seen: bass", result.Summary);
-        Assert.Contains("set it to the T-8's Pc.Ch by hand", result.Summary);
+        Assert.Contains("turn tXPc on", result.Summary);
         var map = result.ApplyTo(new T8MidiMap());
         Assert.Equal((2, 9, 16), (map.BassChannel, map.RhythmChannel, map.ProgramChangeChannel));
     }

@@ -168,6 +168,24 @@ public sealed class T8Controller : IDisposable
         }
     }
 
+    /// <summary>True when a preview was paused with <see cref="PausePreview"/> and can be resumed.</summary>
+    public bool IsPreviewPaused => _preview is { IsRunning: false };
+
+    /// <summary>Pauses the preview where it is; <see cref="ResumePreview"/> carries on from there.</summary>
+    public void PausePreview()
+    {
+        if (_preview is not { IsRunning: true } preview)
+            return;
+        preview.Stop();
+        AllNotesOff();
+    }
+
+    public void ResumePreview()
+    {
+        if (_preview is { IsRunning: false } preview)
+            preview.Start();
+    }
+
     public void StopPreview()
     {
         if (_preview is null)
@@ -178,11 +196,14 @@ public sealed class T8Controller : IDisposable
         AllNotesOff();
     }
 
+    /// <summary>All Sound Off (CC 120) and All Notes Off (CC 123) on both channels; the T-8 recognizes both.</summary>
     public void AllNotesOff()
     {
-        // CC 123 All Notes Off (recognized by the T-8).
-        Send(new ControlChangeEvent((SevenBitNumber)123, SevenBitNumber.MinValue), Map.BassChannel);
-        Send(new ControlChangeEvent((SevenBitNumber)123, SevenBitNumber.MinValue), Map.RhythmChannel);
+        foreach (var channel in new[] { Map.BassChannel, Map.RhythmChannel })
+        {
+            Send(new ControlChangeEvent((SevenBitNumber)120, SevenBitNumber.MinValue), channel);
+            Send(new ControlChangeEvent((SevenBitNumber)123, SevenBitNumber.MinValue), channel);
+        }
     }
 
     private void Send(ChannelEvent midiEvent, int channel)

@@ -113,12 +113,22 @@
                     <TextBlock Text="STOP" />
                   </StackPanel>
                 </Button>
+                <Button x:Name="PauseButton" Classes="seg" Classes.active="{Binding IsPaused}" Command="{Binding PauseCommand}"
+                        ToolTip.Tip="Pause; Play or Pause again carries on from the same place (MIDI Continue for the T-8's sequencer)">
+                  <StackPanel Orientation="Horizontal" Spacing="5">
+                    <PathIcon Data="{StaticResource IconPause}" Width="11" Height="11" />
+                    <TextBlock Text="PAUSE" />
+                  </StackPanel>
+                </Button>
                 <Button x:Name="FillButton" Classes="seg" Content="FILL" Command="{Binding PlayFillCommand}"
                         ToolTip.Tip="Play the fill pattern once after this loop, like FILL TRG on the T-8 (set the fill pattern on the Rhythm tab)" />
                 <Button x:Name="SelectOnT8Button" Classes="seg" Content="SELECT ON T-8" Command="{Binding SelectOnT8Command}" Margin="8,0,0,0"
                         ToolTip.Tip="Switch the T-8 to this bank and pattern (needs RX Program Change on)" />
               </StackPanel>
               <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock x:Name="T8StatusText" Text="{Binding T8Status}" Foreground="{StaticResource SectionGreen}" FontSize="12"
+                           FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
+                           IsVisible="{Binding T8Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                 <ToggleButton x:Name="AuditionCheck" Classes="seg" Content="AUDITION" IsChecked="{Binding AuditionEnabled}"
                               ToolTip.Tip="Play steps on the T-8 as you edit them" />
                 <ToggleButton x:Name="PlayheadCheck" Classes="seg" Content="SHOW PLAYING STEP" IsChecked="{Binding ShowPlayhead}"

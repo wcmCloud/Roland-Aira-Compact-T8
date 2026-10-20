@@ -102,8 +102,7 @@ public class DocsScreenshots
         // MIDI settings after detecting the T-8's channels.
         var settingsVm = new MidiSettingsViewModel(ports, vm.Settings)
         {
-            DetectResult = "Detected bass 6, rhythm 5. Not seen: pattern select (the T-8 doesn't always send it; " +
-                           "set it to the T-8's Pc.Ch by hand). Press Save to keep them.",
+            DetectResult = "Detected bass 6, rhythm 5, pattern select 7. Press Save to keep them.",
         };
         var settingsWindow = new MidiSettingsWindow { DataContext = settingsVm };
         settingsWindow.Show();

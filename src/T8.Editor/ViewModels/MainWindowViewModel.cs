@@ -15,6 +15,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     private readonly ISettingsStore? _settingsStore;
     private readonly Func<IEnumerable<string>> _driveCandidates;
     private T8Controller? _controller;
+    private T8InputListener? _listener;
+    private readonly SynchronizationContext? _ui = SynchronizationContext.Current;
     private bool _playheadShown;
     private (BassPattern Bass, RhythmPattern Rhythm)? _clipboard;
 
@@ -56,6 +58,15 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private bool _showPlayhead = true;
+
+    /// <summary>Paused with the Pause button: Play carries on from the same place.</summary>
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(PlayCommand), nameof(PauseCommand))]
+    private bool _isPaused;
+
+    /// <summary>What the T-8's own sequencer is doing, e.g. "T-8 playing · 124 BPM"; empty when it's stopped.</summary>
+    [ObservableProperty]
+    private string _t8Status = "";
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(TestConnectionCommand))]
@@ -187,6 +198,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         StopPlayback();
         CloseController();
+        OpenListener();
         if (value is not null && Settings.OutputPortName != value.Name)
         {
             Settings.OutputPortName = value.Name;
@@ -217,12 +229,72 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     /// </summary>
     public void UpdatePlayhead()
     {
-        var position = IsPlaying && ShowPlayhead ? _controller?.CurrentStep : null;
+        long? position = null;
+        if (ShowPlayhead && IsPlaying)
+            position = _controller?.CurrentStep;
+        else if (ShowPlayhead && !IsPaused && Settings.FollowT8 && _listener is { IsRunning: true } t8)
+            position = t8.CurrentStep; // the T-8 playing its own sequencer
+        UpdateT8Status();
         if (position is null && !_playheadShown)
             return;
         Bass.ShowPlayingStep(position);
         Rhythm.ShowPlayingStep(position);
         _playheadShown = position is not null;
+    }
+
+    private void UpdateT8Status()
+    {
+        var status = _listener is { IsRunning: true } t8 && !IsPlaying
+            ? t8.Bpm is { } bpm ? $"T-8 playing · {bpm:0} BPM" : "T-8 playing"
+            : "";
+        if (T8Status != status)
+            T8Status = status;
+    }
+
+    /// <summary>
+    /// Listens to the T-8's MIDI output (its pattern changes and its own sequencer's clock). Closed
+    /// while a test or the settings window uses the input, because Windows only lets one program
+    /// open a MIDI input at a time.
+    /// </summary>
+    private void OpenListener()
+    {
+        CloseListener();
+        if (SelectedPort is null || !Settings.FollowT8)
+            return;
+        try
+        {
+            _listener = T8InputListener.Open(_ports, SelectedPort, Settings.Midi.Clone());
+        }
+        catch (Exception)
+        {
+            _listener = null; // No input to follow; everything else still works.
+        }
+        if (_listener is not null)
+            _listener.PatternChanged += (_, slot) => OnUi(() => OnT8PatternChanged(slot.Bank, slot.Pattern));
+    }
+
+    private void CloseListener()
+    {
+        _listener?.Dispose();
+        _listener = null;
+        T8Status = "";
+    }
+
+    /// <summary>The T-8 changed pattern (it sends a program change when tXPc is on): follow it.</summary>
+    internal void OnT8PatternChanged(int bank, int pattern)
+    {
+        if (!Settings.FollowT8 || (bank == SelectedBank && pattern == SelectedPattern))
+            return;
+        SelectSlot(bank, pattern);
+        Status = $"The T-8 switched to {PatternLabel}.";
+    }
+
+    private void OnUi(Action action)
+    {
+        if (_ui is null)
+            action();
+        else
+            _ui.Post(_ => action(), null);
     }
 
     partial void OnAuditionEnabledChanged(bool value)
@@ -432,8 +504,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     private async Task OpenMidiSettingsAsync()
     {
         var settingsVm = new MidiSettingsViewModel(_ports, Settings);
+        CloseListener(); // Detect and Test in the window open the T-8's input themselves
         if (!await _dialogs.ShowMidiSettingsAsync(settingsVm))
+        {
+            OpenListener();
             return;
+        }
 
         StopPlayback();
         CloseController();
@@ -442,6 +518,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         OnPropertyChanged(nameof(Settings));
         OnPropertyChanged(nameof(MidiSummary));
         RefreshPorts();
+        OpenListener();
         Status = $"MIDI settings saved. {MidiSummary}.";
     }
 
@@ -458,6 +535,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 
         StopPlayback();
         CloseController(); // the test opens the port itself
+        CloseListener();
         IsTestingConnection = true;
         Status = $"Testing {SelectedPort.Name}: you should hear kick, snare, hats and a bass note…";
         try
@@ -472,6 +550,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         finally
         {
             IsTestingConnection = false;
+            OpenListener();
         }
     }
 
@@ -492,10 +571,49 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         Status = $"Sent {PatternLabel} to the T-8 (needs RX Program Change on).";
     }
 
+    /// <summary>
+    /// Pauses playback where it is. Play carries on from there: the preview resumes, or the T-8's
+    /// sequencer gets MIDI Continue. Pressing Pause again also carries on.
+    /// </summary>
+    [RelayCommand(CanExecute = nameof(CanPause))]
+    private void Pause()
+    {
+        if (IsPaused)
+        {
+            StartPlayback();
+            return;
+        }
+        if (!IsPlaying || _controller is null)
+            return;
+        if (Settings.PlayMode == PlayMode.SyncT8Sequencer)
+            _controller.Clock.Stop();
+        else
+            _controller.PausePreview();
+        IsPlaying = false;
+        IsPaused = true;
+        UpdatePlayhead();
+        Status = "Paused. Press Play or Pause to carry on, Stop to go back to the start.";
+    }
+
+    private bool CanPause() => IsPlaying || IsPaused;
+
+    partial void OnIsPlayingChanged(bool value) => PauseCommand.NotifyCanExecuteChanged();
+
     private void StartPlayback()
     {
         if (Controller() is not { } t8)
             return;
+        if (IsPaused)
+        {
+            IsPaused = false;
+            if (Settings.PlayMode == PlayMode.SyncT8Sequencer)
+                t8.Clock.Continue();
+            else
+                t8.ResumePreview();
+            IsPlaying = true;
+            Status = $"Carrying on with {PatternLabel}.";
+            return;
+        }
         try
         {
             if (Settings.PlayMode == PlayMode.SyncT8Sequencer)
@@ -549,11 +667,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 
     private void StopPlayback()
     {
-        if (!IsPlaying)
+        if (!IsPlaying && !IsPaused)
             return;
         _controller?.StopPreview();
         _controller?.Clock.Stop();
         IsPlaying = false;
+        IsPaused = false;
         UpdatePlayhead();
         Status = "Stopped.";
     }
@@ -598,6 +717,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     private void OnSelectionChanged()
     {
         LoadSelectedPattern();
+        if (IsPaused)
+            StopPlayback(); // the paused pattern is no longer the one shown
         if (IsPlaying && Settings.PlayMode == PlayMode.SyncT8Sequencer)
             _controller?.SelectPattern(SelectedBank, SelectedPattern);
         else if (IsPlaying)
@@ -645,6 +766,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
 
     public void Dispose()
     {
+        CloseListener();
         _controller?.Dispose();
         _controller = null;
     }

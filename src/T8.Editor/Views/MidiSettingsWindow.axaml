@@ -72,6 +72,8 @@
       <RadioButton x:Name="SyncModeRadio" GroupName="PlayMode" Content="Run the T-8's own sequencer with the computer as clock master"
                    IsChecked="{Binding PlayMode, Converter={x:Static vm:Converters.IsSyncMode}}" />
       <CheckBox x:Name="FollowSelectionCheck" Content="Switch the T-8 to the pattern I pick in the editor" IsChecked="{Binding FollowSelection}" />
+      <CheckBox x:Name="FollowT8Check" Content="Follow the T-8: switch to the pattern picked on it, and show its playing step"
+                IsChecked="{Binding FollowT8}" ToolTip.Tip="Needs tXPc on for pattern changes; the playing step shows when you press Play on the T-8" />
     </StackPanel>
 
     <Border Background="#22FF7A1A" CornerRadius="4" Padding="10">

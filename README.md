@@ -127,17 +127,23 @@ The editor and the T-8 must use the same MIDI channels. Open the MIDI settings w
 - **Detect from T-8** finds the bass and rhythm channels for you: press it, then press Start on the T-8 and let a
   pattern with drums and bass play. The editor listens to the notes the T-8 sends and fills in the channels.
 - Or set them by hand to match the T-8's menu (hold SHIFT, press OCT+): bass `bACh` (default 2), rhythm `rhCh`
-  (default 10) and pattern select `Pc.Ch` (default 16). The T-8 doesn't send anything when you change pattern on
-  it, so pattern select always has to be set by hand.
+  (default 10) and pattern select `Pc.Ch` (default 16). Detect finds pattern select too if `tXPc` is on in the
+  T-8's menu and you change pattern while it listens; otherwise set it by hand.
 - **Test connection** plays kick, snare, closed hat, open hat and a bass note on those channels, and checks that the
   T-8 answers. If you hear nothing, the channels don't match.
 - **Drum note numbers** are the notes for each drum (the T-8's defaults are filled in).
 - **Play button** chooses what Play does (see [Playing patterns](#playing-patterns)).
 - **Switch the T-8 to the pattern I pick in the editor** sends a pattern change whenever you pick a pattern.
   It needs `rXPc` (receive program change) turned on in the T-8's menu.
+- **Follow the T-8** (on by default) works the other way round: when you change pattern on the T-8, the editor
+  switches to it (turn `tXPc`, transmit program change, on in the T-8's menu), and when you press Play on the T-8,
+  the editor shows its playing step and tempo.
 
 > [!TIP]
 > The box at the bottom of the window always says which T-8 menu settings match the editor.
+>
+> Every message in the T-8's MIDI Implementation Chart, and what the editor does with it, is listed in
+> [docs/MIDI.md](docs/MIDI.md).
 
  Press **Save** to keep the settings;
 they are remembered between runs.
@@ -165,11 +171,14 @@ pattern. The current pattern is outlined in orange, empty patterns are dimmed, a
 ![The transport](docs/screenshots/transport.png)
 
 - **BPM** knob: the tempo for Play.
-- **Play**, **Stop**: play the current pattern (Play lights green while playing).
+- **Play**, **Pause**, **Stop**: play the current pattern (Play lights green while playing). Pause keeps the place:
+  Play (or Pause again) carries on from there, and in sync mode the T-8 gets MIDI Continue. Stop goes back to the start.
 - **Fill**: play the fill pattern once after this loop, see [Fills](#fills).
 - **Select on T-8**: switch the T-8 to the current pattern.
 - **Audition**: play each step on the T-8 as you click it.
 - **Show playing step**: highlight the step being played, and the bass note on the keyboard, in yellow.
+- When you press Play on the T-8 itself, the transport shows **T-8 playing** and its tempo, and the playing step
+  follows the T-8 (see *Follow the T-8* below).
 
 ### Knobs
 

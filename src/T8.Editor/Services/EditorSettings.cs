@@ -24,6 +24,12 @@ public sealed class EditorSettings
     /// <summary>Send a program change whenever a pattern is picked in the editor.</summary>
     public bool FollowSelection { get; set; }
 
+    /// <summary>
+    /// Listen to the T-8: switch to the pattern picked on it (it sends a program change when tXPc is
+    /// on) and show the playing step when its own sequencer runs.
+    /// </summary>
+    public bool FollowT8 { get; set; } = true;
+
     public bool AuditionEnabled { get; set; } = true;
 
     /// <summary>Highlight the step being played, and the bass note on the keyboard.</summary>
@@ -43,6 +49,7 @@ public sealed class EditorSettings
         Midi = Midi.Clone(),
         PlayMode = PlayMode,
         FollowSelection = FollowSelection,
+        FollowT8 = FollowT8,
         AuditionEnabled = AuditionEnabled,
         ShowPlayhead = ShowPlayhead,
         BassGenerator = BassGenerator.Clone(),

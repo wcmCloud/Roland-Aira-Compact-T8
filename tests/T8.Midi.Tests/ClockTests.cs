@@ -81,6 +81,25 @@ public class ClockTests
         Assert.True(clock.ClocksSent < clocks);
         clock.Stop();
     }
+
+    [Fact]
+    public void Continue_resumes_without_going_back_to_the_start()
+    {
+        var device = new FakeOutputDevice();
+        using var clock = new MidiClockSender(device, bpm: 300);
+        clock.Start();
+        Thread.Sleep(100);
+        clock.Stop();
+        var clocks = clock.ClocksSent;
+
+        clock.Continue();
+        Thread.Sleep(50);
+        clock.Stop();
+
+        Assert.Contains(device.Events, e => e is ContinueEvent);
+        Assert.Single(device.Events.OfType<StartEvent>());
+        Assert.True(clock.ClocksSent > clocks);
+    }
 }
 
 public class ThreadTickGeneratorTests

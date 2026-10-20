@@ -365,6 +365,70 @@ public class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Pause_then_play_carries_on_and_stop_resets()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        Assert.False(_vm.PauseCommand.CanExecute(null));
+        _vm.PlayCommand.Execute(null);
+
+        _vm.PauseCommand.Execute(null);
+        Assert.True(_vm.IsPaused);
+        Assert.False(_vm.IsPlaying);
+        Assert.True(_vm.PlayCommand.CanExecute(null));
+
+        _vm.PlayCommand.Execute(null);
+        Assert.True(_vm.IsPlaying);
+        Assert.False(_vm.IsPaused);
+        Assert.Contains("Carrying on", _vm.Status);
+
+        _vm.PauseCommand.Execute(null);
+        _vm.StopCommand.Execute(null);
+        Assert.False(_vm.IsPaused);
+        Assert.False(_vm.IsPlaying);
+    }
+
+    [Fact]
+    public void Sync_mode_pause_sends_stop_and_play_sends_continue()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        _vm.Settings.PlayMode = T8.Editor.Services.PlayMode.SyncT8Sequencer;
+        _vm.PlayCommand.Execute(null);
+        _vm.PauseCommand.Execute(null);
+        _vm.PlayCommand.Execute(null);
+        _vm.StopCommand.Execute(null);
+
+        var events = _ports.LastOpened!.Events;
+        Assert.Single(events.OfType<StartEvent>());
+        Assert.Single(events.OfType<ContinueEvent>());
+    }
+
+    [Fact]
+    public void Follows_pattern_changes_made_on_the_t8()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        _vm.OnT8PatternChanged(3, 9);
+        Assert.Equal((3, 9), (_vm.SelectedBank, _vm.SelectedPattern));
+        Assert.Contains("The T-8 switched to Bank 3 · Pattern 9", _vm.Status);
+
+        _vm.Settings.FollowT8 = false;
+        _vm.OnT8PatternChanged(1, 2);
+        Assert.Equal((3, 9), (_vm.SelectedBank, _vm.SelectedPattern));
+    }
+
+    [Fact]
+    public async Task Listens_to_the_t8_input_and_lets_go_of_it_for_the_connection_test()
+    {
+        Assert.Contains(_ports.OpenedInputs, i => i.IsListeningForEvents && !i.IsDisposed);
+        _ports.OpenedInputs.Clear();
+
+        await _vm.TestConnectionCommand.ExecuteAsync(null);
+
+        // The test opened its own input, and the listener came back afterwards.
+        Assert.True(_ports.OpenedInputs.Count >= 2);
+        Assert.Contains(_ports.OpenedInputs, i => i.IsListeningForEvents && !i.IsDisposed);
+    }
+
+    [Fact]
     public void Commands_without_a_port_explain_what_to_do()
     {
         using var vm = new MainWindowViewModel(new FakePortProvider(), _dialogs);

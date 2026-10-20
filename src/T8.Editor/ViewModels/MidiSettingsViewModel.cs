@@ -39,6 +39,9 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
     private bool _followSelection;
 
     [ObservableProperty]
+    private bool _followT8;
+
+    [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(TestConnectionCommand))]
     private bool _isTesting;
 
@@ -64,6 +67,7 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
         _programChangeChannel = settings.Midi.ProgramChangeChannel;
         _playMode = settings.PlayMode;
         _followSelection = settings.FollowSelection;
+        _followT8 = settings.FollowT8;
         DrumNotes = new ObservableCollection<DrumNoteViewModel>(
             T8MidiMap.PlayableTracks.Select(track => new DrumNoteViewModel(track, settings.Midi.RhythmNotes.GetValueOrDefault(track), OnNoteChanged)));
         RefreshPorts();
@@ -82,8 +86,8 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
     /// <summary>How to set the T-8 up so it matches these settings.</summary>
     public string T8SetupHelp =>
         $"On the T-8, hold SHIFT and press OCT+ (MENU), then set bACh to {BassChannel}, rhCh to {RhythmChannel} " +
-        $"and Pc.Ch to {ProgramChangeChannel}. Turn rXPc on so the editor can switch patterns, and set SYnC to AUTO or USB " +
-        "so the T-8 follows the editor's clock.";
+        $"and Pc.Ch to {ProgramChangeChannel}. Turn rXPc on so the editor can switch patterns, tXPc on so the editor follows " +
+        "the patterns you pick on the T-8, and set SYnC to AUTO or USB so the T-8 follows the editor's clock.";
 
     partial void OnBassChannelChanged(int value) => OnPropertyChanged(nameof(T8SetupHelp));
     partial void OnRhythmChannelChanged(int value) => OnPropertyChanged(nameof(T8SetupHelp));
@@ -198,6 +202,7 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
         settings.Midi = BuildMap();
         settings.PlayMode = PlayMode;
         settings.FollowSelection = FollowSelection;
+        settings.FollowT8 = FollowT8;
         return settings;
     }
 

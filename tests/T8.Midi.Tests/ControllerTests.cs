@@ -82,7 +82,7 @@ public class ControllerTests
         t8.AllNotesOff();
 
         var channels = _device.Events.Cast<ControlChangeEvent>().Select(e => ((int)e.ControlNumber, (int)e.Channel));
-        Assert.Equal([(123, 1), (123, 9)], channels);
+        Assert.Equal([(120, 1), (123, 1), (120, 9), (123, 9)], channels);
     }
 
     [Fact]
@@ -178,6 +178,21 @@ public class ControllerTests
         using var t8 = CreateController();
         t8.PlayPreview(null, new RhythmPattern(), bpm: 120);
         Assert.False(t8.QueueFill());
+        t8.StopPreview();
+    }
+
+    [Fact]
+    public void Preview_can_pause_and_resume()
+    {
+        using var t8 = CreateController();
+        t8.PlayPreview(null, new RhythmPattern(), bpm: 120);
+
+        t8.PausePreview();
+        Assert.True(t8.IsPreviewPaused);
+        Assert.Contains(_device.Events, e => e is ControlChangeEvent c && c.ControlNumber == 120);
+
+        t8.ResumePreview();
+        Assert.True(t8.IsPreviewPlaying);
         t8.StopPreview();
     }
 

@@ -41,7 +41,7 @@ public sealed record ChannelDetectionResult(
             if (RhythmChannel is null)
                 missing.Add("rhythm (play a pattern with drums)");
             if (ProgramChangeChannel is null)
-                missing.Add("pattern select (the T-8 doesn't always send it; set it to the T-8's Pc.Ch by hand)");
+                missing.Add("pattern select (turn tXPc on in the T-8's menu and change pattern while detecting, or set it to the T-8's Pc.Ch by hand)");
 
             var text = $"Detected {string.Join(", ", found)}.";
             return missing.Count == 0 ? text : $"{text} Not seen: {string.Join(", ", missing)}.";

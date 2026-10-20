@@ -41,18 +41,29 @@ public sealed class MidiClockSender : IDisposable
     /// </summary>
     public long? CurrentStep => ClocksSent is > 0 and var clocks ? (clocks - 1) / (ClocksPerQuarterNote / 4) : null;
 
+    /// <summary>Sends Start (the T-8 plays from the top of its pattern) and starts the clock.</summary>
     public void Start()
     {
         if (_running)
             return;
 
-        _running = true;
         Interlocked.Exchange(ref _clocksSent, 0);
-        _output.SendEvent(new StartEvent());
-        _thread = new Thread(Run) { IsBackground = true, Priority = ThreadPriority.Highest, Name = "T-8 MIDI clock" };
-        _thread.Start();
+        Begin(new StartEvent());
     }
 
+    /// <summary>
+    /// Sends Continue (recognized by the T-8: it resumes where it stopped) and restarts the clock,
+    /// keeping the position.
+    /// </summary>
+    public void Continue()
+    {
+        if (_running)
+            return;
+
+        Begin(new ContinueEvent());
+    }
+
+    /// <summary>Stops the clock and sends Stop. The position is kept for <see cref="Continue"/>.</summary>
     public void Stop()
     {
         if (!_running)
@@ -62,6 +73,14 @@ public sealed class MidiClockSender : IDisposable
         _thread?.Join();
         _thread = null;
         _output.SendEvent(new StopEvent());
+    }
+
+    private void Begin(MidiEvent first)
+    {
+        _running = true;
+        _output.SendEvent(first);
+        _thread = new Thread(Run) { IsBackground = true, Priority = ThreadPriority.Highest, Name = "T-8 MIDI clock" };
+        _thread.Start();
     }
 
     private void Run()
