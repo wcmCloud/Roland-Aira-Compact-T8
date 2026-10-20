@@ -105,9 +105,10 @@ public sealed class T8Controller : IDisposable
         var tempoMap = PatternMidiBuilder.CreateTempoMap(bpm);
         var settings = new PlaybackSettings
         {
-            // HighPrecisionTickGenerator (the default) is Windows/macOS only.
+            // HighPrecisionTickGenerator (the default) is Windows/macOS only, and the regular one is far
+            // too irregular on Linux, so Linux gets a thread-based generator.
             ClockSettings = OperatingSystem.IsLinux()
-                ? new MidiClockSettings { CreateTickGeneratorCallback = () => new RegularPrecisionTickGenerator() }
+                ? new MidiClockSettings { CreateTickGeneratorCallback = () => new ThreadTickGenerator() }
                 : null,
         };
 

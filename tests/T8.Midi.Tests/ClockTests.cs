@@ -82,3 +82,21 @@ public class ClockTests
         clock.Stop();
     }
 }
+
+public class ThreadTickGeneratorTests
+{
+    [Fact]
+    public void Ticks_steadily_at_the_interval()
+    {
+        using var clock = new Melanchall.DryWetMidi.Multimedia.MidiClock(false, new ThreadTickGenerator(), TimeSpan.FromMilliseconds(2));
+        var ticks = 0;
+        clock.Ticked += (_, _) => Interlocked.Increment(ref ticks);
+
+        clock.Start();
+        Thread.Sleep(500);
+        clock.Stop();
+
+        // 2 ms for 0.5 s is 250 ticks; allow for a slow test machine.
+        Assert.InRange(ticks, 150, 260);
+    }
+}
