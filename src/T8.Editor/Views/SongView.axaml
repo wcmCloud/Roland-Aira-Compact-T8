@@ -23,7 +23,7 @@
       </DockPanel>
     </Border>
 
-    <!-- Transport and timeline -->
+    <!-- Song playback and timeline -->
     <Border DockPanel.Dock="Bottom" Classes="card" Margin="0,10,0,0">
       <StackPanel Spacing="10">
         <DockPanel>

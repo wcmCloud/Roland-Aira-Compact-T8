@@ -170,7 +170,7 @@ The screenshots at the top show the whole window on each tab. From top to bottom
 
 - **Top bar:** New (64 blank patterns), Open…, Save, Save as…; Load from T-8 and Write to T-8; Copy, Paste and Clear
   for the current pattern (bass and rhythm together); and on the right the MIDI output, refresh, Test, settings and About (ⓘ).
-- **Patterns** and **Transport** cards, described below.
+- **Patterns** and **Playback** cards, described below.
 - **Rhythm** and **Bass** tabs with the editors and their generators.
 - **Status bar:** what just happened on the left, the MIDI channels in use on the right.
 
@@ -182,9 +182,9 @@ The T-8 has 4 banks of 16 patterns; each pattern has a rhythm part and a bass pa
 pattern. The current pattern is outlined in orange, empty patterns are dimmed, and the fill pattern (see
 [Fills](#fills)) is outlined in blue.
 
-### Transport
+### Playback
 
-![The transport](docs/screenshots/transport.png)
+![The playback controls](docs/screenshots/playback.png)
 
 - **BPM** knob: the tempo for Play.
 - **Play**, **Pause**, **Stop**: play the current pattern (Play lights green while playing). Pause keeps the place:
@@ -193,7 +193,7 @@ pattern. The current pattern is outlined in orange, empty patterns are dimmed, a
 - **Select on T-8**: switch the T-8 to the current pattern.
 - **Audition**: play each step on the T-8 as you click it.
 - **Show playing step**: highlight the step being played, and the bass note on the keyboard, in yellow.
-- When you press Play on the T-8 itself, the transport shows **T-8 playing** and its tempo, and the playing step
+- When you press Play on the T-8 itself, the Playback card shows **T-8 playing** and its tempo, and the playing step
   follows the T-8 (see *Follow the T-8* below).
 
 ### Knobs
@@ -268,7 +268,7 @@ SHIFT + STEP 7 (FILL TRG) plays it once before going back to the main pattern.
   It writes a fill for the pattern you're editing into that slot: the same groove for the first half, then snare
   and tom hits that get denser, louder and rolled towards the end, landing on kick, open hat and accent. It uses
   the generator's instrument switches and seed; **Undo** takes it back.
-- Press **Fill** in the transport while a pattern plays: the fill plays once, starting exactly at the end of the
+- Press **Fill** in the Playback card while a pattern plays: the fill plays once, starting exactly at the end of the
   current loop, then the pattern carries on. The bass keeps playing under it.
 > [!IMPORTANT]
 > After **Write to T-8**, pick the fill on the T-8 itself with **SHIFT + STEP 8** (the T-8 has no MIDI messages for

@@ -52,7 +52,7 @@ public class DocsScreenshots
         Settle(window);
         Save(window, "main-rhythm.png");
         Crop(window, window.FindControl<Border>("PatternsCard")!, "patterns.png");
-        Crop(window, window.FindControl<Border>("TransportCard")!, "transport.png");
+        Crop(window, window.FindControl<Border>("PlaybackCard")!, "playback.png");
         Crop(window, Find<RhythmEditorView>(window), "rhythm-editor.png");
         Crop(window, Find<RhythmGeneratorView>(window), "rhythm-generator.png");
 

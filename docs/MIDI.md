@@ -84,7 +84,7 @@ With **Follow the T-8** on (MIDI settings, on by default), the editor listens to
 
 - When you change pattern on the T-8 (with `tXPc` on), the editor switches to the same bank and pattern.
 - When you press Play on the T-8, its Start and Clock messages light up the playing step in the editor and the
-  transport shows the T-8's tempo; Stop clears it.
+  Playback card shows the T-8's tempo; Stop clears it.
 
 Windows only lets one program open a MIDI input at a time, so the editor lets go of the input while the
 connection test or the MIDI settings window uses it.
