@@ -55,7 +55,7 @@ the plugin is a new C++ project, with the song logic ported from this repository
 
 ### What it does
 
-A **MIDI effect** plugin ("T-8 Song") on a track routed to the T-8:
+A **MIDI effect** plugin, **Setlist T-8**, on a track routed to the T-8:
 
 - Loads a `.t8song` file (JSON, [docs/SONG-FORMAT.md](../SONG-FORMAT.md)) or edits the song in the plugin.
 - Follows the host's transport: play/stop, tempo, and the bar/beat position (PPQ), so the song starts, stops,
@@ -71,7 +71,8 @@ A **MIDI effect** plugin ("T-8 Song") on a track routed to the T-8:
 ### Plan
 
 1. **Project setup**
-   - [ ] New repository (e.g. `T8-Song-Plugin`), JUCE 8 with CMake, targets VST3, AU (macOS) and Standalone.
+   - [ ] New repository `Setlist-T8` (under wcmCloud), JUCE 8 with CMake, targets VST3, AU (macOS) and Standalone.
+         Plugin name in DAWs: "Setlist T-8"; vendor: wcmCloud.
    - [ ] Licence check: JUCE's free tier vs AGPLv3; pick the plugin's own licence.
    - [ ] GitHub Actions: build macOS (universal), Windows; artifacts per format.
 2. **Song core (C++ port)**
@@ -103,7 +104,9 @@ A **MIDI effect** plugin ("T-8 Song") on a track routed to the T-8:
 
 ### Open decisions
 
-- Plugin name (avoid leading with Roland's trademarks, as for the App Store).
+- ~~Plugin name~~ — decided: **Setlist T-8**. "T-8" is Roland's model name, so in store listings and the
+  description present it as compatibility ("Setlist T-8 — song mode for the Roland AIRA Compact T-8, not affiliated
+  with Roland"), and use no Roland logos.
 - JUCE licence tier.
 - Pattern lengths: require a backup folder, or let the song file carry the lengths (a small `.t8song` v2 addition:
   `steps` per entry, written by the editor)?
