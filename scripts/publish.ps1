@@ -1,4 +1,4 @@
-# Builds a self-contained T-8 Editor for Windows. Output: artifacts\T8Editor-win-x64.zip
+# Builds a self-contained Roland Aira Compact T-8 Editor for Windows. Output: artifacts\T8Editor-win-x64.zip
 param([string]$Rid = "win-x64", [string]$Version = "0.1.0")
 $ErrorActionPreference = "Stop"
 Set-Location (Join-Path $PSScriptRoot "..")

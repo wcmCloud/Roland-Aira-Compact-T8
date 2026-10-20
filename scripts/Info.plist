@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleName</key>
-  <string>T-8 Editor</string>
+  <string>Roland Aira Compact T-8 Editor</string>
   <key>CFBundleDisplayName</key>
-  <string>T-8 Editor</string>
+  <string>Roland Aira Compact T-8 Editor</string>
   <key>CFBundleIdentifier</key>
   <string>com.wcmcloud.t8editor</string>
   <key>CFBundleExecutable</key>

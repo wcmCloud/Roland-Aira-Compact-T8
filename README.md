@@ -1,4 +1,4 @@
-# T-8 Editor
+# Roland Aira Compact T-8 Editor
 
 A cross-platform (.NET 10) editor for the Roland AIRA Compact T-8: load the patterns from a T-8 backup, edit them, and write them back.
 
@@ -62,7 +62,7 @@ scripts/publish.sh               # osx-arm64, osx-x64, win-x64, linux-x64 into a
 scripts/publish.sh osx-arm64     # just one
 ```
 
-Packages are self-contained, so no .NET install is needed to run them. macOS gets a `T-8 Editor.app`; it isn't
+Packages are self-contained, so no .NET install is needed to run them. macOS gets a `Roland Aira Compact T-8 Editor.app`; it isn't
 signed, so the first time right-click it and choose **Open**. On Windows you can also run `scripts/publish.ps1`.
 GitHub Actions (`.github/workflows/ci.yml`) runs the tests on all three OSes and builds the packages; pushing a
 `v*` tag attaches them to a release.

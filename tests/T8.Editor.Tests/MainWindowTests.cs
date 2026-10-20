@@ -28,7 +28,7 @@ public class MainWindowTests
     {
         var (window, vm) = Show();
 
-        Assert.Equal("T-8 Editor - BACKUP", window.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - BACKUP", window.Title);
         Assert.Contains("Loaded 64 patterns", window.FindControl<TextBlock>("StatusText")!.Text);
         Assert.Equal(8, window.GetVisualDescendants().OfType<RhythmEditorView>().Single()
             .FindControl<ItemsControl>("TrackRows")!.ItemCount);

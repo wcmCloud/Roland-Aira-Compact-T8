@@ -21,7 +21,7 @@ public class MainWindowViewModelTests : IDisposable
     {
         Assert.Null(_vm.FolderPath);
         Assert.False(_vm.IsDirty);
-        Assert.Equal("T-8 Editor - Untitled", _vm.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - Untitled", _vm.Title);
         Assert.Equal(16, _vm.Rhythm.Length);
         Assert.Equal([1, 2, 3, 4], _vm.BankNumbers);
         Assert.Equal(16, _vm.PatternNumbers.Count);
@@ -43,7 +43,7 @@ public class MainWindowViewModelTests : IDisposable
         Assert.Equal(12, _vm.Bass.Length);
         Assert.Equal(32, _vm.Rhythm.Length);
         Assert.Contains("Loaded 64 patterns", _vm.Status);
-        Assert.Equal("T-8 Editor - BACKUP", _vm.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - BACKUP", _vm.Title);
     }
 
     [Fact]

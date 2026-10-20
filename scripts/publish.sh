@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds self-contained T-8 Editor packages (no .NET install needed to run them).
+# Builds self-contained Roland Aira Compact T-8 Editor packages (no .NET install needed to run them).
 # Usage: scripts/publish.sh [rid ...]   e.g. scripts/publish.sh osx-arm64
 # Default: osx-arm64 osx-x64 win-x64 linux-x64. Output goes to artifacts/.
 set -euo pipefail
@@ -23,7 +23,7 @@ for rid in "${RIDS[@]}"; do
   case "$rid" in
     osx-*)
       # Wrap in a macOS .app bundle.
-      app="$OUT/T8Editor-$rid/T-8 Editor.app"
+      app="$OUT/T8Editor-$rid/Roland Aira Compact T-8 Editor.app"
       rm -rf "$OUT/T8Editor-$rid"
       mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
       cp -R "$dir/." "$app/Contents/MacOS/"
