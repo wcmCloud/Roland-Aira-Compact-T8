@@ -244,6 +244,41 @@ public class SongViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Copy_to_bank_asks_first_then_replaces_the_bank_and_reloads_the_editor()
+    {
+        var source = _vm.Library.Rhythm[0, 2]; // bank 1 pattern 3
+        Song.AddEntry(1, 3);
+        Song.AddEntry(1, 3).Repeats = 2;
+        _vm.SelectSlot(4, 1);
+        Song.CopyTargetBank = 4;
+
+        _dialogs.ConfirmResult = false;
+        Song.CopyToBankCommand.Execute(null);
+        Assert.Equal((1, 3), (Song.Entries[0].Bank, Song.Entries[0].Pattern)); // cancelled: nothing changed
+
+        _dialogs.ConfirmResult = true;
+        Song.CopyToBankCommand.Execute(null);
+
+        Assert.Equal("Copy", _dialogs.LastConfirmText);
+        Assert.Equal([(4, 1), (4, 2)], Song.Entries.Select(e => (e.Bank, e.Pattern)));
+        Assert.Equal(source.ToPrm().ToString(), _vm.Library.Rhythm[3, 1].ToPrm().ToString());
+        Assert.Same(_vm.Library.Rhythm[3, 0], _vm.CurrentRhythm);
+        Assert.Equal(_vm.Library.Rhythm[3, 0].Length, _vm.Rhythm.Length); // the open pattern was reloaded
+        Assert.True(_vm.PatternBanks[3].Slots[2].IsEmpty);
+        Assert.True(_vm.IsDirty);
+        Assert.Contains("Copied", _vm.Status);
+    }
+
+    [Fact]
+    public void Copy_to_bank_explains_when_the_song_is_too_long()
+    {
+        for (var i = 0; i < 17; i++)
+            Song.AddEntry(1, 1);
+        Song.CopyToBankCommand.Execute(null);
+        Assert.Contains("A bank holds 16 patterns", _vm.Status);
+    }
+
+    [Fact]
     public void Loop_choices_follow_the_entries()
     {
         Song.AddEntry(1, 1).Name = "Intro";

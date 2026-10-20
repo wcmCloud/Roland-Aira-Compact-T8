@@ -9,6 +9,11 @@
     <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,10">
       <DockPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+          <TextBlock Text="Copy to bank" Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" />
+          <ComboBox x:Name="CopyBankPicker" ItemsSource="{x:Static vm:SongViewModel.Banks}" SelectedItem="{Binding CopyTargetBank}" Width="64"
+                    ToolTip.Tip="Bank to copy the song's patterns into" />
+          <Button x:Name="CopyToBankButton" Classes="seg" Content="Copy" Command="{Binding CopyToBankCommand}" Margin="0,0,14,0"
+                  ToolTip.Tip="Copy the song's patterns into this bank in song order (entry 1 to pattern 1…, then fills); the rest of the bank is left empty" />
           <Button x:Name="NewSongButton" Classes="seg" Content="New song" Command="{Binding NewSongCommand}" />
           <Button x:Name="OpenSongButton" Classes="seg" Content="Open song…" Command="{Binding OpenSongCommand}" />
           <Button x:Name="SaveSongButton" Classes="seg" Content="Save song" Command="{Binding SaveSongCommand}" />

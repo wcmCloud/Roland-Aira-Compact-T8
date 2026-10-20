@@ -25,6 +25,9 @@ public interface ISongHost
     void StopPatternPlayback();
 
     void ShowStatus(string text);
+
+    /// <summary>Patterns in the library were replaced (the song was copied to a bank): reload what's shown.</summary>
+    void PatternsReplaced();
 }
 
 /// <summary>
@@ -261,6 +264,46 @@ public sealed partial class SongViewModel : ObservableObject
                 entry.Color,
                 group.Key.IsFill ? "FILL" : entry.Model.Repeats > 1 ? $"{entry.Name} ×{entry.Model.Repeats}" : entry.Name));
         }
+    }
+
+    // ---- Copy to a bank ------------------------------------------------------------------
+
+    /// <summary>Bank the song is copied to.</summary>
+    [ObservableProperty]
+    private int _copyTargetBank = 1;
+
+    /// <summary>
+    /// Copies the song's patterns into <see cref="CopyTargetBank"/> in song order (entry 1 to pattern 1…,
+    /// then the fills), clears the rest of the bank, and points the song at the copies.
+    /// </summary>
+    [RelayCommand]
+    private async Task CopyToBankAsync()
+    {
+        if (SongBankWriter.Problem(_song) is { } problem)
+        {
+            _host.ShowStatus(problem);
+            return;
+        }
+        var bank = CopyTargetBank;
+        var used = SongBankWriter.SlotsNeeded(_song);
+        var message = $"Copy this song's {used} pattern{(used == 1 ? "" : "s")} to bank {bank}, patterns 1–{used}? " +
+                      $"This replaces all 16 patterns of bank {bank}" +
+                      (used < PatternLibrary.PatternsPerBank ? $" (patterns {used + 1}–16 are left empty)." : ".") +
+                      " The song is then set to play the copies.";
+        if (!await _dialogs.ConfirmAsync("Copy song to bank", message, "Copy"))
+            return;
+        CopyToBank(bank);
+    }
+
+    /// <summary>Copies the song to a bank without asking (the command asks first).</summary>
+    public void CopyToBank(int bank)
+    {
+        Stop();
+        SongBankWriter.CopyToBank(_song, _host.Library, bank);
+        LoadEntries();
+        MarkDirty();
+        _host.PatternsReplaced();
+        _host.ShowStatus($"Copied \"{Title}\" to bank {bank}. Write to T-8 to put it on the T-8.");
     }
 
     // ---- Files ---------------------------------------------------------------------------

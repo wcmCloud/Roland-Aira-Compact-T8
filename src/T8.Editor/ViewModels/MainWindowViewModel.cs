@@ -125,6 +125,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     void ISongHost.ShowStatus(string text) => Status = text;
 
+    void ISongHost.PatternsReplaced()
+    {
+        LoadSelectedPattern();
+        MarkDirty();
+    }
+
     /// <summary>The 4 × 16 grid of patterns, one row per bank.</summary>
     public IReadOnlyList<PatternBankRow> PatternBanks { get; }
 

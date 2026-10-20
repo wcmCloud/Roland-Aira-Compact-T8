@@ -353,6 +353,18 @@ What PLAY SONG does follows the Play mode in the MIDI settings:
   starts it tells the T-8 the next one, which the T-8 switches to when the current pattern ends. The T-8 needs
   the same patterns as the editor (**Write to T-8** first), `rXPc` on and `SYnC` set to AUTO or USB.
 
+### Copying a song into a bank
+
+To put a song on the T-8 as patterns you can chain by hand, pick a bank under **Copy to bank** and press
+**Copy**. The song's patterns are copied into that bank in song order: entry 1 becomes pattern 1, entry 2
+pattern 2, and so on, followed by the fill patterns (each once), and the rest of the bank is left empty. A bank
+holds 16 patterns, so a song can have at most 16 entries and fills together; repeats don't use extra slots.
+
+The editor takes a copy of every pattern the song uses *before* it writes anything, so a song made from the
+patterns of the very bank it replaces still copies correctly. Afterwards the song is set to play the copies, so it
+sounds the same. You're asked to confirm first, because the whole bank is replaced; then **Save** and **Write to
+T-8** as usual.
+
 **Save song** / **Open song…** use `.t8song` files, a small JSON format described in
 [docs/SONG-FORMAT.md](docs/SONG-FORMAT.md). A song refers to bank and pattern numbers, so it plays whatever patterns
 are open; the tempo is saved with it.
