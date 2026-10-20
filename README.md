@@ -99,12 +99,12 @@ The downloads are self-contained, so there is nothing else to install:
 
 | Computer | Download |
 |---|---|
-| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.0-osx-arm64.zip` |
-| Mac with Intel | `T8Editor-1.0.0-osx-x64.zip` |
-| Windows PC (x64) | `T8Editor-1.0.0-win-x64.zip` |
-| Windows on ARM | `T8Editor-1.0.0-win-arm64.zip` |
-| Linux x64 | `T8Editor-1.0.0-linux-x64.tar.gz` |
-| Linux ARM64 | `T8Editor-1.0.0-linux-arm64.tar.gz` |
+| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.1-osx-arm64.zip` |
+| Mac with Intel | `T8Editor-1.0.1-osx-x64.zip` |
+| Windows PC (x64) | `T8Editor-1.0.1-win-x64.zip` |
+| Windows on ARM | `T8Editor-1.0.1-win-arm64.zip` |
+| Linux x64 | `T8Editor-1.0.1-linux-x64.tar.gz` |
+| Linux ARM64 | `T8Editor-1.0.1-linux-arm64.tar.gz` |
 
 - **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications. It isn't notarized by Apple, so the
   first time right-click it and choose **Open**. If macOS says it is damaged, run
