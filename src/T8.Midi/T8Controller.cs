@@ -70,6 +70,10 @@ public sealed class T8Controller : IDisposable
 
         var builder = new PatternMidiBuilder { Map = Map, Seed = seed };
         var events = builder.Build(bass, rhythm);
+        var length = builder.LengthInTicks(bass, rhythm);
+        // Playback ends at its last event, not at PlaybackEnd, so without this the loop would restart
+        // right after the last note instead of at the end of the last step. Meta events aren't sent to the T-8.
+        events.Add(new TimedEvent(new MarkerEvent("Loop end"), length));
         var tempoMap = PatternMidiBuilder.CreateTempoMap(bpm);
         var settings = new PlaybackSettings
         {
@@ -83,7 +87,7 @@ public sealed class T8Controller : IDisposable
         {
             Loop = loop,
             InterruptNotesOnStop = true,
-            PlaybackEnd = new MidiTimeSpan(builder.LengthInTicks(bass, rhythm)),
+            PlaybackEnd = new MidiTimeSpan(length),
         };
         _preview.Start();
         return _preview;

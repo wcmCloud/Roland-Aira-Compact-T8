@@ -1,4 +1,5 @@
 using Melanchall.DryWetMidi.Core;
+using Melanchall.DryWetMidi.Interaction;
 using T8.Core.Patterns;
 using T8.Midi.Ports;
 using T8.Tests.Shared;
@@ -103,6 +104,20 @@ public class ControllerTests
         Assert.False(t8.IsPreviewPlaying);
         Assert.Contains(_device.Events, e => e is NoteOnEvent n && n.NoteNumber == 42);
         Assert.Contains(_device.Events, e => e is ControlChangeEvent c && c.ControlNumber == 123);
+    }
+
+    [Fact]
+    public void Preview_loops_at_the_end_of_the_last_step_not_after_the_last_note()
+    {
+        var rhythm = new RhythmPattern { Length = 16 };
+        rhythm.Steps[0][RhythmTrack.BD].On = true;
+
+        using var t8 = CreateController();
+        var duration = t8.PlayPreview(null, rhythm, bpm: 120).GetDuration<MidiTimeSpan>();
+        t8.StopPreview();
+
+        Assert.Equal(16 * PatternMidiBuilder.TicksPerStep, duration.TimeSpan);
+        Assert.DoesNotContain(_device.Events, e => e is MarkerEvent);
     }
 
     [Fact]
