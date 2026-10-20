@@ -337,8 +337,14 @@ Press **PLAY SONG** to play it. The playing entry is outlined in green, the time
 and the bottom row shows what's playing now (with the repeat, e.g. 2/4), what comes next, the step and the time.
 **PREVIOUS** and **NEXT** jump between entries. **Click a block on the timeline** to play that part next: it
 starts as soon as the pattern playing now has finished (outlined in white until then), so you can perform the
-song live; when the song is stopped, clicking a block plays the song from there. **LOOP SONG** starts again from the top after the last entry,
-and **Loop** can instead keep repeating a single entry while you work on it.
+song live; when the song is stopped, clicking a block plays the song from there. 
+
+The **Loop** menu sets what happens at the end:
+
+- **Play once:** the song stops after the last entry.
+- **Loop whole song:** after the last entry (and its fill) it starts again from the first, and keeps going until
+  you press Stop. This is saved with the song.
+- **#n: an entry:** keep repeating just that entry while you work on it.
 
 What PLAY SONG does follows the Play mode in the MIDI settings:
 

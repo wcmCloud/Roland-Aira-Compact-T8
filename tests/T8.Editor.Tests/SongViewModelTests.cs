@@ -33,7 +33,7 @@ public class SongViewModelTests : IDisposable
         Assert.Equal(SongViewModel.Palette[0], entry.Color);
         Assert.Equal(_vm.Library.Rhythm[1, 4].Length, entry.Steps);
         Assert.True(Song.IsDirty);
-        Assert.Equal(2, Song.LoopChoices.Count); // whole song + entry 1
+        Assert.Equal(3, Song.LoopChoices.Count); // play once, loop whole song, entry 1
     }
 
     [Fact]
@@ -206,12 +206,51 @@ public class SongViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Loop_whole_song_is_a_loop_choice_saved_with_the_song()
+    {
+        Song.AddEntry(1, 1);
+        Assert.Equal(SongViewModel.PlayOnce, Song.LoopChoice!.Value);
+        Assert.False(Song.Loop);
+
+        Song.LoopChoice = Song.LoopChoices.Single(c => c.Value == SongViewModel.LoopSong);
+        Assert.True(Song.Loop);
+        Assert.True(Song.Song.Loop);
+
+        Song.AddEntry(1, 2); // rebuilding the menu keeps the choice
+        Assert.Equal(SongViewModel.LoopSong, Song.LoopChoice!.Value);
+
+        using var temp = TestPaths.CreateTempFolder();
+        var path = Path.Combine(temp.Path, "loop.t8song");
+        Assert.True(Song.SaveSong(path));
+        Song.NewSongCommand.Execute(null);
+        Assert.Equal(SongViewModel.PlayOnce, Song.LoopChoice!.Value);
+        Assert.True(Song.OpenSong(path));
+        Assert.Equal(SongViewModel.LoopSong, Song.LoopChoice!.Value);
+
+        Song.LoopChoice = Song.LoopChoices[0];
+        Assert.False(Song.Loop);
+    }
+
+    [Fact]
+    public void A_looping_song_plays_on_past_its_end()
+    {
+        Song.AddEntry(1, 1);
+        Song.LoopChoice = Song.LoopChoices.Single(c => c.Value == SongViewModel.LoopSong);
+        Song.PlayCommand.Execute(null);
+        Song.UpdatePosition();
+        Assert.True(Song.IsPlaying);
+        Assert.DoesNotContain("End of song", Song.NextText);
+        Song.StopCommand.Execute(null);
+    }
+
+    [Fact]
     public void Loop_choices_follow_the_entries()
     {
         Song.AddEntry(1, 1).Name = "Intro";
-        Assert.Equal("Whole song", Song.LoopChoices[0].Name);
-        Assert.Contains("Intro", Song.LoopChoices[1].Name);
-        Song.LoopChoice = Song.LoopChoices[1];
+        Assert.Equal("Play once", Song.LoopChoices[0].Name);
+        Assert.Equal("Loop whole song", Song.LoopChoices[1].Name);
+        Assert.Contains("Intro", Song.LoopChoices[2].Name);
+        Song.LoopChoice = Song.LoopChoices[2];
         Song.PlayCommand.Execute(null);
         Assert.True(Song.IsPlaying);
         Song.StopCommand.Execute(null);

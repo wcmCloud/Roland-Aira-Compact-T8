@@ -28,11 +28,9 @@
       <StackPanel Spacing="10">
         <DockPanel>
           <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-            <ToggleButton x:Name="SongLoopToggle" Classes="seg green" Content="LOOP SONG" IsChecked="{Binding Loop}"
-                          ToolTip.Tip="Start again from the first entry after the last one" />
-            <TextBlock Text="Loop" Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" Margin="8,0,0,0" />
-            <ComboBox x:Name="LoopEntryPicker" ItemsSource="{Binding LoopChoices}" SelectedItem="{Binding LoopChoice}" MinWidth="200"
-                      ToolTip.Tip="Play the whole song, or keep looping one entry" />
+            <TextBlock Text="Loop" Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" />
+            <ComboBox x:Name="LoopEntryPicker" ItemsSource="{Binding LoopChoices}" SelectedItem="{Binding LoopChoice}" MinWidth="220"
+                      ToolTip.Tip="Play the song once, loop the whole song from the start when it ends, or keep looping one entry" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="4">
             <Button x:Name="PlaySongButton" Classes="seg green" Classes.active="{Binding IsPlaying}" Command="{Binding PlayCommand}"

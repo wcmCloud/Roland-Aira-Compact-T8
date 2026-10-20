@@ -119,6 +119,8 @@ public sealed partial class SongViewModel : ObservableObject
                 return;
             _song.Loop = value;
             OnPropertyChanged();
+            if (LoopChoice is not { Value: >= 0 })
+                LoopChoice = LoopChoices.FirstOrDefault(c => c.Value == (value ? LoopSong : PlayOnce)) ?? LoopChoice;
             MarkDirty();
         }
     }
@@ -210,14 +212,36 @@ public sealed partial class SongViewModel : ObservableObject
         RebuildTimeline();
     }
 
+    /// <summary>Loop menu value: play the song once and stop.</summary>
+    public const int PlayOnce = -2;
+
+    /// <summary>Loop menu value: start again from the first entry after the last one.</summary>
+    public const int LoopSong = -1;
+
+    private bool _rebuildingLoopChoices;
+
+    /// <summary>The Loop menu: play once, loop the whole song (saved with the song), or keep looping one entry.</summary>
+    partial void OnLoopChoiceChanged(Choice<int>? value)
+    {
+        if (_rebuildingLoopChoices || value is null)
+            return;
+        if (value.Value == LoopSong)
+            Loop = true;
+        else if (value.Value == PlayOnce)
+            Loop = false;
+    }
+
     private void RebuildLoopChoices()
     {
-        var selected = LoopChoice?.Value ?? -1;
+        var selected = LoopChoice?.Value is >= 0 and var entry && entry < Entries.Count ? entry : _song.Loop ? LoopSong : PlayOnce;
+        _rebuildingLoopChoices = true;
         LoopChoices.Clear();
-        LoopChoices.Add(new Choice<int>(-1, "Whole song"));
+        LoopChoices.Add(new Choice<int>(PlayOnce, "Play once"));
+        LoopChoices.Add(new Choice<int>(LoopSong, "Loop whole song"));
         for (var i = 0; i < Entries.Count; i++)
             LoopChoices.Add(new Choice<int>(i, $"#{i + 1}: {Entries[i].SlotLabel} {Entries[i].Name}".TrimEnd()));
         LoopChoice = LoopChoices.FirstOrDefault(c => c.Value == selected) ?? LoopChoices[0];
+        _rebuildingLoopChoices = false;
     }
 
     private void RebuildTimeline()
