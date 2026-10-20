@@ -1,16 +1,17 @@
 # Song mode in a DAW
 
-**Status:** planned · **Goal:** use the editor's songs from a DAW (Ableton, Logic, Reaper, Cubase, Bitwig…)
+**Status:** planned · **Priority: the VST3/AU plugin (option C) first** · **Goal:** use the editor's songs from a
+DAW (Ableton, Logic, Reaper, Cubase, Bitwig…)
 
 ## Options compared
 
 | | Effort | Works in | Notes |
 |---|---|---|---|
-| A. Export song as MIDI | ~1 hour + tests | Every DAW | Recommended first step |
+| **C. VST3/AU plugin (JUCE, C++)** | **Several days** | **VST3/AU hosts** | **Priority.** Separate project; can't reuse the .NET/Avalonia UI |
+| A. Export song as MIDI | ~1 hour + tests | Every DAW | Quick extra; its timing rules are shared with the plugin |
 | B. Editor follows the DAW's clock | ~half a day | Every DAW that sends MIDI clock | No plugin; the Song tab plays in sync |
-| C. VST3/AU plugin (JUCE, C++) | Several days | VST3/AU hosts | Separate project; can't reuse the .NET/Avalonia UI |
 
-## A. Export song as MIDI (recommended first)
+## A. Export song as MIDI
 
 A **Export song as MIDI…** button on the Song tab writes a `.mid` file to drag onto a DAW track routed to the T-8.
 Two kinds:
@@ -46,24 +47,69 @@ and plays the Song tab in sync (preview notes, or program changes to the T-8).
       modes; Song Position Pointer support would let the DAW start mid-song.
 - [ ] Tests with a fake input sending clock.
 
-## C. VST3/AU plugin (separate project)
+## C. VST3/AU plugin (priority)
 
 Plugins are native code loaded by the DAW; .NET/Avalonia can't be used for a cross-platform plugin with a UI
-(VST.NET only does VST2, which Steinberg no longer licenses for new plugins; AudioPlugSharp is Windows-only).
+(VST.NET only does VST2, which Steinberg no longer licenses for new plugins; AudioPlugSharp is Windows-only). So
+the plugin is a new C++ project, with the song logic ported from this repository.
 
-- Framework: **JUCE** (C++), one codebase for VST3, AU and standalone. Check the licence (AGPLv3 or JUCE's free
-  tier with its revenue cap).
-- A **MIDI effect** plugin: reads a `.t8song` (JSON, documented in `docs/SONG-FORMAT.md`) plus the pattern
-  lengths (from a T-8 backup folder, or entered by hand), follows the host's transport (PPQ position, tempo,
-  play/stop) and outputs program changes (and optionally notes) at the right times.
-- UI: song list with repeats/fills and a timeline, rebuilt in JUCE.
-- Port: `SongPlan` (small), the `.t8song` reader, the program change timing from option A.
-- Host caveats: Ableton, Reaper, Bitwig and Cubase route plugin MIDI output to hardware; Logic needs the External
-  Instrument / IAC workaround for MIDI FX output.
-- Distribution: sign and notarize (macOS), installer for VST3/AU folders, CI builds per platform.
+### What it does
+
+A **MIDI effect** plugin ("T-8 Song") on a track routed to the T-8:
+
+- Loads a `.t8song` file (JSON, [docs/SONG-FORMAT.md](../SONG-FORMAT.md)) or edits the song in the plugin.
+- Follows the host's transport: play/stop, tempo, and the bar/beat position (PPQ), so the song starts, stops,
+  loops and jumps with the DAW's timeline.
+- **Pattern-change mode** (main use): outputs the program change for each pattern on Pc.Ch, one pass ahead,
+  exactly as `SongSyncDriver` does, so the T-8 plays its own patterns in sync (T-8 `SYnC` USB, `rXPc` on; the
+  DAW sends MIDI clock to the T-8).
+- **Notes mode** (later): outputs the drum and bass notes of each pass, like the editor's preview, using the
+  pattern files from a T-8 backup folder.
+- Pattern lengths (steps per pass) come from a T-8 backup folder the user points it at, or are typed per entry.
+- State (song, settings) is saved in the DAW project.
+
+### Plan
+
+1. **Project setup**
+   - [ ] New repository (e.g. `T8-Song-Plugin`), JUCE 8 with CMake, targets VST3, AU (macOS) and Standalone.
+   - [ ] Licence check: JUCE's free tier vs AGPLv3; pick the plugin's own licence.
+   - [ ] GitHub Actions: build macOS (universal), Windows; artifacts per format.
+2. **Song core (C++ port)**
+   - [ ] `Song`/`SongEntry`/`SongFill` and the `.t8song` reader/writer (JSON via `juce::JSON`), same validation.
+   - [ ] `SongPlan` (passes, `PassAt`, `FirstPassOf`) and pattern length lookup.
+   - [ ] PRM reader for rhythm `LENGTH` (and the step data for notes mode later).
+   - [ ] Unit tests (JUCE's `UnitTest` or Catch2) mirroring `SongTests` and `SongPlaybackTests`.
+3. **MIDI output from the host's timeline**
+   - [ ] In `processBlock`: read `AudioPlayHead` (isPlaying, ppqPosition, bpm); a 16th-note step is 0.25 PPQ.
+   - [ ] For each block, find the pass boundaries inside it and emit program changes sample-accurately
+         (one pass ahead, skipping repeats of the same pattern; the first pattern on start).
+   - [ ] Handle start mid-song (position → pass), loops and jumps in the DAW (re-sync on discontinuity), stop
+         (optionally All Notes Off), tempo changes.
+   - [ ] Settings: Pc.Ch, loop song, start offset (song starts at bar N).
+4. **UI (JUCE)**
+   - [ ] The same look as the editor: dark cards, the song list with repeats/fills/colours, and the colour timeline
+         with the playing part and progress.
+   - [ ] Load/save `.t8song`, choose the T-8 backup folder, click a timeline block to queue the next part (when the
+         DAW is playing).
+5. **Hosts and distribution**
+   - [ ] Test: Ableton Live, Reaper, Bitwig, Cubase (VST3 MIDI out to hardware); Logic (AU MIDI FX output needs the
+         IAC Driver or External Instrument workaround; document it).
+   - [ ] macOS: sign and notarize, a `.pkg` installing to `/Library/Audio/Plug-Ins/VST3` and `Components`.
+   - [ ] Windows: installer for `Common Files/VST3`.
+   - [ ] README with setup per DAW and the T-8 settings.
+6. **Later**
+   - [ ] Notes mode (play the patterns through the T-8's sounds from the DAW).
+   - [ ] Pattern-change export from the editor (option A) can then share the timing rules.
+
+### Open decisions
+
+- Plugin name (avoid leading with Roland's trademarks, as for the App Store).
+- JUCE licence tier.
+- Pattern lengths: require a backup folder, or let the song file carry the lengths (a small `.t8song` v2 addition:
+  `steps` per entry, written by the editor)?
 
 ## Order
 
-1. A (export) — quick, works everywhere, and its timing code is reused by B and C.
-2. B (clock follow) — if playing the Song tab live alongside a DAW is wanted.
-3. C (plugin) — only if A and B aren't enough; a separate repository.
+1. **C (plugin)** — the priority; a separate repository.
+2. A (export) — quick extra for DAWs where the plugin can't send MIDI to hardware easily (Logic).
+3. B (clock follow) — if playing the editor's Song tab live alongside a DAW is still wanted.

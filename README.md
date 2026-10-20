@@ -513,7 +513,7 @@ It builds the six packages, tags `v<version>`, and creates the GitHub release wi
 ### Plans
 
 Features planned for later are written up in [docs/plans](docs/plans): a Mac App Store version, and song mode
-in a DAW (MIDI export, following the DAW's clock, a VST3/AU plugin).
+in a DAW (a VST3/AU plugin first, then MIDI export and following the DAW's clock).
 
 ### Tests and screenshots
 
