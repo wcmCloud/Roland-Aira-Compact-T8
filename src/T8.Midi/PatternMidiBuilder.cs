@@ -49,9 +49,9 @@ public sealed class PatternMidiBuilder
         var random = Seed is { } seed ? new Random(seed) : new Random();
         var events = new List<TimedEvent>();
 
-        if (rhythm is not null)
+        if (rhythm is not null && Map.RhythmOn)
             AddRhythm(events, rhythm, totalSteps, random);
-        if (bass is not null)
+        if (bass is not null && Map.BassOn)
             AddBass(events, bass, totalSteps);
 
         return events.OrderBy(e => e.Time).ThenBy(e => e.Event is NoteOnEvent ? 1 : 0).ToList();

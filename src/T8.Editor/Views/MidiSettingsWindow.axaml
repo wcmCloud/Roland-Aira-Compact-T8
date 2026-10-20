@@ -38,9 +38,21 @@
                  IsVisible="{Binding DetectResult, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
       <Grid ColumnDefinitions="200,100" RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
         <TextBlock Text="Bass (bACh)" VerticalAlignment="Center" />
-        <ComboBox x:Name="BassChannelPicker" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.Channels}" SelectedItem="{Binding BassChannel}" />
+        <ComboBox x:Name="BassChannelPicker" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.PartChannels}" SelectedItem="{Binding BassChannel}" >
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="x:Int32">
+              <TextBlock Text="{Binding Converter={x:Static vm:Converters.ChannelName}}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
         <TextBlock Grid.Row="1" Text="Rhythm (rhCh)" VerticalAlignment="Center" />
-        <ComboBox x:Name="RhythmChannelPicker" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.Channels}" SelectedItem="{Binding RhythmChannel}" />
+        <ComboBox x:Name="RhythmChannelPicker" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.PartChannels}" SelectedItem="{Binding RhythmChannel}" >
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="x:Int32">
+              <TextBlock Text="{Binding Converter={x:Static vm:Converters.ChannelName}}" />
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
         <TextBlock Grid.Row="2" Text="Pattern select (Pc.Ch)" VerticalAlignment="Center" />
         <ComboBox x:Name="ProgramChannelPicker" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.Channels}" SelectedItem="{Binding ProgramChangeChannel}" />
       </Grid>

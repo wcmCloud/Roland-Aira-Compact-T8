@@ -78,6 +78,9 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
     public ObservableCollection<DrumNoteViewModel> DrumNotes { get; }
 
     public static IReadOnlyList<int> Channels { get; } = Enumerable.Range(1, 16).ToList();
+
+    /// <summary>Bass and rhythm channels: OFF (0, nothing is sent for the part, like the T-8's OFF) or 1–16.</summary>
+    public static IReadOnlyList<int> PartChannels { get; } = Enumerable.Range(0, 17).ToList();
     public static IReadOnlyList<PlayMode> PlayModes { get; } = Enum.GetValues<PlayMode>();
 
     public IReadOnlyList<string> Errors => BuildMap().Validate();
@@ -85,7 +88,7 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
 
     /// <summary>How to set the T-8 up so it matches these settings.</summary>
     public string T8SetupHelp =>
-        $"On the T-8, hold SHIFT and press OCT+ (MENU), then set bACh to {BassChannel}, rhCh to {RhythmChannel} " +
+        $"On the T-8, hold SHIFT and press OCT+ (MENU), then set bACh to {T8MidiMap.ChannelName(BassChannel)}, rhCh to {T8MidiMap.ChannelName(RhythmChannel)} " +
         $"and Pc.Ch to {ProgramChangeChannel}. Turn rXPc on so the editor can switch patterns, tXPc on so the editor follows " +
         "the patterns you pick on the T-8, and set SYnC to AUTO or USB so the T-8 follows the editor's clock.";
 

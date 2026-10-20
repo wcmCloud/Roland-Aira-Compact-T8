@@ -4,10 +4,20 @@ namespace T8.Midi;
 
 /// <summary>
 /// MIDI channels and note numbers from the T-8 MIDI Implementation Chart (manual p.31).
-/// Channels are 1-based, as shown on the T-8 (menu items rhCh, bACh, Pc.Ch).
+/// Channels are 1-based, as shown on the T-8 (menu items rhCh, bACh, Pc.Ch). The bass and rhythm
+/// channels can also be <see cref="Off"/>, like the T-8's OFF setting: nothing is sent for that part.
 /// </summary>
 public sealed class T8MidiMap
 {
+    /// <summary>Channel value for a part that is switched off (bACh/rhCh OFF on the T-8).</summary>
+    public const int Off = 0;
+
+    public bool BassOn => BassChannel != Off;
+    public bool RhythmOn => RhythmChannel != Off;
+
+    /// <summary>"OFF" for <see cref="Off"/>, otherwise the channel number.</summary>
+    public static string ChannelName(int channel) => channel == Off ? "OFF" : channel.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
     public int BassChannel { get; set; } = 2;
     public int RhythmChannel { get; set; } = 10;
     public int ProgramChangeChannel { get; set; } = 16;
@@ -44,22 +54,24 @@ public sealed class T8MidiMap
     public IReadOnlyList<string> Validate()
     {
         var errors = new List<string>();
-        CheckChannel(BassChannel, "Bass");
-        CheckChannel(RhythmChannel, "Rhythm");
-        CheckChannel(ProgramChangeChannel, "Program change");
+        CheckChannel(BassChannel, "Bass", allowOff: true);
+        CheckChannel(RhythmChannel, "Rhythm", allowOff: true);
+        CheckChannel(ProgramChangeChannel, "Program change", allowOff: false);
         foreach (var (track, note) in RhythmNotes)
         {
             if (note is < 0 or > 127)
                 errors.Add($"{track} note must be 0–127.");
         }
-        if (BassChannel == RhythmChannel)
+        if (BassChannel == RhythmChannel && BassOn)
             errors.Add("Bass and rhythm need different channels.");
         return errors;
 
-        void CheckChannel(int channel, string name)
+        void CheckChannel(int channel, string name, bool allowOff)
         {
+            if (allowOff && channel == Off)
+                return;
             if (channel is < 1 or > 16)
-                errors.Add($"{name} channel must be 1–16.");
+                errors.Add(allowOff ? $"{name} channel must be 1–16 or OFF." : $"{name} channel must be 1–16.");
         }
     }
 

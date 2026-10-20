@@ -25,6 +25,7 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
           Add --port "<name>" to use a port other than the auto-detected T-8.
           Channels default to the T-8's (bass 2, rhythm 10, program change 16); change them with
           --bass-ch, --rhythm-ch and --pc-ch to match the T-8's bACh, rhCh and Pc.Ch settings.
+          --bass-ch off or --rhythm-ch off sends nothing for that part, like OFF on the T-8.
         """;
 
     private string[] _args = [];
@@ -105,8 +106,8 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
     {
         var map = new T8MidiMap
         {
-            BassChannel = Option("--bass-ch", 2),
-            RhythmChannel = Option("--rhythm-ch", 10),
+            BassChannel = PartChannel("--bass-ch", 2),
+            RhythmChannel = PartChannel("--rhythm-ch", 10),
             ProgramChangeChannel = Option("--pc-ch", 16),
         };
         var errors = map.Validate();
@@ -195,6 +196,15 @@ public sealed class CliApp(IMidiPortProvider ports, TextWriter output, TextWrite
         _args.Length > index && int.TryParse(_args[index], out var value)
             ? value
             : throw new ArgumentException($"Expected a number for argument {index}.\n\n{Usage}");
+
+    /// <summary>A bass or rhythm channel option: 1–16, or "off" (or 0) to send nothing for that part.</summary>
+    private int PartChannel(string name, int fallback) =>
+        Option<string?>(name, null) switch
+        {
+            null => fallback,
+            var value when value.Equals("off", StringComparison.OrdinalIgnoreCase) => T8MidiMap.Off,
+            var value => int.Parse(value, CultureInfo.InvariantCulture),
+        };
 
     private T Option<T>(string name, T fallback)
     {

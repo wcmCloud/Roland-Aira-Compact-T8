@@ -55,6 +55,15 @@ public class CliAppTests
     }
 
     [Fact]
+    public void Channel_options_accept_off()
+    {
+        var ports = FakePortProvider.WithT8();
+        Assert.Equal(0, Run(ports, "test", "--bass-ch", "off"));
+        Assert.Contains("Bass is OFF", _out.ToString());
+        Assert.All(ports.Opened.SelectMany(d => d.Events).OfType<NoteOnEvent>(), n => Assert.Equal(9, (int)n.Channel));
+    }
+
+    [Fact]
     public void Detect_prints_the_channels_to_use()
     {
         var ports = FakePortProvider.WithT8();

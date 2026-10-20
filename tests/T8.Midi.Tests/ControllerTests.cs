@@ -197,6 +197,39 @@ public class ControllerTests
     }
 
     [Fact]
+    public void A_part_set_to_off_gets_nothing()
+    {
+        using var t8 = new T8Controller(_device, new T8MidiMap { BassChannel = T8MidiMap.Off, RhythmChannel = 10 });
+        t8.BassNoteOn(36);
+        t8.BassNoteOff(36);
+        t8.TriggerDrum(RhythmTrack.SD);
+        t8.AllNotesOff();
+
+        // Only the rhythm channel (index 9) got anything.
+        Assert.All(_device.Events.OfType<ChannelEvent>(), e => Assert.Equal(9, (int)e.Channel));
+        Assert.Contains(_device.Events, e => e is NoteOnEvent n && n.NoteNumber == 38);
+    }
+
+    [Fact]
+    public void Preview_leaves_out_parts_that_are_off()
+    {
+        var bass = new BassPattern { Length = 4 };
+        bass.Steps[0].State = BassStepState.Note;
+        var rhythm = new RhythmPattern { Length = 4 };
+        rhythm.Steps[0][RhythmTrack.BD].On = true;
+        rhythm.Steps[0][RhythmTrack.BD].Velocity = 9;
+
+        using var t8 = new T8Controller(_device, new T8MidiMap { RhythmChannel = T8MidiMap.Off });
+        t8.PlayPreview(bass, rhythm, bpm: 300);
+        Thread.Sleep(150);
+        t8.StopPreview();
+
+        var notes = _device.Events.OfType<NoteOnEvent>().ToList();
+        Assert.NotEmpty(notes);
+        Assert.All(notes, n => Assert.Equal(1, (int)n.Channel)); // bass channel 2 only
+    }
+
+    [Fact]
     public void Starting_a_new_preview_replaces_the_old_one()
     {
         using var t8 = CreateController();

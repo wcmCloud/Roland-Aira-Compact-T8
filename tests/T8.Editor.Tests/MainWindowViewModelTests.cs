@@ -429,6 +429,18 @@ public class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Bass_off_shows_in_the_summary_and_audition_sends_no_bass()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        _vm.Settings.Midi.BassChannel = T8.Midi.T8MidiMap.Off;
+        Assert.StartsWith("Bass OFF · Rhythm ch 10", _vm.MidiSummary);
+
+        _vm.Bass.Steps[0].NoteUpCommand.Execute(null); // auditions the note
+
+        Assert.DoesNotContain(_ports.LastOpened?.Events ?? [], e => e is NoteOnEvent n && n.Channel == 1);
+    }
+
+    [Fact]
     public void Commands_without_a_port_explain_what_to_do()
     {
         using var vm = new MainWindowViewModel(new FakePortProvider(), _dialogs);

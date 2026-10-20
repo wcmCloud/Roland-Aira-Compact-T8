@@ -170,8 +170,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     public EditorSettings Settings { get; private set; }
 
     public string MidiSummary =>
-        $"Bass ch {Settings.Midi.BassChannel} · Rhythm ch {Settings.Midi.RhythmChannel} · Pattern select ch {Settings.Midi.ProgramChangeChannel}" +
+        $"Bass {PartChannel(Settings.Midi.BassChannel)} · Rhythm {PartChannel(Settings.Midi.RhythmChannel)} · Pattern select ch {Settings.Midi.ProgramChangeChannel}" +
         (Settings.PlayMode == PlayMode.SyncT8Sequencer ? " · Play runs the T-8's sequencer" : "");
+
+    private static string PartChannel(int channel) => channel == T8MidiMap.Off ? "OFF" : $"ch {channel}";
 
     public PatternLibrary Library { get; private set; }
 

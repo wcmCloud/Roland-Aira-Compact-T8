@@ -16,8 +16,8 @@ public class MidiMapTests
     }
 
     [Theory]
-    [InlineData(0, 10, 16, "Bass channel must be 1–16.")]
-    [InlineData(2, 17, 16, "Rhythm channel must be 1–16.")]
+    [InlineData(-1, 10, 16, "Bass channel must be 1–16 or OFF.")]
+    [InlineData(2, 17, 16, "Rhythm channel must be 1–16 or OFF.")]
     [InlineData(2, 10, 0, "Program change channel must be 1–16.")]
     [InlineData(5, 5, 16, "Bass and rhythm need different channels.")]
     public void Validate_reports_bad_channels(int bass, int rhythm, int pc, string error)
@@ -25,6 +25,24 @@ public class MidiMapTests
         var map = new T8MidiMap { BassChannel = bass, RhythmChannel = rhythm, ProgramChangeChannel = pc };
         Assert.Contains(error, map.Validate());
     }
+
+    [Theory]
+    [InlineData(T8MidiMap.Off, 10)]
+    [InlineData(2, T8MidiMap.Off)]
+    [InlineData(T8MidiMap.Off, T8MidiMap.Off)] // both off: not "the same channel"
+    public void Bass_and_rhythm_can_be_off(int bass, int rhythm)
+    {
+        var map = new T8MidiMap { BassChannel = bass, RhythmChannel = rhythm };
+        Assert.Empty(map.Validate());
+        Assert.Equal(bass != 0, map.BassOn);
+        Assert.Equal(rhythm != 0, map.RhythmOn);
+        Assert.Equal("OFF", T8MidiMap.ChannelName(T8MidiMap.Off));
+        Assert.Equal("7", T8MidiMap.ChannelName(7));
+    }
+
+    [Fact]
+    public void Program_change_channel_cannot_be_off() =>
+        Assert.Contains("Program change channel must be 1–16.", new T8MidiMap { ProgramChangeChannel = T8MidiMap.Off }.Validate());
 
     [Fact]
     public void Validate_reports_bad_notes()

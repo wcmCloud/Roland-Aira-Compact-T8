@@ -6,6 +6,10 @@ namespace T8.Editor.ViewModels;
 
 public static class Converters
 {
+    /// <summary>A channel number, or "OFF" for a part that is switched off.</summary>
+    public static readonly IValueConverter ChannelName =
+        new FuncValueConverter<int, string>(T8.Midi.T8MidiMap.ChannelName);
+
     /// <summary>Dims the note name on steps that don't play.</summary>
     public static readonly IValueConverter HasNoteOpacity =
         new FuncValueConverter<bool, double>(hasNote => hasNote ? 1.0 : 0.35);

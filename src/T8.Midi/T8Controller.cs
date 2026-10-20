@@ -83,6 +83,15 @@ public sealed class T8Controller : IDisposable
     {
         StopPreview();
 
+        // Parts switched OFF aren't played at all.
+        if (!Map.BassOn)
+            bass = null;
+        if (!Map.RhythmOn)
+        {
+            rhythm = null;
+            fill = null;
+        }
+
         var builder = new PatternMidiBuilder { Map = Map, Seed = seed };
         var events = builder.Build(bass, rhythm);
         var length = builder.LengthInTicks(bass, rhythm);
@@ -208,6 +217,9 @@ public sealed class T8Controller : IDisposable
 
     private void Send(ChannelEvent midiEvent, int channel)
     {
+        // A part switched OFF (like bACh/rhCh OFF on the T-8) gets nothing.
+        if (channel == T8MidiMap.Off)
+            return;
         midiEvent.Channel = (FourBitNumber)(channel - 1);
         _output.SendEvent(midiEvent);
     }

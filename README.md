@@ -129,6 +129,9 @@ The editor and the T-8 must use the same MIDI channels. Open the MIDI settings w
 - Or set them by hand to match the T-8's menu (hold SHIFT, press OCT+): bass `bACh` (default 2), rhythm `rhCh`
   (default 10) and pattern select `Pc.Ch` (default 16). Detect finds pattern select too if `tXPc` is on in the
   T-8's menu and you change pattern while it listens; otherwise set it by hand.
+- **OFF** (first choice for Bass and Rhythm) works like OFF for `bACh`/`rhCh` on the T-8: the editor sends nothing
+  for that part, so Play, audition and Test leave it silent. Use it to hear or play just the drums or just the bass,
+  or when the T-8 has that part's channel set to OFF.
 - **Test connection** plays kick, snare, closed hat, open hat and a bass note on those channels, and checks that the
   T-8 answers. If you hear nothing, the channels don't match.
 - **Drum note numbers** are the notes for each drum (the T-8's defaults are filled in).
@@ -383,7 +386,8 @@ The file format is described in [docs/PRM-FORMAT.md](docs/PRM-FORMAT.md) and the
 
 ## Command line
 
-The `t8` tool covers the MIDI side without the editor:
+The `t8` tool covers the MIDI side without the editor (add `--bass-ch off` or `--rhythm-ch off` to leave a part
+silent):
 
 ```sh
 dotnet run --project src/T8.Cli -- ports

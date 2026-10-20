@@ -78,18 +78,32 @@ public sealed class ConnectionTest(IMidiPortProvider ports, T8MidiMap map)
             using var t8 = new T8Controller(ports.OpenOutput(output), map);
             log.Add($"Opened output {output.Name}.");
 
-            foreach (var track in new[] { RhythmTrack.BD, RhythmTrack.SD, RhythmTrack.CH, RhythmTrack.OH })
+            if (map.RhythmOn)
             {
-                t8.TriggerDrum(track);
-                log.Add($"Sent {track} (note {map.RhythmNotes[track]}) on rhythm channel {map.RhythmChannel}.");
-                await Task.Delay(NoteGap, cancellationToken);
+                foreach (var track in new[] { RhythmTrack.BD, RhythmTrack.SD, RhythmTrack.CH, RhythmTrack.OH })
+                {
+                    t8.TriggerDrum(track);
+                    log.Add($"Sent {track} (note {map.RhythmNotes[track]}) on rhythm channel {map.RhythmChannel}.");
+                    await Task.Delay(NoteGap, cancellationToken);
+                }
+            }
+            else
+            {
+                log.Add("Rhythm is OFF, so no drums were sent.");
             }
 
-            const int testNote = 36; // C2
-            t8.BassNoteOn(testNote);
-            await Task.Delay(NoteGap * 2, cancellationToken);
-            t8.BassNoteOff(testNote);
-            log.Add($"Sent bass note C2 on bass channel {map.BassChannel}.");
+            if (map.BassOn)
+            {
+                const int testNote = 36; // C2
+                t8.BassNoteOn(testNote);
+                await Task.Delay(NoteGap * 2, cancellationToken);
+                t8.BassNoteOff(testNote);
+                log.Add($"Sent bass note C2 on bass channel {map.BassChannel}.");
+            }
+            else
+            {
+                log.Add("Bass is OFF, so no bass note was sent.");
+            }
             outputOk = true;
         }
         catch (OperationCanceledException)

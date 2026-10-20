@@ -42,6 +42,18 @@ public class ConnectionTestTests
     }
 
     [Fact]
+    public async Task Skips_parts_that_are_off()
+    {
+        var ports = FakePortProvider.WithT8();
+        var map = new T8MidiMap { BassChannel = T8MidiMap.Off };
+        var result = await Create(ports, map).RunAsync(T8);
+
+        Assert.True(result.Success);
+        Assert.Contains(result.Log, l => l.Contains("Bass is OFF"));
+        Assert.All(ports.LastOpened!.Events.OfType<NoteOnEvent>(), n => Assert.Equal(9, (int)n.Channel));
+    }
+
+    [Fact]
     public async Task Fails_when_the_t8_is_silent()
     {
         var ports = FakePortProvider.WithT8();

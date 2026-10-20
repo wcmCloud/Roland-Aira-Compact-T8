@@ -10,7 +10,9 @@ so knobs can't be set over MIDI and patterns can only be transferred through the
 | Rhythm | 10 (`rhCh`) | See the drum notes below |
 | Program change | 16 (`Pc.Ch`) | 0–63 selects bank 1 pattern 1 … bank 4 pattern 16 |
 
-Each channel can be 1–16 or OFF on the T-8.
+Each channel can be 1–16 or OFF on the T-8. The editor's bass and rhythm channels can be **OFF** as well (and
+`--bass-ch off` / `--rhythm-ch off` on the command line): nothing is sent for that part, not in the preview,
+audition, connection test or all-notes-off. A `.mid` export leaves the part out too. Pattern select is always 1–16.
 
 ## Implementation chart and what the editor does with it
 

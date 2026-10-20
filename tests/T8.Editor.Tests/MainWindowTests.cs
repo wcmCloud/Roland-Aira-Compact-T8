@@ -263,6 +263,17 @@ public class MidiSettingsWindowTests
         Assert.Equal(T8.Editor.Services.PlayMode.SyncT8Sequencer, vm.PlayMode);
         Assert.Equal(3, vm.ToSettings().Midi.BassChannel);
 
+        // OFF is the first choice for bass and rhythm, shown as "OFF".
+        var rhythmPicker = window.FindControl<ComboBox>("RhythmChannelPicker")!;
+        Assert.Equal(0, rhythmPicker.Items[0]);
+        Assert.Equal(17, rhythmPicker.ItemCount);
+        rhythmPicker.SelectedItem = 0;
+        window.UpdateLayout();
+        Assert.Contains(rhythmPicker.GetVisualDescendants().OfType<TextBlock>(), t => t.Text == "OFF");
+        Assert.True(window.FindControl<Button>("SaveSettingsButton")!.IsEnabled);
+        Assert.Equal(0, vm.ToSettings().Midi.RhythmChannel);
+        Assert.Contains("rhCh to OFF", vm.T8SetupHelp);
+
         var output = Environment.GetEnvironmentVariable("T8_SCREENSHOT_DIR");
         if (output is not null)
             window.CaptureRenderedFrame()!.Save(Path.Combine(output, "midi-settings.png"));
