@@ -27,10 +27,11 @@ public sealed class T8Controller : IDisposable
     public MidiClockSender Clock { get; }
 
     /// <summary>Opens the first port that looks like a T-8.</summary>
-    public static T8Controller? Connect(T8MidiMap? map = null)
+    public static T8Controller? Connect(IMidiPortProvider? ports = null, T8MidiMap? map = null)
     {
-        var port = MidiPorts.FindT8(MidiPorts.ListOutputs());
-        return port is null ? null : new T8Controller(MidiPorts.OpenOutput(port), map);
+        ports ??= MidiPorts.System;
+        var port = MidiPorts.FindT8(ports.ListOutputs());
+        return port is null ? null : new T8Controller(ports.OpenOutput(port), map);
     }
 
     /// <summary>
@@ -61,6 +62,8 @@ public sealed class T8Controller : IDisposable
     /// <summary>
     /// Plays patterns from the computer through the T-8's sounds. Stop the T-8's own sequencer first.
     /// </summary>
+    public bool IsPreviewPlaying => _preview?.IsRunning == true;
+
     public Playback PlayPreview(BassPattern? bass, RhythmPattern? rhythm, double bpm, bool loop = true, int? seed = null)
     {
         StopPreview();

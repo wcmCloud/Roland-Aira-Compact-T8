@@ -1,10 +1,12 @@
 using T8.Core.Patterns;
 
+using T8.Tests.Shared;
+
 namespace T8.Core.Tests;
 
 public class PatternFileTests
 {
-    private static readonly string BackupRoot = Path.Combine(AppContext.BaseDirectory, "TestData", "BACKUP");
+    private static readonly string BackupRoot = TestPaths.Backup;
 
     public static TheoryData<string> BassFiles() =>
         new(Directory.GetFiles(Path.Combine(BackupRoot, "BASS"), "*.PRM", SearchOption.AllDirectories));

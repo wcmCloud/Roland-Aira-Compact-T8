@@ -32,8 +32,10 @@ public sealed class RhythmCell
 {
     public bool On { get; set; }
 
-    /// <summary>Velocity v.0–v.10. Default for a new note is 7.</summary>
-    public int Velocity { get; set; } = 7;
+    /// <summary>Velocity v.0–v.10. Blank T-8 cells store 0; the T-8 uses 7 for a newly entered note.</summary>
+    public int Velocity { get; set; }
+
+    public const int DefaultNoteVelocity = 7;
 
     public SubStep SubStep { get; set; } = SubStep.Off;
 

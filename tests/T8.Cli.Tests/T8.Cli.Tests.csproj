@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <UseMidiFakes>true</UseMidiFakes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\T8.Cli\T8.Cli.csproj" />
+  </ItemGroup>
+
+</Project>

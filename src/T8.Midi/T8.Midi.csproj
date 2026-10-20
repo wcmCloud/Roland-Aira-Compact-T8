@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <InternalsVisibleTo Include="T8.Core.Tests" />
+    <InternalsVisibleTo Include="T8.Midi.Tests" />
   </ItemGroup>
 
 </Project>
