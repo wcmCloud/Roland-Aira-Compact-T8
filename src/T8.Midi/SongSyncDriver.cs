@@ -14,7 +14,6 @@ public sealed class SongSyncDriver : IDisposable
     private readonly SongPlan _plan;
     private readonly bool _loop;
     private readonly int _offset;
-    private readonly Timer _timer;
     private int _lastPass = -1;
     private volatile bool _finished;
 
@@ -25,7 +24,6 @@ public sealed class SongSyncDriver : IDisposable
         _plan = plan;
         _loop = loop;
         _offset = fromPass > 0 && fromPass < plan.Passes.Count ? plan.Passes[fromPass].StartStep : 0;
-        _timer = new Timer(_ => Tick(), null, Timeout.Infinite, Timeout.Infinite);
     }
 
     /// <summary>The song step being played, from the clocks sent, or null before the first clock.</summary>
@@ -42,20 +40,23 @@ public sealed class SongSyncDriver : IDisposable
         // While stopped, the T-8 switches pattern straight away.
         _t8.SelectPattern(first.Bank, first.Pattern);
         _t8.Clock.Bpm = bpm;
+        // Each step boundary is handled on the clock thread as the clock reaches it, so no pass is missed.
+        _t8.Clock.StepStarted += OnStepStarted;
         _t8.Clock.Start();
-        _timer.Change(0, 5);
     }
 
     public void Stop()
     {
-        _timer.Change(Timeout.Infinite, Timeout.Infinite);
+        _t8.Clock.StepStarted -= OnStepStarted;
         _t8.Clock.Stop();
     }
 
-    /// <summary>Checks the position: queues the next pattern when a pass starts, and stops at the end of the song.</summary>
-    internal void Tick()
+    private void OnStepStarted(long clockStep) => OnStep(clockStep + _offset);
+
+    /// <summary>At each step: queues the next pattern when a pass starts, and stops at the end of the song.</summary>
+    internal void OnStep(long step)
     {
-        if (CurrentStep is not { } step || _finished)
+        if (_finished)
             return;
         if (!_loop && step >= _plan.TotalSteps)
         {
@@ -78,9 +79,5 @@ public sealed class SongSyncDriver : IDisposable
             _t8.SelectPattern(upcoming.Bank, upcoming.Pattern);
     }
 
-    public void Dispose()
-    {
-        Stop();
-        _timer.Dispose();
-    }
+    public void Dispose() => Stop();
 }

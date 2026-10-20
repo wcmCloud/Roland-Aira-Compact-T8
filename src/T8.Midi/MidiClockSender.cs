@@ -32,6 +32,12 @@ public sealed class MidiClockSender : IDisposable
 
     public bool IsRunning => _running;
 
+    /// <summary>
+    /// Raised on the clock thread at the start of each 16th-note step, with the step counted from
+    /// Start, right after the step's first clock is sent.
+    /// </summary>
+    public event Action<long>? StepStarted;
+
     /// <summary>Timing clocks sent since the last <see cref="Start"/>.</summary>
     public long ClocksSent => Interlocked.Read(ref _clocksSent);
 
@@ -70,7 +76,9 @@ public sealed class MidiClockSender : IDisposable
             return;
 
         _running = false;
-        _thread?.Join();
+        // Stop may be called from a StepStarted handler on the clock thread itself.
+        if (_thread is { } thread && thread != Thread.CurrentThread)
+            thread.Join();
         _thread = null;
         _output.SendEvent(new StopEvent());
     }
@@ -92,7 +100,9 @@ public sealed class MidiClockSender : IDisposable
         while (_running)
         {
             _output.SendEvent(clock);
-            Interlocked.Increment(ref _clocksSent);
+            var clocks = Interlocked.Increment(ref _clocksSent);
+            if ((clocks - 1) % (ClocksPerQuarterNote / 4) == 0)
+                StepStarted?.Invoke((clocks - 1) / (ClocksPerQuarterNote / 4));
             nextTick += 60_000.0 / (Bpm * ClocksPerQuarterNote);
 
             // Sleep most of the gap, then spin for the last millisecond for steady timing.
