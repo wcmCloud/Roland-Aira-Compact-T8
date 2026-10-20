@@ -268,6 +268,23 @@ public class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Generated_bass_marks_the_library_dirty_and_follows_the_pattern()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        Assert.Same(_vm.Bass, _vm.BassGenerator.Target);
+
+        _vm.BassGenerator.Scale = BassGeneratorViewModel.Scales.Single(s => s.Value == Scale.Dorian);
+        _vm.BassGenerator.GenerateCommand.Execute(null);
+
+        Assert.True(_vm.IsDirty);
+        Assert.Contains("dorian", _vm.Status);
+        Assert.Equal(Scale.Dorian, _vm.Settings.BassGenerator.Scale);
+
+        _vm.SelectedPattern = 2;
+        Assert.Same(_vm.Bass, _vm.BassGenerator.Target);
+    }
+
+    [Fact]
     public void Commands_without_a_port_explain_what_to_do()
     {
         using var vm = new MainWindowViewModel(new FakePortProvider(), _dialogs);

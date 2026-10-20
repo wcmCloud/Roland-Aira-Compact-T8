@@ -54,9 +54,9 @@
 
         <!-- Keyboard: plays a note into the selected step -->
         <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,16,0,6">
-          <Button Content="◀" Command="{Binding SelectPreviousCommand}" ToolTip.Tip="Select the previous step" />
+          <Button Content="‹" FontSize="16" Padding="12,2" Command="{Binding SelectPreviousCommand}" ToolTip.Tip="Select the previous step" />
           <TextBlock x:Name="SelectionText" Classes="header" Text="{Binding SelectionLabel}" MinWidth="150" />
-          <Button Content="▶" Command="{Binding SelectNextCommand}" ToolTip.Tip="Select the next step" />
+          <Button Content="›" FontSize="16" Padding="12,2" Command="{Binding SelectNextCommand}" ToolTip.Tip="Select the next step" />
           <CheckBox x:Name="AdvanceCheck" Content="Go to the next step after a note" IsChecked="{Binding AdvanceAfterNote}" Margin="8,0,0,0" />
           <TextBlock Text="Click a step, then a key. Right-click a step for all notes." Opacity="0.6" FontSize="12"
                      VerticalAlignment="Center" Margin="8,0,0,0" />

@@ -126,6 +126,21 @@ public sealed partial class BassEditorViewModel : ObservableObject
 
     public ObservableCollection<BassStepViewModel> Steps { get; }
 
+    internal BassPattern Pattern => _pattern;
+
+    /// <summary>Re-reads every step after the pattern was changed outside the editor (generate, undo).</summary>
+    public void Refresh()
+    {
+        foreach (var step in Steps)
+            step.Refresh();
+        UpdateLength();
+        OnPropertyChanged(nameof(Length));
+        OnPropertyChanged(nameof(Triplet));
+        OnPropertyChanged(nameof(SelectedNote));
+        OnPropertyChanged(nameof(SelectionLabel));
+        OnPropertyChanged(nameof(PlayingNote));
+    }
+
     public int Length
     {
         get => _pattern.Length;
@@ -205,6 +220,17 @@ public sealed partial class BassStepViewModel : ObservableObject
         _changed = changed;
         _audition = audition;
         _select = select;
+    }
+
+    internal void Refresh()
+    {
+        OnPropertyChanged(nameof(State));
+        OnPropertyChanged(nameof(StateLabel));
+        OnPropertyChanged(nameof(HasNote));
+        OnPropertyChanged(nameof(Note));
+        OnPropertyChanged(nameof(NoteName));
+        OnPropertyChanged(nameof(Accent));
+        OnPropertyChanged(nameof(Slide));
     }
 
     /// <summary>Note names for the step's right-click menu, one group per octave of the T-8's range.</summary>

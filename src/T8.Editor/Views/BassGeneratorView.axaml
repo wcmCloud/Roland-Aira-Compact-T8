@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:T8.Editor.ViewModels"
+             x:Class="T8.Editor.Views.BassGeneratorView"
+             x:DataType="vm:BassGeneratorViewModel">
+  <Border Classes="panel">
+    <StackPanel Spacing="10">
+      <!-- Harmony -->
+      <WrapPanel Orientation="Horizontal">
+        <TextBlock Classes="header" Text="Generate a bass line" Margin="0,0,16,0" />
+        <TextBlock Classes="label" Text="Key" />
+        <ComboBox x:Name="KeyPicker" ItemsSource="{x:Static vm:BassGeneratorViewModel.Keys}" SelectedItem="{Binding Key}" Width="70" />
+        <TextBlock Classes="label" Text="Scale" />
+        <ComboBox x:Name="ScalePicker" ItemsSource="{x:Static vm:BassGeneratorViewModel.Scales}" SelectedItem="{Binding Scale}" Width="190" />
+        <TextBlock Classes="label" Text="Chords" />
+        <ComboBox x:Name="ProgressionPicker" ItemsSource="{x:Static vm:BassGeneratorViewModel.Progressions}" SelectedItem="{Binding Progression}" Width="170" />
+        <TextBlock Classes="label" Text="Steps per chord" />
+        <ComboBox ItemsSource="{x:Static vm:BassGeneratorViewModel.ChordLengths}" SelectedItem="{Binding StepsPerChord}" Width="70" />
+        <TextBlock Classes="label" Text="From octave" />
+        <ComboBox x:Name="OctavePicker" ItemsSource="{x:Static vm:BassGeneratorViewModel.OctaveChoices}" SelectedItem="{Binding LowestOctave}" Width="64" />
+        <TextBlock Classes="label" Text="Octaves" />
+        <ComboBox x:Name="OctaveSpanPicker" ItemsSource="{x:Static vm:BassGeneratorViewModel.OctaveSpans}" SelectedItem="{Binding Octaves}" Width="64" />
+      </WrapPanel>
+
+      <!-- Chances -->
+      <WrapPanel Orientation="Horizontal">
+        <StackPanel Classes="chance" ToolTip.Tip="How often a step plays a new note (beats get a bonus)">
+          <TextBlock Text="{Binding NoteChance, StringFormat='Notes {0}%'}" />
+          <Slider x:Name="NoteChanceSlider" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding NoteChance}" />
+        </StackPanel>
+        <StackPanel Classes="chance" ToolTip.Tip="How often a note on the beat is a chord tone (root, third, fifth)">
+          <TextBlock Text="{Binding ChordToneChance, StringFormat='Chord tones {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding ChordToneChance}" />
+        </StackPanel>
+        <StackPanel Classes="chance" ToolTip.Tip="How often a rest after a note holds it instead">
+          <TextBlock Text="{Binding TieChance, StringFormat='Ties {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding TieChance}" />
+        </StackPanel>
+        <StackPanel Classes="chance">
+          <TextBlock Text="{Binding SlideChance, StringFormat='Slides {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding SlideChance}" />
+        </StackPanel>
+        <StackPanel Classes="chance">
+          <TextBlock Text="{Binding AccentChance, StringFormat='Accents {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding AccentChance}" />
+        </StackPanel>
+        <StackPanel Classes="chance" ToolTip.Tip="How often a note jumps an octave up or down">
+          <TextBlock Text="{Binding OctaveJumpChance, StringFormat='Octave jumps {0}%'}" />
+          <Slider Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Value="{Binding OctaveJumpChance}" />
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center" Margin="8,0,0,0">
+          <Button x:Name="GenerateButton" Classes="primary" Content="Generate" Command="{Binding GenerateCommand}"
+                  ToolTip.Tip="Write a line with these settings and seed (same seed, same line)" />
+          <Button x:Name="RandomizeButton" Content="🎲 Randomize" Command="{Binding RandomizeCommand}"
+                  ToolTip.Tip="New seed: a different line that follows the same rules" />
+          <Button x:Name="UndoGenerateButton" Content="Undo" Command="{Binding UndoCommand}" />
+          <TextBlock Text="Seed" Classes="label" />
+          <NumericUpDown x:Name="SeedInput" Value="{Binding Seed}" Minimum="1" Maximum="99999" FormatString="0" Width="110" ShowButtonSpinner="False" />
+        </StackPanel>
+      </WrapPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

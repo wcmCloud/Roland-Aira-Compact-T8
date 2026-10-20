@@ -35,6 +35,18 @@ Open the `BACKUP` folder (or the T-8 drive itself), edit, and save. Pick the T-8
 
 Settings are saved in your user profile (`T8Editor/settings.json` in the app data folder).
 
+### Editing bass lines
+
+- Click a step's note to select it, then click a key on the keyboard below: the step gets that note and the
+  selection moves on, so a line can be played in key by key. Right-click a step for every note, Off/Note/Tie,
+  Accent and Slide.
+- **Generate a bass line** writes a new line into the pattern (up to its last step) from a key, a scale
+  (major, minor, harmonic and melodic minor, pentatonics, blues, the modes, Phrygian dominant), an optional
+  chord progression, the octave range and the chances of notes, chord tones, ties, slides, accents and
+  octave jumps. **Generate** keeps the seed, so changing a setting and generating again keeps the feel;
+  **Randomize** picks a new seed; **Undo** puts back the previous line.
+- With **Show playing step** on, the step being played and the bass note sounding light up in yellow.
+
 ### Getting patterns on and off the T-8
 
 Switch the T-8 on while holding **PLAY**; it mounts as a drive named `T-8`.

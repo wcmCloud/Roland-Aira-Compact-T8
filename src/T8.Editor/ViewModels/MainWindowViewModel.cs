@@ -78,8 +78,24 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
         _auditionEnabled = Settings.AuditionEnabled;
         _showPlayhead = Settings.ShowPlayhead;
         Library = PatternLibrary.CreateBlank();
+        BassGenerator = new BassGeneratorViewModel(Settings.BassGenerator.Clone(), options =>
+        {
+            Settings.BassGenerator = options;
+            SaveSettings();
+        }, OnBassGenerated);
         LoadSelectedPattern();
         RefreshPorts();
+    }
+
+    public BassGeneratorViewModel BassGenerator { get; }
+
+    private void OnBassGenerated()
+    {
+        MarkDirty();
+        Status = BassGenerator.Summary;
+        // The preview plays a snapshot of the pattern, so restart it to hear the new line.
+        if (IsPlaying && Settings.PlayMode == PlayMode.PreviewNotes)
+            StartPlayback();
     }
 
     public EditorSettings Settings { get; private set; }
@@ -504,6 +520,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable
     {
         Bass = new BassEditorViewModel(CurrentBass, MarkDirty, AuditionBass);
         Rhythm = new RhythmEditorViewModel(CurrentRhythm, MarkDirty, AuditionDrum);
+        BassGenerator.Target = Bass;
         OnPropertyChanged(nameof(PatternLabel));
     }
 

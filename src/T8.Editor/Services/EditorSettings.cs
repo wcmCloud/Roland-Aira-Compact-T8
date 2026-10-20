@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using T8.Core.Patterns;
 using T8.Midi;
 
 namespace T8.Editor.Services;
@@ -27,6 +28,9 @@ public sealed class EditorSettings
 
     /// <summary>Highlight the step being played, and the bass note on the keyboard.</summary>
     public bool ShowPlayhead { get; set; } = true;
+
+    /// <summary>Last settings used in the bass line generator.</summary>
+    public BassGeneratorOptions BassGenerator { get; set; } = new();
     public double Bpm { get; set; } = 120;
     public string? LastFolder { get; set; }
 
@@ -38,6 +42,7 @@ public sealed class EditorSettings
         FollowSelection = FollowSelection,
         AuditionEnabled = AuditionEnabled,
         ShowPlayhead = ShowPlayhead,
+        BassGenerator = BassGenerator.Clone(),
         Bpm = Bpm,
         LastFolder = LastFolder,
     };

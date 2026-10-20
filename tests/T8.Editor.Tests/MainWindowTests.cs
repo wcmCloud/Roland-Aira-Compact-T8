@@ -154,6 +154,7 @@ public class MainWindowTests
             window.FindControl<TabControl>("Tabs")!.SelectedIndex = 1;
             window.CaptureRenderedFrame()!.Save(Path.Combine(output, "bass.png"));
 
+            vm.BassGenerator.GenerateCommand.Execute(null);
             vm.Bass.ShowPlayingStep(4);
             Avalonia.Threading.Dispatcher.UIThread.RunJobs();
             window.CaptureRenderedFrame()!.Save(Path.Combine(output, "bass-playing.png"));
