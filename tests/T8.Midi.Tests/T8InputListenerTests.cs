@@ -62,16 +62,23 @@ public class T8InputListenerTests
     [Fact]
     public void Measures_the_t8_tempo_from_its_clock()
     {
-        using var listener = Create(out var input);
+        var now = 0.0;
+        var input = new FakeInputDevice();
+        input.StartEventsListening();
+        using var listener = new T8InputListener(input, new T8MidiMap(), () => now);
         input.Receive(new StartEvent());
         Assert.Null(listener.Bpm);
-        // 24 clocks per quarter note at 150 BPM: one every 16.7 ms.
+
+        // 24 clocks per quarter note at 150 BPM: one every 16.67 ms.
         for (var i = 0; i < 26; i++)
         {
             input.Receive(new TimingClockEvent());
-            Thread.Sleep(16);
+            now += 60_000.0 / (150 * 24);
         }
-        Assert.InRange(listener.Bpm!.Value, 90, 160);
+
+        Assert.Equal(150, listener.Bpm!.Value, precision: 6);
+        input.Receive(new StopEvent());
+        Assert.Null(listener.Bpm);
     }
 
     [Fact]

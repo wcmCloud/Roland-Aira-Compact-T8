@@ -18,15 +18,18 @@ public sealed class T8InputListener : IDisposable
     private readonly IInputDevice _input;
     private readonly T8MidiMap _map;
     private readonly Stopwatch _clockTimer = new();
+    private readonly Func<double> _nowMs;
     private readonly Queue<double> _clockGaps = new();
     private long _clocks;
     private volatile bool _running;
     private double _lastClockMs = -1;
 
-    public T8InputListener(IInputDevice input, T8MidiMap map)
+    /// <param name="nowMs">Time source in milliseconds for the tempo measurement; tests pass their own.</param>
+    public T8InputListener(IInputDevice input, T8MidiMap map, Func<double>? nowMs = null)
     {
         _input = input;
         _map = map;
+        _nowMs = nowMs ?? (() => _clockTimer.Elapsed.TotalMilliseconds);
         _input.EventReceived += OnEventReceived;
     }
 
@@ -112,7 +115,7 @@ public sealed class T8InputListener : IDisposable
 
     private void MeasureClock()
     {
-        var now = _clockTimer.Elapsed.TotalMilliseconds;
+        var now = _nowMs();
         lock (_clockGaps)
         {
             if (_lastClockMs >= 0)
