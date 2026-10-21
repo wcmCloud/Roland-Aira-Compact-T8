@@ -177,7 +177,8 @@ The screenshots at the top show the whole window on each tab. From top to bottom
 - **Top bar:** New (64 blank patterns), Open…, Save, Save as…; Load from T-8, Write to T-8, Check and ? (T-8 drive); Copy, Paste and Clear
   for the current pattern (bass and rhythm together); and on the right the MIDI output, refresh, Test, settings and About (ⓘ).
 - **Patterns** and **Playback** cards, described below.
-- **Rhythm** and **Bass** tabs with the editors and their generators.
+- **Rhythm**, **Bass** and **Song** tabs (rounded buttons with icons; the open one is lit orange): the editors,
+  their generators, and songs.
 - **Status bar:** what just happened on the left, the MIDI channels in use on the right.
 
 ### Patterns

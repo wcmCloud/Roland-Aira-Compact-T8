@@ -39,6 +39,10 @@
     <StreamGeometry x:Key="IconTrackCY">M2,8Q12,3 22,8Q12,11 2,8ZM11.25,9.6H12.75V22H11.25ZM8,21H16V22.5H8Z</StreamGeometry>
     <StreamGeometry x:Key="IconTrackCH">M2,9Q12,4 22,9Q12,11 2,9ZM2,11.4Q12,10.2 22,11.4Q12,15 2,11.4ZM11.25,13.6H12.75V21H11.25ZM8,21H16V22.5H8Z</StreamGeometry>
     <StreamGeometry x:Key="IconTrackOH">M2,6Q12,1 22,6Q12,9 2,6ZM2,13Q12,9.5 22,13Q12,15.5 2,13ZM11.25,7.6H12.75V11.1H11.25ZM11.25,14.4H12.75V21H11.25ZM8,21H16V22.5H8Z</StreamGeometry>
+    <!-- Tab icons -->
+    <StreamGeometry x:Key="IconTabRhythm">M2,11A10,3 0 1,0 22,11A10,3 0 1,0 2,11ZM2,12.6A10,3 0 0,0 22,12.6V18.5A10,3 0 0,1 2,18.5ZM4.6,1.2L5.8,0.2L11.4,6.6L10.2,7.6ZM19.4,1.2L18.2,0.2L12.6,6.6L13.8,7.6Z</StreamGeometry>
+    <StreamGeometry x:Key="IconTabBass">M12,3V13.55C11.41,13.21 10.73,13 10,13A4,4 0 0,0 6,17A4,4 0 0,0 10,21A4,4 0 0,0 14,17V7H18V3H12Z</StreamGeometry>
+    <StreamGeometry x:Key="IconTabSong">M15,6H3V8H15V6M15,10H3V12H15V10M3,16H11V14H3V16M17,6V14.18C16.69,14.07 16.35,14 16,14A3,3 0 0,0 13,17A3,3 0 0,0 16,20A3,3 0 0,0 19,17V8H22V6H17Z</StreamGeometry>
     <SolidColorBrush x:Key="BarBg" Color="#0B0B0D" />
     <SolidColorBrush x:Key="CardBg" Color="#18181C" />
     <SolidColorBrush x:Key="CardBorder" Color="#29292F" />
@@ -394,11 +398,52 @@
     <Setter Property="Margin" Value="0,0,6,6" />
   </Style>
 
-  <!-- Tabs: smaller, like the S1 editor's -->
+  <!-- Tabs: rounded pills with icons; the selected one is lit in orange -->
+  <Style Selector="TabControl#Tabs /template/ ItemsPresenter#PART_ItemsPresenter">
+    <Setter Property="Margin" Value="0,6,0,8" />
+  </Style>
   <Style Selector="TabControl > TabItem">
-    <Setter Property="FontSize" Value="15" />
-    <Setter Property="MinHeight" Value="34" />
-    <Setter Property="Padding" Value="14,0" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Height" Value="32" />
+    <Setter Property="Padding" Value="16,0" />
+    <Setter Property="Margin" Value="0,0,6,0" />
+    <Setter Property="CornerRadius" Value="16" />
+    <Setter Property="Background" Value="#16161A" />
+    <Setter Property="BorderBrush" Value="#2C2C33" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+  </Style>
+  <Style Selector="TabControl > TabItem /template/ Border#PART_SelectedPipe, TabControl > TabItem:selected /template/ Border#PART_SelectedPipe, TabControl > TabItem:selected:pointerover /template/ Border#PART_SelectedPipe">
+    <Setter Property="IsVisible" Value="False" />
+    <Setter Property="Opacity" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="TabControl > TabItem /template/ Border#PART_LayoutRoot">
+    <Setter Property="CornerRadius" Value="16" />
+  </Style>
+  <Style Selector="TabControl > TabItem:pointerover /template/ Border#PART_LayoutRoot">
+    <Setter Property="Background" Value="#24242A" />
+  </Style>
+  <Style Selector="TabControl > TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Foreground" Value="#E6E6EA" />
+  </Style>
+  <Style Selector="TabControl > TabItem:selected /template/ Border#PART_LayoutRoot">
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#40FF7A1A" />
+        <GradientStop Offset="1" Color="#1FFF7A1A" />
+      </LinearGradientBrush>
+    </Setter>
+    <Setter Property="BorderBrush" Value="{StaticResource T8Orange}" />
+  </Style>
+  <Style Selector="TabControl > TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+  </Style>
+  <Style Selector="TabItem PathIcon.tabIcon">
+    <Setter Property="Width" Value="14" />
+    <Setter Property="Height" Value="14" />
   </Style>
 
   <!-- Rhythm grid cells -->

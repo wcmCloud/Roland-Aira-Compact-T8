@@ -236,19 +236,37 @@
     </DockPanel>
 
     <TabControl x:Name="Tabs" Margin="12,2,12,0" SelectedIndex="{Binding SelectedTab}">
-      <TabItem Header="Rhythm">
+      <TabItem x:Name="RhythmTab">
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <PathIcon Classes="tabIcon" Data="{StaticResource IconTabRhythm}" />
+            <TextBlock Text="Rhythm" VerticalAlignment="Center" />
+          </StackPanel>
+        </TabItem.Header>
         <DockPanel>
           <views:RhythmGeneratorView DockPanel.Dock="Bottom" DataContext="{Binding RhythmGenerator}" Margin="0,10,0,0" />
           <views:RhythmEditorView DataContext="{Binding Rhythm}" />
         </DockPanel>
       </TabItem>
-      <TabItem Header="Bass">
+      <TabItem x:Name="BassTab">
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <PathIcon Classes="tabIcon" Data="{StaticResource IconTabBass}" />
+            <TextBlock Text="Bass" VerticalAlignment="Center" />
+          </StackPanel>
+        </TabItem.Header>
         <DockPanel>
           <views:BassGeneratorView DockPanel.Dock="Bottom" DataContext="{Binding BassGenerator}" Margin="0,10,0,0" />
           <views:BassEditorView DataContext="{Binding Bass}" />
         </DockPanel>
       </TabItem>
-      <TabItem Header="Song">
+      <TabItem x:Name="SongTab">
+        <TabItem.Header>
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <PathIcon Classes="tabIcon" Data="{StaticResource IconTabSong}" />
+            <TextBlock Text="Song" VerticalAlignment="Center" />
+          </StackPanel>
+        </TabItem.Header>
         <views:SongView DataContext="{Binding Song}" />
       </TabItem>
     </TabControl>

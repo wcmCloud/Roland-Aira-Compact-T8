@@ -11,6 +11,7 @@
   orange when the row is selected.
 - A new **app icon** (knobs and step buttons) for macOS, Windows and Linux, also in the About window.
 - A new top bar: buttons grouped in rounded boxes, **icons on every button**, an orange accent line and badge.
+- The **Rhythm / Bass / Song** tabs are rounded buttons with icons; the open one is lit orange.
 - A shorter MIDI Out box with a smaller font.
 
 Self-contained builds: nothing else to install. Download the one for your computer:

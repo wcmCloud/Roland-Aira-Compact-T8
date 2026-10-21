@@ -152,6 +152,23 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void The_rhythm_bass_and_song_tabs_have_icons_and_switch()
+    {
+        var (window, vm) = Show();
+        var tabs = window.FindControl<TabControl>("Tabs")!;
+        foreach (var name in new[] { "RhythmTab", "BassTab", "SongTab" })
+        {
+            var tab = window.FindControl<TabItem>(name)!;
+            var header = Assert.IsType<StackPanel>(tab.Header);
+            Assert.NotNull(header.Children.OfType<PathIcon>().Single().Data);
+        }
+        tabs.SelectedItem = window.FindControl<TabItem>("SongTab");
+        Assert.Equal(2, vm.SelectedTab);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Each_row_name_has_its_own_drum_icon()
     {
         var (window, vm) = Show();
