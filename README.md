@@ -211,7 +211,8 @@ Double-click a knob to put it back to its default.
 
 ![The rhythm grid and the step inspector](docs/screenshots/rhythm-editor.png)
 
-Each row is one of the T-8's tracks: Accent, Bass drum, Snare, Tom, Clap, Closed hat and Open hat. (The T-8's
+Each row is one of the T-8's tracks, with a small icon by its name: Accent (lightning bolt), Bass drum, Snare, Tom,
+Clap, Closed hat and Open hat. (The T-8's
 pattern files also have a CY cymbal track, but the T-8 has no cymbal sound, so the editor hides it; anything
 stored in it is kept when you save.) Each column is one of 32 steps; the brighter columns are the beats.
 

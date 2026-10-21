@@ -161,6 +161,15 @@ public class MainWindowTests
         Assert.Equal(7, icons.Count);
         Assert.All(icons, icon => Assert.NotNull(icon.Data));
         Assert.Equal(7, icons.Select(icon => icon.Data).Distinct().Count());
+
+        // Muted until the row is selected, then orange; the name buttons keep their size and tooltip.
+        var names = window.GetVisualDescendants().OfType<Button>().Where(b => b.Classes.Contains("trackName")).ToList();
+        Assert.All(names, b => Assert.Equal(118, b.Width));
+        Assert.All(names, b => Assert.NotNull(ToolTip.GetTip(b)));
+        Assert.Equal(Avalonia.Media.Color.Parse("#B4B4BD"), ((Avalonia.Media.ISolidColorBrush)icons[0].Foreground!).Color);
+        vm.Rhythm.SelectTrackCommand.Execute(vm.Rhythm.Tracks[0]);
+        window.UpdateLayout();
+        Assert.Equal(Avalonia.Media.Color.Parse("#FF7A1A"), ((Avalonia.Media.ISolidColorBrush)icons[0].Foreground!).Color);
         window.Close();
         vm.Dispose();
     }

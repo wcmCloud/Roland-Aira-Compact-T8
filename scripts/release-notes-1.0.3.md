@@ -7,6 +7,8 @@
 - A **?** button explains how to put the T-8 in drive mode and how to load written patterns (eject, then ACCENT).
 
 **Look**
+- **Drum icons** by the Rhythm row names (accent bolt, kick, snare, tom, clap, closed and open hat); they turn
+  orange when the row is selected.
 - A new **app icon** (knobs and step buttons) for macOS, Windows and Linux, also in the About window.
 - A new top bar: buttons grouped in rounded boxes, **icons on every button**, an orange accent line and badge.
 - A shorter MIDI Out box with a smaller font.
