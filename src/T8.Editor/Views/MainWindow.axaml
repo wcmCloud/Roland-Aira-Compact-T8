@@ -236,7 +236,7 @@
     </DockPanel>
 
     <TabControl x:Name="Tabs" Margin="12,2,12,0" SelectedIndex="{Binding SelectedTab}">
-      <TabItem x:Name="RhythmTab">
+      <TabItem x:Name="RhythmTab" ToolTip.Tip="Drum pattern: the step grid and the rhythm generator">
         <TabItem.Header>
           <StackPanel Orientation="Horizontal" Spacing="7">
             <PathIcon Classes="tabIcon" Data="{StaticResource IconTabRhythm}" />
@@ -248,7 +248,7 @@
           <views:RhythmEditorView DataContext="{Binding Rhythm}" />
         </DockPanel>
       </TabItem>
-      <TabItem x:Name="BassTab">
+      <TabItem x:Name="BassTab" ToolTip.Tip="Bass line: the steps, piano keyboard and bass generator">
         <TabItem.Header>
           <StackPanel Orientation="Horizontal" Spacing="7">
             <PathIcon Classes="tabIcon" Data="{StaticResource IconTabBass}" />
@@ -260,7 +260,7 @@
           <views:BassEditorView DataContext="{Binding Bass}" />
         </DockPanel>
       </TabItem>
-      <TabItem x:Name="SongTab">
+      <TabItem x:Name="SongTab" ToolTip.Tip="Song: chain patterns with repeats and fills, and play them">
         <TabItem.Header>
           <StackPanel Orientation="Horizontal" Spacing="7">
             <PathIcon Classes="tabIcon" Data="{StaticResource IconTabSong}" />

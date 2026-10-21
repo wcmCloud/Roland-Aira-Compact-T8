@@ -398,52 +398,79 @@
     <Setter Property="Margin" Value="0,0,6,6" />
   </Style>
 
-  <!-- Tabs: rounded pills with icons; the selected one is lit in orange -->
-  <Style Selector="TabControl#Tabs /template/ ItemsPresenter#PART_ItemsPresenter">
-    <Setter Property="Margin" Value="0,6,0,8" />
+  <!-- Main tabs: a segmented control. A dark rounded track holds the tabs; the open tab is a raised orange pill. -->
+  <Style Selector="TabControl#Tabs">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockPanel>
+          <Border Classes="tabTrack" DockPanel.Dock="Top">
+            <ItemsPresenter Name="PART_ItemsPresenter" ItemsPanel="{TemplateBinding ItemsPanel}" />
+          </Border>
+          <ContentPresenter Name="PART_SelectedContentHost"
+                            Content="{TemplateBinding SelectedContent}"
+                            ContentTemplate="{TemplateBinding SelectedContentTemplate}"
+                            HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch" />
+        </DockPanel>
+      </ControlTemplate>
+    </Setter>
   </Style>
-  <Style Selector="TabControl > TabItem">
-    <Setter Property="FontSize" Value="13" />
+  <Style Selector="Border.tabTrack">
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="Background" Value="#0C0C0F" />
+    <Setter Property="BorderBrush" Value="#2A2A31" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="17" />
+    <Setter Property="Padding" Value="3" />
+    <Setter Property="Margin" Value="0,0,0,2" />
+  </Style>
+  <Style Selector="TabControl#Tabs > TabItem">
+    <Setter Property="FontSize" Value="12.5" />
     <Setter Property="FontWeight" Value="SemiBold" />
     <Setter Property="MinHeight" Value="0" />
-    <Setter Property="Height" Value="32" />
-    <Setter Property="Padding" Value="16,0" />
-    <Setter Property="Margin" Value="0,0,6,0" />
-    <Setter Property="CornerRadius" Value="16" />
-    <Setter Property="Background" Value="#16161A" />
-    <Setter Property="BorderBrush" Value="#2C2C33" />
-    <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+    <Setter Property="Height" Value="26" />
+    <Setter Property="MinWidth" Value="96" />
+    <Setter Property="Padding" Value="18,0" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="Foreground" Value="#8E8E97" />
+    <Setter Property="CornerRadius" Value="13" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
   </Style>
-  <Style Selector="TabControl > TabItem /template/ Border#PART_SelectedPipe, TabControl > TabItem:selected /template/ Border#PART_SelectedPipe, TabControl > TabItem:selected:pointerover /template/ Border#PART_SelectedPipe">
-    <Setter Property="IsVisible" Value="False" />
-    <Setter Property="Opacity" Value="0" />
+  <Style Selector="TabControl#Tabs > TabItem /template/ Border#PART_LayoutRoot">
+    <Setter Property="CornerRadius" Value="13" />
     <Setter Property="Background" Value="Transparent" />
   </Style>
-  <Style Selector="TabControl > TabItem /template/ Border#PART_LayoutRoot">
-    <Setter Property="CornerRadius" Value="16" />
+  <Style Selector="TabControl#Tabs > TabItem /template/ Border#PART_SelectedPipe, TabControl#Tabs > TabItem:selected /template/ Border#PART_SelectedPipe">
+    <Setter Property="IsVisible" Value="False" />
+    <Setter Property="Opacity" Value="0" />
   </Style>
-  <Style Selector="TabControl > TabItem:pointerover /template/ Border#PART_LayoutRoot">
-    <Setter Property="Background" Value="#24242A" />
+  <Style Selector="TabControl#Tabs > TabItem:pointerover /template/ Border#PART_LayoutRoot">
+    <Setter Property="Background" Value="#202026" />
   </Style>
-  <Style Selector="TabControl > TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="Foreground" Value="#E6E6EA" />
+  <Style Selector="TabControl#Tabs > TabItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Foreground" Value="#E4E4E9" />
   </Style>
-  <Style Selector="TabControl > TabItem:selected /template/ Border#PART_LayoutRoot">
+  <Style Selector="TabControl#Tabs > TabItem:pressed /template/ Border#PART_LayoutRoot">
+    <Setter Property="Background" Value="#2A2A31" />
+  </Style>
+  <Style Selector="TabControl#Tabs > TabItem:selected /template/ Border#PART_LayoutRoot, TabControl#Tabs > TabItem:selected:pointerover /template/ Border#PART_LayoutRoot">
     <Setter Property="Background">
       <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-        <GradientStop Offset="0" Color="#40FF7A1A" />
-        <GradientStop Offset="1" Color="#1FFF7A1A" />
+        <GradientStop Offset="0" Color="#FF9440" />
+        <GradientStop Offset="1" Color="#F06A0E" />
       </LinearGradientBrush>
     </Setter>
-    <Setter Property="BorderBrush" Value="{StaticResource T8Orange}" />
   </Style>
-  <Style Selector="TabControl > TabItem:selected /template/ ContentPresenter#PART_ContentPresenter">
-    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+  <Style Selector="TabControl#Tabs > TabItem:selected:pressed /template/ Border#PART_LayoutRoot">
+    <Setter Property="Background" Value="#E0600A" />
+  </Style>
+  <Style Selector="TabControl#Tabs > TabItem:selected /template/ ContentPresenter#PART_ContentPresenter, TabControl#Tabs > TabItem:selected:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Foreground" Value="White" />
   </Style>
   <Style Selector="TabItem PathIcon.tabIcon">
-    <Setter Property="Width" Value="14" />
-    <Setter Property="Height" Value="14" />
+    <Setter Property="Width" Value="13" />
+    <Setter Property="Height" Value="13" />
   </Style>
 
   <!-- Rhythm grid cells -->

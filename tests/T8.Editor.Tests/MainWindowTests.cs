@@ -1,3 +1,5 @@
+using Avalonia.Controls.Presenters;
+using Avalonia.Media;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Headless;
@@ -162,6 +164,18 @@ public class MainWindowTests
             var header = Assert.IsType<StackPanel>(tab.Header);
             Assert.NotNull(header.Children.OfType<PathIcon>().Single().Data);
         }
+        // The open tab is an orange pill with white text; the others are see-through with grey text.
+        window.UpdateLayout();
+        static Border Pill(TabItem tab) => tab.GetVisualDescendants().OfType<Border>().First(b => b.Name == "PART_LayoutRoot");
+        static IBrush? Text(TabItem tab) => tab.GetVisualDescendants().OfType<ContentPresenter>().First(p => p.Name == "PART_ContentPresenter").Foreground;
+        var rhythm = window.FindControl<TabItem>("RhythmTab")!;
+        var bass = window.FindControl<TabItem>("BassTab")!;
+        Assert.IsType<LinearGradientBrush>(Pill(rhythm).Background);
+        Assert.Equal(Colors.Transparent, ((ISolidColorBrush)Pill(bass).Background!).Color);
+        Assert.Equal(Colors.White, ((ISolidColorBrush)Text(rhythm)!).Color);
+        Assert.NotEqual(Colors.White, ((ISolidColorBrush)Text(bass)!).Color);
+        Assert.NotNull(ToolTip.GetTip(bass));
+
         tabs.SelectedItem = window.FindControl<TabItem>("SongTab");
         Assert.Equal(2, vm.SelectedTab);
         window.Close();
