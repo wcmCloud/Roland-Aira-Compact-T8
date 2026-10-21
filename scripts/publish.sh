@@ -23,6 +23,7 @@ for rid in "${RIDS[@]}"; do
   rm -rf "$dir" "$OUT/$name" "$OUT/$name.zip" "$OUT/$name.tar.gz"
   dotnet publish src/T8.Editor/T8.Editor.csproj -c Release -r "$rid" --self-contained \
     -p:Version="$VERSION" -p:DebugType=None -o "$dir"
+  cp LICENSE-MIT LICENSE-GPL-3.0 "$dir/"
 
   case "$rid" in
     osx-*)

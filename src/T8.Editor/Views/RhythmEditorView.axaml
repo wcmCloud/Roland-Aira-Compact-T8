@@ -9,7 +9,7 @@
     <ScrollViewer DockPanel.Dock="Right" Width="256" Margin="16,0,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Width="240" Spacing="8" HorizontalAlignment="Left">
       <TextBlock Classes="header" Text="Pattern" />
-      <StackPanel Orientation="Horizontal" Spacing="4">
+      <StackPanel x:Name="PatternKnobs" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Left">
         <views:Knob x:Name="RhythmLength" Value="{Binding Length}" Minimum="1" Maximum="32" DefaultValue="16" Label="Last step"
                     ToolTip.Tip="Steps 1 to this one play; the rest are skipped" />
         <views:Knob x:Name="ShuffleInput" Value="{Binding Shuffle}" Minimum="0" Maximum="200" DefaultValue="0" Label="Shuffle"
@@ -19,23 +19,37 @@
       </StackPanel>
 
       <!-- Several active steps picked with Ctrl/Cmd/Shift-click: edit them together -->
-      <Border x:Name="BatchInspector" Classes="batch" Margin="0,12,0,0" IsVisible="{Binding HasMultiSelection}">
-        <StackPanel Spacing="6">
-          <TextBlock x:Name="MultiSelectionText" Classes="header" Text="{Binding MultiSelectionLabel}" Foreground="{StaticResource SectionBlue}" />
-          <TextBlock Text="{Binding BatchVelocity, StringFormat='Velocity v.{0}'}" />
-          <Slider x:Name="BatchVelocitySlider" Minimum="0" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding BatchVelocity}" />
-          <TextBlock Text="{Binding BatchProbabilityPercent, StringFormat='Probability {0}%'}" />
-          <Slider Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding BatchProbabilityPercent}" />
-          <TextBlock Text="Sub step" />
-          <ComboBox x:Name="BatchSubStepPicker" HorizontalAlignment="Stretch"
-                    ItemsSource="{x:Static vm:RhythmEditorViewModel.SubStepOptions}" SelectedItem="{Binding BatchSubStep}" />
-          <TextBlock Text="{Binding BatchSubStepProbabilityPercent, StringFormat='Sub step probability {0}%'}" IsVisible="{Binding BatchHasSubStep}" />
-          <Slider Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding BatchSubStepProbabilityPercent}"
+      <Border x:Name="BatchInspector" Classes="batch" Margin="0,10,0,0" HorizontalAlignment="Left"
+              Width="{Binding #PatternKnobs.Bounds.Width}" IsVisible="{Binding HasMultiSelection}">
+        <StackPanel Spacing="2">
+          <TextBlock x:Name="MultiSelectionText" Text="{Binding MultiSelectionLabel}" FontSize="12" FontWeight="SemiBold"
+                     Foreground="{StaticResource SectionBlue}" Margin="0,0,0,2" />
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Right" Text="{Binding BatchVelocity, StringFormat='v.{0}'}" Classes="batchValue" />
+            <TextBlock Text="Velocity" Classes="batchLabel" />
+          </DockPanel>
+          <Slider x:Name="BatchVelocitySlider" Classes="batch" Minimum="0" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True" Value="{Binding BatchVelocity}" />
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Right" Text="{Binding BatchProbabilityPercent, StringFormat='{}{0}%'}" Classes="batchValue" />
+            <TextBlock Text="Probability" Classes="batchLabel" />
+          </DockPanel>
+          <Slider Classes="batch" Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding BatchProbabilityPercent}" />
+          <DockPanel Margin="0,2,0,0">
+            <TextBlock Text="Sub step" Classes="batchLabel" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <ComboBox x:Name="BatchSubStepPicker" Classes="batch" HorizontalAlignment="Stretch"
+                      ItemsSource="{x:Static vm:RhythmEditorViewModel.SubStepOptions}" SelectedItem="{Binding BatchSubStep}" />
+          </DockPanel>
+          <DockPanel IsVisible="{Binding BatchHasSubStep}" Margin="0,2,0,0">
+            <TextBlock DockPanel.Dock="Right" Text="{Binding BatchSubStepProbabilityPercent, StringFormat='{}{0}%'}" Classes="batchValue" />
+            <TextBlock Text="Sub step prob." Classes="batchLabel" />
+          </DockPanel>
+          <Slider Classes="batch" Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding BatchSubStepProbabilityPercent}"
                   IsVisible="{Binding BatchHasSubStep}" />
-          <StackPanel Orientation="Horizontal" Spacing="6" Margin="0,4,0,0">
-            <Button x:Name="ApplyToSelectionButton" Classes="primary" Content="Apply" Command="{Binding ApplyToSelectionCommand}"
+          <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,4,0,0">
+            <Button x:Name="ApplyToSelectionButton" Classes="primary small" Content="Apply" Command="{Binding ApplyToSelectionCommand}"
                     ToolTip.Tip="Set these values on every selected step, then clear the selection" />
-            <Button x:Name="ClearSelectionButton" Classes="seg" Content="Clear selection" Command="{Binding ClearMultiSelectionCommand}" />
+            <Button x:Name="ClearSelectionButton" Classes="seg small" Content="Clear" Command="{Binding ClearMultiSelectionCommand}"
+                    ToolTip.Tip="Clear the selection without changing anything" />
           </StackPanel>
         </StackPanel>
       </Border>

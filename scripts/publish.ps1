@@ -14,6 +14,7 @@ foreach ($Rid in $Rids) {
     if (Test-Path $dir) { Remove-Item -Recurse -Force $dir }
     dotnet publish src/T8.Editor/T8.Editor.csproj -c Release -r $Rid --self-contained -p:Version=$Version -p:DebugType=None -o $dir
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    Copy-Item LICENSE-MIT, LICENSE-GPL-3.0 $dir
 
     $zip = "artifacts/T8Editor-$Version-$Rid.zip"
     if (Test-Path $zip) { Remove-Item $zip }

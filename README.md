@@ -8,6 +8,7 @@
 [![Platforms](https://img.shields.io/badge/macOS%20·%20Windows%20·%20Linux-arm64%20%2B%20x64-2C2C32?style=for-the-badge)](#getting-started)
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/download)
 [![CI](https://img.shields.io/github/actions/workflow/status/wcmCloud/Roland-Aira-Compact-T8/ci.yml?branch=master&label=tests&style=for-the-badge)](https://github.com/wcmCloud/Roland-Aira-Compact-T8/actions/workflows/ci.yml)
+[![License: MIT or GPL-3.0](https://img.shields.io/badge/license-MIT%20or%20GPL--3.0-2C2C32?style=for-the-badge)](#license)
 
 [**⬇&nbsp;Download**](https://github.com/wcmCloud/Roland-Aira-Compact-T8/releases/latest) &nbsp;·&nbsp;
 [**📖&nbsp;User guide**](#getting-started) &nbsp;·&nbsp;
@@ -528,3 +529,21 @@ The screenshots in this guide are rendered by the editor's UI tests at a MacBook
 ```sh
 T8_DOCS_DIR=$PWD/docs/screenshots dotnet test tests/T8.Editor.Tests --filter DocsScreenshots
 ```
+
+## License
+
+Copyright © 2026 Christos Christodoulidis.
+
+This project is **dual-licensed**: you may use, copy, modify and distribute it under the terms of **either**
+
+- the [MIT License](LICENSE-MIT), or
+- the [GNU General Public License v3.0](LICENSE-GPL-3.0) (GPL-3.0-only),
+
+at your choice (SPDX: `MIT OR GPL-3.0-only`). Contributions are accepted under the same terms.
+
+The editor uses [Avalonia](https://avaloniaui.net), [DryWetMIDI](https://github.com/melanchall/drywetmidi) and
+[CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet), all MIT-licensed.
+
+Roland, AIRA and T-8 are trademarks of Roland Corporation. This is an independent project, not made or endorsed by
+Roland. The factory patterns in `BACKUP` and the owner's manual in `docs` are Roland's and are not covered by the
+licenses above.

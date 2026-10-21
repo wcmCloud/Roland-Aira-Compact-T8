@@ -14,9 +14,29 @@ public static class Converters
     public static readonly IValueConverter HexBrush =
         new FuncValueConverter<string?, IBrush>(hex => new SolidColorBrush(ParseColor(hex)));
 
+    /// <summary>Strength of a song colour for parts not playing (rows and the timeline's background).</summary>
+    public const double TintOpacity = 0.28;
+
+    /// <summary>Strength of a song colour for the playing part (its row, and what has played on the timeline).</summary>
+    public const double PlayingOpacity = 0.7;
+
     /// <summary>"#RRGGBB" to a see-through tint of it, for backgrounds.</summary>
     public static readonly IValueConverter HexTint =
-        new FuncValueConverter<string?, IBrush>(hex => new SolidColorBrush(ParseColor(hex), 0.28));
+        new FuncValueConverter<string?, IBrush>(hex => new SolidColorBrush(ParseColor(hex), TintOpacity));
+
+    /// <summary>"#RRGGBB" to the stronger shade used for the playing part.</summary>
+    public static readonly IValueConverter HexPlaying =
+        new FuncValueConverter<string?, IBrush>(hex => new SolidColorBrush(ParseColor(hex), PlayingOpacity));
+
+    /// <summary>A song row's background: its colour as a tint, or the stronger shade while it plays (as on the timeline).</summary>
+    public static readonly IMultiValueConverter SongRowBrush =
+        new FuncMultiValueConverter<object?, IBrush>(values =>
+        {
+            var list = values.ToList();
+            var hex = list.ElementAtOrDefault(0) as string;
+            var playing = list.ElementAtOrDefault(1) is true;
+            return new SolidColorBrush(ParseColor(hex), playing ? PlayingOpacity : TintOpacity);
+        });
 
     private static Color ParseColor(string? hex) => Color.TryParse(hex, out var color) ? color : Color.Parse("#FF7A1A");
 

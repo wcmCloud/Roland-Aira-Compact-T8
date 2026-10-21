@@ -7,7 +7,7 @@
 Yes in principle: Avalonia/.NET apps are accepted, and editing your own device's patterns over USB/MIDI is a
 normal app category (synth editors are on the store). No in-app purchases are needed for a free app. The
 dependencies (Avalonia, DryWetMIDI, CommunityToolkit.Mvvm) are MIT-licensed, which is fine for App Store
-distribution. The editor has no auto-updater, downloads no code and needs no admin rights, all of which the
+distribution, and the editor itself can go out under its MIT option (it's dual-licensed MIT OR GPL-3.0). The editor has no auto-updater, downloads no code and needs no admin rights, all of which the
 Mac App Store forbids.
 
 ## What would get it rejected today
@@ -78,7 +78,8 @@ Blocked: **Load from T-8** and **Write to T-8**, which go straight to `/Volumes/
 
 - The public repo contains Roland's owner's manual (`docs/T-8_eng01_W.pdf`), which is Roland's copyrighted
   document. Consider removing it and linking to Roland's download page.
-- Consider adding a `LICENSE` to the repository (e.g. MIT) so others know how they may use the code.
+- The project is dual-licensed MIT OR GPL-3.0-only. GPL-3.0 alone is widely considered incompatible with the App
+  Store's terms, but the MIT option lets the store build be distributed under MIT, so the dual licence is fine.
 
 ## Open decisions
 

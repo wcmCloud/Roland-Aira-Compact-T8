@@ -9,6 +9,8 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <PackageLicenseExpression>MIT OR GPL-3.0-only</PackageLicenseExpression>
+    <Copyright>© 2026 Christos Christodoulidis</Copyright>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

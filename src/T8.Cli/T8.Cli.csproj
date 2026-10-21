@@ -6,6 +6,8 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <PackageLicenseExpression>MIT OR GPL-3.0-only</PackageLicenseExpression>
+    <Copyright>© 2026 Christos Christodoulidis</Copyright>
     <OutputType>Exe</OutputType>
     <AssemblyName>t8</AssemblyName>
     <RootNamespace>T8.Cli</RootNamespace>
