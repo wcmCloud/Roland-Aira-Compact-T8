@@ -206,6 +206,23 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Bass_generator_uses_the_outlined_combos_and_icons()
+    {
+        var (window, vm) = Show();
+        window.FindControl<TabControl>("Tabs")!.SelectedIndex = 1;
+        window.UpdateLayout();
+        var generator = window.GetVisualDescendants().OfType<BassGeneratorView>().Single();
+
+        foreach (var name in new[] { "KeyPicker", "ScalePicker", "ProgressionPicker", "ChordLengthPicker" })
+            Assert.Contains("port", generator.FindControl<ComboBox>(name)!.Classes);
+        Assert.Equal(3, generator.GetVisualDescendants().OfType<Border>().Count(b => b.Classes.Contains("fieldBox")));
+        Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateButton")!.Content);
+        Assert.IsType<StackPanel>(generator.FindControl<Button>("UndoGenerateButton")!.Content);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Each_row_name_has_its_own_drum_icon()
     {
         var (window, vm) = Show();

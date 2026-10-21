@@ -13,8 +13,13 @@
 
       <!-- Generate / randomize / undo -->
       <StackPanel DockPanel.Dock="Right" Spacing="6" VerticalAlignment="Center" Margin="16,0,0,0">
-        <Button x:Name="GenerateButton" Classes="primary" Content="Generate" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
-                HorizontalContentAlignment="Center" ToolTip.Tip="Write a line with these settings and seed (same seed, same line)" />
+        <Button x:Name="GenerateButton" Classes="primary" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center" ToolTip.Tip="Write a line with these settings and seed (same seed, same line)">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <PathIcon Data="{StaticResource IconGenerate}" />
+            <TextBlock Text="Generate" />
+          </StackPanel>
+        </Button>
         <StackPanel Orientation="Horizontal" Spacing="6">
           <Button x:Name="RandomizeButton" Classes="seg" Command="{Binding RandomizeCommand}" ToolTip.Tip="New seed: a different line that follows the same rules">
             <StackPanel Orientation="Horizontal" Spacing="6">
@@ -22,27 +27,43 @@
               <TextBlock Text="Randomize" />
             </StackPanel>
           </Button>
-          <Button x:Name="UndoGenerateButton" Classes="seg" Content="Undo" Command="{Binding UndoCommand}" />
+          <Button x:Name="UndoGenerateButton" Classes="seg" Command="{Binding UndoCommand}" ToolTip.Tip="Undo the last generate">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <PathIcon Data="{StaticResource IconUndo}" />
+              <TextBlock Text="Undo" />
+            </StackPanel>
+          </Button>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="6">
+          <PathIcon Data="{StaticResource IconSeed}" Width="12" Height="12" Foreground="{StaticResource MutedText}" />
           <TextBlock Text="Seed" Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" />
           <NumericUpDown x:Name="SeedInput" Value="{Binding Seed}" Minimum="1" Maximum="99999" FormatString="0" Width="100" ShowButtonSpinner="False" />
         </StackPanel>
       </StackPanel>
 
-      <!-- Harmony -->
-      <Grid DockPanel.Dock="Left" ColumnDefinitions="Auto,Auto" RowDefinitions="Auto,Auto,Auto" RowSpacing="5" ColumnSpacing="8" Margin="0,0,18,0">
-        <TextBlock Classes="label" Text="Key" />
-        <ComboBox x:Name="KeyPicker" Grid.Column="1" ItemsSource="{x:Static vm:BassGeneratorViewModel.Keys}" SelectedItem="{Binding Key}" Width="216" />
-        <TextBlock Grid.Row="1" Classes="label" Text="Scale" />
-        <ComboBox x:Name="ScalePicker" Grid.Row="1" Grid.Column="1" ItemsSource="{x:Static vm:BassGeneratorViewModel.Scales}" SelectedItem="{Binding Scale}" Width="216" />
-        <TextBlock Grid.Row="2" Classes="label" Text="Chords" />
-        <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="6">
-          <ComboBox x:Name="ProgressionPicker" ItemsSource="{x:Static vm:BassGeneratorViewModel.Progressions}" SelectedItem="{Binding Progression}" Width="150" />
-          <ComboBox ItemsSource="{x:Static vm:BassGeneratorViewModel.ChordLengths}" SelectedItem="{Binding StepsPerChord}" Width="60"
-                    ToolTip.Tip="Steps per chord" />
-        </StackPanel>
-      </Grid>
+      <!-- Harmony: outlined boxes like OUT in the top bar -->
+      <StackPanel DockPanel.Dock="Left" Spacing="5" Margin="0,0,18,0" VerticalAlignment="Center">
+        <Border Classes="fieldBox" HorizontalAlignment="Left">
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Classes="fieldLabel" Text="KEY" Width="54" />
+            <ComboBox x:Name="KeyPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.Keys}" SelectedItem="{Binding Key}" Width="216" />
+          </StackPanel>
+        </Border>
+        <Border Classes="fieldBox" HorizontalAlignment="Left">
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Classes="fieldLabel" Text="SCALE" Width="54" />
+            <ComboBox x:Name="ScalePicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.Scales}" SelectedItem="{Binding Scale}" Width="216" />
+          </StackPanel>
+        </Border>
+        <Border Classes="fieldBox" HorizontalAlignment="Left">
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Classes="fieldLabel" Text="CHORDS" Width="54" />
+            <ComboBox x:Name="ProgressionPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.Progressions}" SelectedItem="{Binding Progression}" Width="150" />
+            <ComboBox x:Name="ChordLengthPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.ChordLengths}" SelectedItem="{Binding StepsPerChord}" Width="62"
+                      ToolTip.Tip="Steps per chord" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
 
       <!-- Range and chances -->
       <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
