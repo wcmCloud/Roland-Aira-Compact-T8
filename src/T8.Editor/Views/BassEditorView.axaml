@@ -80,33 +80,41 @@
         </ItemsControl>
 
         <!-- Keyboard: plays a note into the selected step -->
-        <!-- Selected step: a step picker box, the auto-advance chip and a hint, like the PATTERN panel -->
-        <StackPanel Orientation="Horizontal" Spacing="10" Margin="0,12,0,6">
-          <Border x:Name="StepPickerBox" Classes="fieldBox">
-            <StackPanel Orientation="Horizontal" Spacing="4">
-              <Button x:Name="PreviousStepButton" Classes="tool icon" Command="{Binding SelectPreviousCommand}" ToolTip.Tip="Select the previous step">
+        <!-- Step editor: a card like the PATTERN panel -->
+        <Border x:Name="StepEditorPanel" Classes="card strip" HorizontalAlignment="Left" Margin="0,10,0,6">
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+              <Ellipse Classes="dot" Fill="{StaticResource SectionPurple}" />
+              <TextBlock Classes="cardTitle" Text="STEP EDITOR" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+              <Button x:Name="PreviousStepButton" Classes="chip" Command="{Binding SelectPreviousCommand}" Padding="7,0"
+                      ToolTip.Tip="Select the previous step">
                 <PathIcon Data="{StaticResource IconLeft}" />
               </Button>
-              <TextBlock x:Name="SelectionText" Text="{Binding SelectionLabel}" MinWidth="120" TextAlignment="Center" Margin="4,0" FontSize="12.5" FontWeight="SemiBold"
-                         VerticalAlignment="Center" />
-              <Button x:Name="NextStepButton" Classes="tool icon" Command="{Binding SelectNextCommand}" ToolTip.Tip="Select the next step">
+              <Border x:Name="StepPickerBox" Classes="fieldBox" MinHeight="28" Padding="10,0">
+                <TextBlock x:Name="SelectionText" Text="{Binding SelectionLabel}" MinWidth="104" TextAlignment="Center" FontSize="11.5"
+                           FontWeight="SemiBold" VerticalAlignment="Center" />
+              </Border>
+              <Button x:Name="NextStepButton" Classes="chip" Command="{Binding SelectNextCommand}" Padding="7,0"
+                      ToolTip.Tip="Select the next step">
                 <PathIcon Data="{StaticResource IconRight}" />
               </Button>
             </StackPanel>
-          </Border>
-          <ToggleButton x:Name="AdvanceCheck" Classes="chip orange" IsChecked="{Binding AdvanceAfterNote}" VerticalAlignment="Center"
-                        ToolTip.Tip="After you pick a note on the keyboard, select the next step">
-            <StackPanel Orientation="Horizontal" Spacing="5">
-              <PathIcon Data="{StaticResource IconSkipNext}" />
-              <TextBlock Text="NEXT STEP AFTER A NOTE" />
+            <ToggleButton x:Name="AdvanceCheck" Classes="chip orange" IsChecked="{Binding AdvanceAfterNote}" VerticalAlignment="Center"
+                          ToolTip.Tip="After you pick a note on the keyboard, select the next step">
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <PathIcon Data="{StaticResource IconSkipNext}" />
+                <TextBlock Text="NEXT STEP AFTER A NOTE" />
+              </StackPanel>
+            </ToggleButton>
+            <StackPanel x:Name="StepEditorHint" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center" Margin="2,0,4,0">
+              <PathIcon Data="{StaticResource IconInfo}" Width="11" Height="11" Foreground="{StaticResource MutedText}" />
+              <TextBlock Text="Click a step, then a key. Right-click a step for all notes." Foreground="{StaticResource MutedText}" FontSize="11"
+                         VerticalAlignment="Center" />
             </StackPanel>
-          </ToggleButton>
-          <StackPanel Orientation="Horizontal" Spacing="5" VerticalAlignment="Center" Margin="4,0,0,0">
-            <PathIcon Data="{StaticResource IconInfo}" Width="12" Height="12" Foreground="{StaticResource MutedText}" />
-            <TextBlock Text="Click a step, then a key. Right-click a step for all notes." Foreground="{StaticResource MutedText}" FontSize="11.5"
-                       VerticalAlignment="Center" />
           </StackPanel>
-        </StackPanel>
+        </Border>
         <views:PianoKeyboard x:Name="BassKeyboard" HorizontalAlignment="Left"
                              LowestNote="{x:Static vm:BassEditorViewModel.LowestNote}"
                              HighestNote="{x:Static vm:BassEditorViewModel.HighestNote}"

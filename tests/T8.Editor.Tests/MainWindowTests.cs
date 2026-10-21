@@ -241,15 +241,27 @@ public class MainWindowTests
         triplet.IsChecked = !vm.Bass.Triplet;
         Assert.Equal(triplet.IsChecked, vm.Bass.Triplet);
 
-        // The step picker is an outlined box; "next step after a note" is a chip.
-        Assert.Contains("fieldBox", editor.FindControl<Border>("StepPickerBox")!.Classes);
+        // The STEP EDITOR panel: chevron chips around an outlined readout, the auto-advance chip and the hint.
+        var stepPanel = editor.FindControl<Border>("StepEditorPanel")!;
+        var previous = editor.FindControl<Button>("PreviousStepButton")!;
+        var next = editor.FindControl<Button>("NextStepButton")!;
         var advance = editor.FindControl<ToggleButton>("AdvanceCheck")!;
+        var readout = editor.FindControl<Border>("StepPickerBox")!;
+        var hint = editor.FindControl<StackPanel>("StepEditorHint")!;
+        Assert.All(new Control[] { previous, next, advance, readout, hint }, c => Assert.Contains(stepPanel, c.GetVisualAncestors()));
+        Assert.Contains("STEP EDITOR", stepPanel.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text));
+        Assert.Contains("fieldBox", readout.Classes);
+        Assert.All(new Control[] { previous, next, advance, hint },
+            c => Assert.NotNull(c.GetVisualDescendants().OfType<PathIcon>().First().Data));
         Assert.Contains("chip", advance.Classes);
         advance.IsChecked = !vm.Bass.AdvanceAfterNote;
         Assert.Equal(advance.IsChecked, vm.Bass.AdvanceAfterNote);
-        vm.Bass.SelectedStep = vm.Bass.Steps[0];
-        editor.FindControl<Button>("NextStepButton")!.Command!.Execute(null);
-        Assert.Same(vm.Bass.Steps[1], vm.Bass.SelectedStep);
+        vm.Bass.SelectedStep = vm.Bass.Steps[1];
+        next.Command!.Execute(null);
+        Assert.Same(vm.Bass.Steps[2], vm.Bass.SelectedStep);
+        previous.Command!.Execute(null);
+        previous.Command!.Execute(null);
+        Assert.Same(vm.Bass.Steps[0], vm.Bass.SelectedStep);
 
         var before = vm.Bass.Steps[0].NoteName;
         up12.Command!.Execute(up12.CommandParameter);
