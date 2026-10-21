@@ -21,7 +21,7 @@ public class MainWindowViewModelTests : IDisposable
     {
         Assert.Null(_vm.FolderPath);
         Assert.False(_vm.IsDirty);
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.2 - Untitled", _vm.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.3 - Untitled", _vm.Title);
         Assert.Equal(16, _vm.Rhythm.Length);
         Assert.Equal([1, 2, 3, 4], _vm.BankNumbers);
         Assert.Equal(16, _vm.PatternNumbers.Count);
@@ -43,7 +43,7 @@ public class MainWindowViewModelTests : IDisposable
         Assert.Equal(12, _vm.Bass.Length);
         Assert.Equal(32, _vm.Rhythm.Length);
         Assert.Contains("Loaded 64 patterns", _vm.Status);
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.2 - BACKUP", _vm.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.3 - BACKUP", _vm.Title);
     }
 
     [Fact]
@@ -359,8 +359,8 @@ public class MainWindowViewModelTests : IDisposable
     [Fact]
     public void The_app_is_version_1_0_1_by_christos()
     {
-        Assert.Equal("v1.0.2", T8.Editor.AppInfo.DisplayVersion);
-        Assert.StartsWith("1.0.2", T8.Editor.AppInfo.FullVersion);
+        Assert.Equal("v1.0.3", T8.Editor.AppInfo.DisplayVersion);
+        Assert.StartsWith("1.0.3", T8.Editor.AppInfo.FullVersion);
         Assert.Equal("Christos Christodoulidis", T8.Editor.AppInfo.Author);
     }
 
