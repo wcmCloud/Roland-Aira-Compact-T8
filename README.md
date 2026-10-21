@@ -261,10 +261,13 @@ The rhythm generator writes a new drum pattern into the current pattern, up to i
 | Rolls | Hat rolls (sub steps) and snare flams |
 | Live variation | Gives some optional hits a step probability of 50–80%, so the T-8 itself plays the pattern a little differently every loop |
 
+Generate, Randomize, Undo and Seed sit together in the **Actions** panel on the right of each generator.
+
 - **Generate** writes a pattern with the current seed: the same settings and seed always give the same pattern,
   so you can change one knob and press Generate again for a variation with the same feel.
 - **Randomize** picks a new seed and generates: a different pattern in the same style.
-- **Undo** puts back the pattern from before the last Generate, Randomize or Make fill.
+- **Undo** puts back the pattern from before the last Generate, Randomize or Make fill (it is greyed out when
+  there is nothing to undo).
 - **Seed:** type a number to get a pattern back.
 
 The generator never puts the closed and open hat on the same step, because the T-8's open hat cuts off the closed one.

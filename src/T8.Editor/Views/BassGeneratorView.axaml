@@ -14,6 +14,10 @@
       <!-- Generate, randomize, undo and seed in one outlined panel -->
       <Border x:Name="BassActionPanel" DockPanel.Dock="Right" Classes="fieldBox" Padding="8" VerticalAlignment="Center" Margin="16,0,0,0" Width="250">
         <StackPanel Spacing="7">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <Ellipse Classes="dot" Fill="{StaticResource SectionPink}" />
+            <TextBlock Classes="cardTitle" Text="ACTIONS" FontSize="10" />
+          </StackPanel>
           <Button x:Name="GenerateButton" Classes="primary pill" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
                   HorizontalContentAlignment="Center" ToolTip.Tip="Write a line with these settings and seed (same seed, same line)">
             <StackPanel Orientation="Horizontal" Spacing="7">

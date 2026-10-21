@@ -196,6 +196,22 @@ public class MainWindowTests
         Assert.Contains("pill", generator.FindControl<Button>(generate)!.Classes);
         Assert.Contains("chip", generator.FindControl<Button>(randomize)!.Classes);
         Assert.Contains(panel, generator.FindControl<NumericUpDown>(seed)!.GetVisualAncestors());
+        Assert.Contains("ACTIONS", panel.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text));
+
+        // Undo is greyed out until something is generated; Generate and Randomize still work.
+        var undoButton = generator.FindControl<Button>(undo)!;
+        Assert.False(undoButton.IsEffectivelyEnabled);
+        var generateButton = generator.FindControl<Button>(generate)!;
+        generateButton.Command!.Execute(null);
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        Assert.True(undoButton.IsEffectivelyEnabled);
+        var seedBox = generator.FindControl<NumericUpDown>(seed)!;
+        var before = seedBox.Value;
+        generator.FindControl<Button>(randomize)!.Command!.Execute(null);
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        Assert.NotEqual(before, seedBox.Value);
+        undoButton.Command!.Execute(null);
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
     }
 
     [AvaloniaFact]
