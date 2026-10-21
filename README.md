@@ -221,7 +221,7 @@ stored in it is kept when you save.) Each column is one of 32 steps; the brighte
 
 - Click a cell to turn it on or off. The cell you clicked is outlined in white and shown in the inspector on
   the right.
-- **Inspector:** On, **Velocity** (v.0–v.10, the T-8 uses v.7 for new notes), **Probability** (how often the step
+- **Inspector** (an orange panel, laid out like the multi-select one): an **ON** chip, **Velocity** (v.0–v.10, the T-8 uses v.7 for new notes), **Probability** (how often the step
   plays, as on the T-8), **Sub step** (Half, Third or Quarter: 2, 3 or 4 hits in the step; Flam: a quiet hit just
   before) and the sub step's own probability.
 - **Pattern** knobs: **Last step** (1–32, steps after it are dimmed), **Shuffle** (0–200, delays every second

@@ -67,31 +67,51 @@
                    Foreground="{StaticResource MutedText}" />
       </StackPanel>
 
-      <StackPanel x:Name="Inspector" Spacing="6" Margin="0,12,0,0">
-        <StackPanel.IsVisible>
+      <!-- One step selected: the same compact panel as the multi-select one, in orange -->
+      <Border x:Name="Inspector" Classes="batch single" Margin="0,10,0,0" HorizontalAlignment="Left"
+              Width="{Binding #PatternKnobs.Bounds.Width}">
+        <Border.IsVisible>
           <MultiBinding Converter="{x:Static BoolConverters.And}">
             <Binding Path="SelectedCell" Converter="{x:Static ObjectConverters.IsNotNull}" />
             <Binding Path="!HasMultiSelection" />
           </MultiBinding>
-        </StackPanel.IsVisible>
-        <TextBlock Classes="header" Text="{Binding SelectedCell.Description, FallbackValue=''}" />
-        <CheckBox Content="On" IsChecked="{Binding SelectedCell.On, FallbackValue=False}" />
-        <TextBlock Text="{Binding SelectedCell.Velocity, StringFormat='Velocity v.{0}', FallbackValue=''}" />
-        <Slider x:Name="VelocitySlider" Minimum="0" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True"
-                Value="{Binding SelectedCell.Velocity, FallbackValue=0}" />
-        <TextBlock Text="{Binding SelectedCell.ProbabilityPercent, StringFormat='Probability {0}%', FallbackValue=''}" />
-        <Slider x:Name="ProbabilitySlider" Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True"
-                Value="{Binding SelectedCell.ProbabilityPercent, FallbackValue=100}" />
-        <TextBlock Text="Sub step" />
-        <ComboBox x:Name="SubStepPicker" HorizontalAlignment="Stretch"
-                  ItemsSource="{x:Static vm:RhythmEditorViewModel.SubStepOptions}"
-                  SelectedItem="{Binding SelectedCell.SubStep, FallbackValue={x:Null}}" />
-        <TextBlock Text="{Binding SelectedCell.SubStepProbabilityPercent, StringFormat='Sub step probability {0}%', FallbackValue=''}"
-                   IsVisible="{Binding SelectedCell.HasSubStep, FallbackValue=False}" />
-        <Slider Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True"
-                Value="{Binding SelectedCell.SubStepProbabilityPercent, FallbackValue=100}"
-                IsVisible="{Binding SelectedCell.HasSubStep, FallbackValue=False}" />
-      </StackPanel>
+        </Border.IsVisible>
+        <StackPanel Spacing="2">
+          <DockPanel Margin="0,0,0,4">
+            <ToggleButton x:Name="SelectedStepOnToggle" DockPanel.Dock="Right" Classes="chip small orange"
+                          IsChecked="{Binding SelectedCell.On, FallbackValue=False}" ToolTip.Tip="Turn this step on or off">
+              <TextBlock Text="ON" />
+            </ToggleButton>
+            <TextBlock x:Name="SelectedStepText" Text="{Binding SelectedCell.Description, FallbackValue=''}" FontSize="12" FontWeight="SemiBold"
+                       Foreground="{StaticResource T8Orange}" VerticalAlignment="Center" />
+          </DockPanel>
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Right" Text="{Binding SelectedCell.Velocity, StringFormat='v.{0}', FallbackValue=''}" Classes="batchValue" />
+            <TextBlock Text="Velocity" Classes="batchLabel" />
+          </DockPanel>
+          <Slider x:Name="VelocitySlider" Classes="batch" Minimum="0" Maximum="10" TickFrequency="1" IsSnapToTickEnabled="True"
+                  Value="{Binding SelectedCell.Velocity, FallbackValue=0}" />
+          <DockPanel>
+            <TextBlock DockPanel.Dock="Right" Text="{Binding SelectedCell.ProbabilityPercent, StringFormat='{}{0}%', FallbackValue=''}" Classes="batchValue" />
+            <TextBlock Text="Probability" Classes="batchLabel" />
+          </DockPanel>
+          <Slider x:Name="ProbabilitySlider" Classes="batch" Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True"
+                  Value="{Binding SelectedCell.ProbabilityPercent, FallbackValue=100}" />
+          <DockPanel Margin="0,2,0,0">
+            <TextBlock Text="Sub step" Classes="batchLabel" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <ComboBox x:Name="SubStepPicker" Classes="batch" HorizontalAlignment="Stretch"
+                      ItemsSource="{x:Static vm:RhythmEditorViewModel.SubStepOptions}"
+                      SelectedItem="{Binding SelectedCell.SubStep, FallbackValue={x:Null}}" />
+          </DockPanel>
+          <DockPanel IsVisible="{Binding SelectedCell.HasSubStep, FallbackValue=False}" Margin="0,2,0,0">
+            <TextBlock DockPanel.Dock="Right" Text="{Binding SelectedCell.SubStepProbabilityPercent, StringFormat='{}{0}%', FallbackValue=''}" Classes="batchValue" />
+            <TextBlock Text="Sub step prob." Classes="batchLabel" />
+          </DockPanel>
+          <Slider Classes="batch" Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True"
+                  Value="{Binding SelectedCell.SubStepProbabilityPercent, FallbackValue=100}"
+                  IsVisible="{Binding SelectedCell.HasSubStep, FallbackValue=False}" />
+        </StackPanel>
+      </Border>
     </StackPanel>
     </ScrollViewer>
 

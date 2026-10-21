@@ -362,6 +362,39 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void One_selected_step_is_edited_in_a_panel_like_the_multi_select_one()
+    {
+        var (window, vm) = Show();
+        var cell = vm.Rhythm.Tracks[1].Cells[3];
+        vm.Rhythm.SelectedCell = cell;
+        window.UpdateLayout();
+        var editor = window.GetVisualDescendants().OfType<RhythmEditorView>().Single();
+        var panel = editor.FindControl<Border>("Inspector")!;
+
+        Assert.True(panel.IsEffectivelyVisible);
+        Assert.Contains("batch", panel.Classes);
+        Assert.Equal(cell.Description, editor.FindControl<TextBlock>("SelectedStepText")!.Text);
+        Assert.Contains("batch", editor.FindControl<Slider>("VelocitySlider")!.Classes);
+        Assert.Contains("batch", editor.FindControl<ComboBox>("SubStepPicker")!.Classes);
+
+        var on = editor.FindControl<ToggleButton>("SelectedStepOnToggle")!;
+        var wasOn = cell.On;
+        on.IsChecked = !wasOn;
+        Assert.Equal(!wasOn, cell.On);
+        cell.On = true;
+        editor.FindControl<Slider>("VelocitySlider")!.Value = 3;
+        Assert.Equal(3, cell.Velocity);
+
+        // With several steps picked, the multi-select panel shows instead.
+        vm.Rhythm.SelectAllActiveCommand.Execute(null);
+        window.UpdateLayout();
+        Assert.False(panel.IsEffectivelyVisible);
+        Assert.True(editor.FindControl<Border>("BatchInspector")!.IsEffectivelyVisible);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Each_row_name_has_its_own_drum_icon()
     {
         var (window, vm) = Show();

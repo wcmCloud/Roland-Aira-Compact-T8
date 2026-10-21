@@ -983,4 +983,9 @@
   <Style Selector="Button.stepNumber:pointerover /template/ ContentPresenter">
     <Setter Property="Background" Value="#22FFFFFF" />
   </Style>
+  <!-- The single-step panel: the multi-select panel's look in orange -->
+  <Style Selector="Border.batch.single">
+    <Setter Property="Background" Value="#14FF7A1A" />
+    <Setter Property="BorderBrush" Value="{StaticResource T8Orange}" />
+  </Style>
 </Styles>
