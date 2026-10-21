@@ -218,7 +218,10 @@ stored in it is kept when you save.) Each column is one of 32 steps; the brighte
   before) and the sub step's own probability.
 - **Pattern** knobs: **Last step** (1–32, steps after it are dimmed), **Shuffle** (0–200, delays every second
   16th) and **Flam** (0–100, the spacing of a flam's two hits).
-- Click a track's name to clear the whole track.
+- **Rows:** click a row's name to select it (outlined orange). The icons at the end of each row **copy** the row,
+  **paste** a copied row over it, and **clear** it. Copying takes every step (on/off, velocity, probability, sub
+  step), and the copied row stays available when you switch pattern, so you can paste it into a row of another
+  pattern. With a row selected, **Cmd/Ctrl+C** and **Cmd/Ctrl+V** copy and paste too.
 
 ### Editing several steps at once
 

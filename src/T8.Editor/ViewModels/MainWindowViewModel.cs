@@ -16,6 +16,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     private readonly Func<IEnumerable<string>> _driveCandidates;
     private T8Controller? _controller;
     private T8InputListener? _listener;
+    private readonly RhythmTrackClipboard _rowClipboard = new();
     private readonly SynchronizationContext? _ui = SynchronizationContext.Current;
     private bool _playheadShown;
     private (BassPattern Bass, RhythmPattern Rhythm)? _clipboard;
@@ -767,7 +768,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     private void LoadSelectedPattern()
     {
         Bass = new BassEditorViewModel(CurrentBass, MarkDirty, AuditionBass);
-        Rhythm = new RhythmEditorViewModel(CurrentRhythm, MarkDirty, AuditionDrum);
+        Rhythm = new RhythmEditorViewModel(CurrentRhythm, MarkDirty, AuditionDrum, _rowClipboard);
         BassGenerator.Target = Bass;
         RhythmGenerator.Target = Rhythm;
         Song?.RefreshSteps();

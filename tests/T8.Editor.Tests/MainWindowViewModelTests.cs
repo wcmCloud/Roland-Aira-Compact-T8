@@ -441,6 +441,21 @@ public class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void A_row_copied_in_one_pattern_pastes_into_another()
+    {
+        _vm.OpenFolder(TestPaths.Backup);
+        var source = _vm.Rhythm[RhythmTrack.CH];
+        _vm.Rhythm.CopyTrackCommand.Execute(source);
+        var copied = source.Cells.Select(c => c.Cell.ToString()).ToList();
+
+        _vm.SelectSlot(3, 9);
+        _vm.Rhythm.PasteTrackCommand.Execute(_vm.Rhythm[RhythmTrack.OH]);
+
+        Assert.Equal(copied, _vm.Library.Rhythm[2, 8].Steps.Select(s => s[RhythmTrack.OH].ToString()));
+        Assert.True(_vm.IsDirty);
+    }
+
+    [Fact]
     public void Commands_without_a_port_explain_what_to_do()
     {
         using var vm = new MainWindowViewModel(new FakePortProvider(), _dialogs);

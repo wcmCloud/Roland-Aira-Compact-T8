@@ -4,6 +4,12 @@
              xmlns:views="using:T8.Editor.Views"
              x:Class="T8.Editor.Views.RhythmEditorView"
              x:DataType="vm:RhythmEditorViewModel">
+  <UserControl.KeyBindings>
+    <KeyBinding Gesture="Ctrl+C" Command="{Binding CopySelectedTrackCommand}" />
+    <KeyBinding Gesture="Meta+C" Command="{Binding CopySelectedTrackCommand}" />
+    <KeyBinding Gesture="Ctrl+V" Command="{Binding PasteToSelectedTrackCommand}" />
+    <KeyBinding Gesture="Meta+V" Command="{Binding PasteToSelectedTrackCommand}" />
+  </UserControl.KeyBindings>
   <DockPanel Margin="0,8,0,0">
     <!-- Pattern settings and cell inspector -->
     <ScrollViewer DockPanel.Dock="Right" Width="256" Margin="16,0,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -92,7 +98,7 @@
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
       <StackPanel Spacing="4">
         <!-- Step numbers -->
-        <StackPanel Orientation="Horizontal" Margin="140,0,0,0">
+        <StackPanel Orientation="Horizontal" Margin="126,0,0,0">
           <ItemsControl ItemsSource="{Binding Tracks[0].Cells}">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="3" /></ItemsPanelTemplate>
@@ -109,9 +115,10 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:RhythmTrackViewModel">
               <StackPanel Orientation="Horizontal" Margin="0,2">
-                <Button Width="132" Margin="0,0,8,0" HorizontalContentAlignment="Left" Content="{Binding Name}"
-                        ToolTip.Tip="Click to clear this track"
-                        Command="{Binding $parent[UserControl].((vm:RhythmEditorViewModel)DataContext).ClearTrackCommand, FallbackValue={x:Null}}"
+                <Button Classes="trackName" Classes.selected="{Binding IsSelected}" Width="118" Margin="0,0,8,0"
+                        HorizontalContentAlignment="Left" Content="{Binding Name}"
+                        ToolTip.Tip="Select this row (then Cmd/Ctrl+C to copy it, Cmd/Ctrl+V to paste into it)"
+                        Command="{Binding $parent[UserControl].((vm:RhythmEditorViewModel)DataContext).SelectTrackCommand, FallbackValue={x:Null}}"
                         CommandParameter="{Binding}" />
                 <ItemsControl ItemsSource="{Binding Cells}">
                   <ItemsControl.ItemsPanel>
@@ -131,6 +138,25 @@
                     </DataTemplate>
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
+                <StackPanel Orientation="Horizontal" Spacing="2" Margin="6,0,0,0" VerticalAlignment="Center">
+                  <Button Classes="rowTool" ToolTip.Tip="Copy this row"
+                          Command="{Binding $parent[UserControl].((vm:RhythmEditorViewModel)DataContext).CopyTrackCommand, FallbackValue={x:Null}}"
+                          CommandParameter="{Binding}">
+                    <PathIcon Data="{StaticResource IconCopy}" />
+                  </Button>
+                  <Button Classes="rowTool"
+                          IsEnabled="{Binding $parent[UserControl].((vm:RhythmEditorViewModel)DataContext).Clipboard.HasContent, FallbackValue=False}"
+                          ToolTip.Tip="{Binding $parent[UserControl].((vm:RhythmEditorViewModel)DataContext).Clipboard.PasteTip, FallbackValue=''}"
+                          Command="{Binding $parent[UserControl].((vm:RhythmEditorViewModel)DataContext).PasteTrackCommand, FallbackValue={x:Null}}"
+                          CommandParameter="{Binding}">
+                    <PathIcon Data="{StaticResource IconPaste}" />
+                  </Button>
+                  <Button Classes="rowTool" ToolTip.Tip="Clear this row"
+                          Command="{Binding $parent[UserControl].((vm:RhythmEditorViewModel)DataContext).ClearTrackCommand, FallbackValue={x:Null}}"
+                          CommandParameter="{Binding}">
+                    <PathIcon Data="{StaticResource IconEraser}" />
+                  </Button>
+                </StackPanel>
               </StackPanel>
             </DataTemplate>
           </ItemsControl.ItemTemplate>

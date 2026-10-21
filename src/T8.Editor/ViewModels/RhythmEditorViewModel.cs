@@ -14,10 +14,12 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
     [ObservableProperty]
     private RhythmCellViewModel? _selectedCell;
 
-    public RhythmEditorViewModel(RhythmPattern pattern, Action changed, Action<RhythmTrack>? audition = null)
+    /// <param name="clipboard">Shared between patterns, so a row can be pasted into another pattern.</param>
+    public RhythmEditorViewModel(RhythmPattern pattern, Action changed, Action<RhythmTrack>? audition = null, RhythmTrackClipboard? clipboard = null)
     {
         _pattern = pattern;
         _changed = changed;
+        Clipboard = clipboard ?? new RhythmTrackClipboard();
         _allTracks = Enum.GetValues<RhythmTrack>()
             .Select(track => new RhythmTrackViewModel(track, pattern, this, changed, audition))
             .ToList();
@@ -81,12 +83,69 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
 
     public RhythmTrackViewModel this[RhythmTrack track] => _allTracks[(int)track];
 
+    // ---- Rows: select, copy, paste, clear --------------------------------------------------
+
+    public RhythmTrackClipboard Clipboard { get; }
+
+    /// <summary>The row whose name was clicked; Cmd/Ctrl+C and Cmd/Ctrl+V copy and paste it.</summary>
+    [ObservableProperty]
+    private RhythmTrackViewModel? _selectedTrack;
+
+    partial void OnSelectedTrackChanged(RhythmTrackViewModel? oldValue, RhythmTrackViewModel? newValue)
+    {
+        if (oldValue is not null)
+            oldValue.IsSelected = false;
+        if (newValue is not null)
+            newValue.IsSelected = true;
+    }
+
+    /// <summary>Clicking a row's name selects it (click again to deselect).</summary>
+    [RelayCommand]
+    private void SelectTrack(RhythmTrackViewModel track) => SelectedTrack = SelectedTrack == track ? null : track;
+
+    /// <summary>Copies every step of a row (on/off, velocity, probability, sub step).</summary>
+    [RelayCommand]
+    private void CopyTrack(RhythmTrackViewModel track)
+    {
+        SelectedTrack = track;
+        Clipboard.Copy(track.Name, track.Cells.Select(c => c.Cell));
+    }
+
+    /// <summary>Pastes the copied row over a row: every step is replaced. Does nothing until a row is copied.</summary>
+    [RelayCommand]
+    private void PasteTrack(RhythmTrackViewModel track)
+    {
+        if (Clipboard.Cells is not { } cells)
+            return;
+        SelectedTrack = track;
+        for (var i = 0; i < track.Cells.Count && i < cells.Count; i++)
+            track.Cells[i].SetFrom(cells[i]);
+        _changed();
+    }
+
     [RelayCommand]
     private void ClearTrack(RhythmTrackViewModel track)
     {
         foreach (var cell in track.Cells)
             cell.On = false;
     }
+
+    /// <summary>Cmd/Ctrl+C: copies the selected row.</summary>
+    [RelayCommand]
+    private void CopySelectedTrack()
+    {
+        if (SelectedTrack is { } track)
+            CopyTrack(track);
+    }
+
+    /// <summary>Cmd/Ctrl+V: pastes into the selected row.</summary>
+    [RelayCommand]
+    private void PasteToSelectedTrack()
+    {
+        if (SelectedTrack is { } track && Clipboard.HasContent)
+            PasteTrack(track);
+    }
+
 
     private int? _playingStep;
 
@@ -238,8 +297,12 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
     }
 }
 
-public sealed class RhythmTrackViewModel
+public sealed partial class RhythmTrackViewModel : ObservableObject
 {
+    /// <summary>Selected by clicking the row's name.</summary>
+    [ObservableProperty]
+    private bool _isSelected;
+
     public RhythmTrackViewModel(RhythmTrack track, RhythmPattern pattern, RhythmEditorViewModel editor, Action changed, Action<RhythmTrack>? audition)
     {
         Track = track;
@@ -358,6 +421,21 @@ public sealed partial class RhythmCellViewModel : ObservableObject
 
     public string Description => $"{Track} step {StepNumber}";
 
+    internal RhythmCell Cell => _cell;
+
+    /// <summary>Takes all the values of a copied step.</summary>
+    internal void SetFrom(RhythmCell from)
+    {
+        _cell.On = from.On;
+        _cell.Velocity = from.Velocity;
+        _cell.SubStep = from.SubStep;
+        _cell.Probability = from.Probability;
+        _cell.SubStepProbability = from.SubStepProbability;
+        if (!from.On)
+            _editor.OnCellTurnedOff(this);
+        Refresh();
+    }
+
     internal void Refresh()
     {
         OnPropertyChanged(nameof(On));
@@ -384,5 +462,27 @@ public sealed partial class RhythmCellViewModel : ObservableObject
         set(value);
         OnPropertyChanged(name);
         _changed();
+    }
+}
+
+/// <summary>A copied rhythm row: the 32 steps of one track, shared between patterns.</summary>
+public sealed partial class RhythmTrackClipboard : ObservableObject
+{
+    public IReadOnlyList<RhythmCell>? Cells { get; private set; }
+
+    /// <summary>Name of the row it was copied from.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PasteTip))]
+    private string? _source;
+
+    public bool HasContent => Cells is not null;
+
+    public string PasteTip => Source is null ? "Paste a copied row here (copy one first)" : $"Paste the copied {Source} row here";
+
+    public void Copy(string source, IEnumerable<RhythmCell> cells)
+    {
+        Cells = cells.Select(c => c.Clone()).ToList();
+        Source = source;
+        OnPropertyChanged(nameof(HasContent));
     }
 }

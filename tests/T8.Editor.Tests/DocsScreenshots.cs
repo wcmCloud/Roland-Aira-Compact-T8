@@ -48,6 +48,7 @@ public class DocsScreenshots
         hat.SubStep = SubStep.Third;
         hat.ActivateCommand.Execute(null);
         vm.Rhythm.ShowPlayingStep(4);
+        vm.Rhythm.CopyTrackCommand.Execute(vm.Rhythm[RhythmTrack.CH]); // the closed hat row selected and copied
         vm.Status = "Techno drums · seed 7 · 32 steps";
         Settle(window);
         Save(window, "main-rhythm.png");

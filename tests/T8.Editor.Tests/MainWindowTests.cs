@@ -133,6 +133,25 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Each_row_has_copy_paste_and_clear_and_paste_turns_on_after_a_copy()
+    {
+        var (window, vm) = Show();
+        window.UpdateLayout();
+        var tools = window.GetVisualDescendants().OfType<Button>().Where(b => b.Classes.Contains("rowTool")).ToList();
+        Assert.Equal(7 * 3, tools.Count);
+        var paste = tools.Where((_, i) => i % 3 == 1).ToList();
+        Assert.All(paste, p => Assert.False(p.IsEnabled));
+
+        Click(window, tools[0]); // copy the first row
+        window.UpdateLayout();
+
+        Assert.All(paste, p => Assert.True(p.IsEnabled));
+        Assert.True(vm.Rhythm.Tracks[0].IsSelected);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Knobs_turn_with_a_drag_and_the_wheel_and_reset()
     {
         var knob = new Knob { Minimum = 0, Maximum = 100, Value = 50, DefaultValue = 20 };

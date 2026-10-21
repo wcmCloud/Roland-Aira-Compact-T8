@@ -252,4 +252,79 @@ public class RhythmEditorViewModelTests
         Assert.False(vm.HasMultiSelection);
         Assert.False(cell.IsMultiSelected);
     }
+
+    [Fact]
+    public void Clicking_a_row_name_selects_it_and_clicking_again_deselects()
+    {
+        var vm = Create();
+        var hats = vm[RhythmTrack.CH];
+
+        vm.SelectTrackCommand.Execute(hats);
+        Assert.Same(hats, vm.SelectedTrack);
+        Assert.True(hats.IsSelected);
+
+        vm.SelectTrackCommand.Execute(vm[RhythmTrack.SD]);
+        Assert.False(hats.IsSelected);
+
+        vm.SelectTrackCommand.Execute(vm[RhythmTrack.SD]);
+        Assert.Null(vm.SelectedTrack);
+    }
+
+    [Fact]
+    public void Copy_and_paste_a_row_copies_every_step_value()
+    {
+        var vm = Create();
+        var source = vm[RhythmTrack.CH];
+        source.Cells[0].On = true;
+        source.Cells[0].Velocity = 9;
+        source.Cells[0].SubStep = SubStep.Third;
+        source.Cells[0].ProbabilityPercent = 60;
+        source.Cells[2].On = true;
+        var target = vm[RhythmTrack.OH];
+        target.Cells[1].On = true; // replaced by the paste
+        Assert.False(vm.Clipboard.HasContent);
+
+        vm.CopyTrackCommand.Execute(source);
+        Assert.True(vm.Clipboard.HasContent);
+        Assert.Contains("Closed hat", vm.Clipboard.PasteTip);
+        _changes = 0;
+        vm.PasteTrackCommand.Execute(target);
+
+        Assert.Equal(source.Cells.Select(c => c.Cell.ToString()), target.Cells.Select(c => c.Cell.ToString()));
+        Assert.False(target.Cells[1].On);
+        Assert.Same(target, vm.SelectedTrack);
+        Assert.True(_changes > 0);
+
+        source.Cells[0].Velocity = 2; // the copy is a snapshot
+        Assert.Equal(9, target.Cells[0].Velocity);
+    }
+
+    [Fact]
+    public void Keyboard_copy_and_paste_use_the_selected_row()
+    {
+        var vm = Create();
+        vm[RhythmTrack.BD].Cells[4].On = true;
+        vm.PasteToSelectedTrackCommand.Execute(null); // nothing selected, nothing copied: no effect
+
+        vm.SelectTrackCommand.Execute(vm[RhythmTrack.BD]);
+        vm.CopySelectedTrackCommand.Execute(null);
+        vm.SelectTrackCommand.Execute(vm[RhythmTrack.LT]);
+        vm.PasteToSelectedTrackCommand.Execute(null);
+
+        Assert.True(vm[RhythmTrack.LT].Cells[4].On);
+    }
+
+    [Fact]
+    public void The_row_clipboard_is_shared_between_patterns()
+    {
+        var clipboard = new RhythmTrackClipboard();
+        var first = new RhythmEditorViewModel(new RhythmPattern(), () => { }, clipboard: clipboard);
+        first[RhythmTrack.SD].Cells[3].On = true;
+        first.CopyTrackCommand.Execute(first[RhythmTrack.SD]);
+
+        var other = new RhythmEditorViewModel(new RhythmPattern(), () => { }, clipboard: clipboard);
+        other.PasteTrackCommand.Execute(other[RhythmTrack.HT]);
+
+        Assert.True(other[RhythmTrack.HT].Cells[3].On);
+    }
 }
