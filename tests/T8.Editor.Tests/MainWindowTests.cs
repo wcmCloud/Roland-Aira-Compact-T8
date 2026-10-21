@@ -241,6 +241,16 @@ public class MainWindowTests
         triplet.IsChecked = !vm.Bass.Triplet;
         Assert.Equal(triplet.IsChecked, vm.Bass.Triplet);
 
+        // The step picker is an outlined box; "next step after a note" is a chip.
+        Assert.Contains("fieldBox", editor.FindControl<Border>("StepPickerBox")!.Classes);
+        var advance = editor.FindControl<ToggleButton>("AdvanceCheck")!;
+        Assert.Contains("chip", advance.Classes);
+        advance.IsChecked = !vm.Bass.AdvanceAfterNote;
+        Assert.Equal(advance.IsChecked, vm.Bass.AdvanceAfterNote);
+        vm.Bass.SelectedStep = vm.Bass.Steps[0];
+        editor.FindControl<Button>("NextStepButton")!.Command!.Execute(null);
+        Assert.Same(vm.Bass.Steps[1], vm.Bass.SelectedStep);
+
         var before = vm.Bass.Steps[0].NoteName;
         up12.Command!.Execute(up12.CommandParameter);
         Assert.NotEqual(before, vm.Bass.Steps[0].NoteName);

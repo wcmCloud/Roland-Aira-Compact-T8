@@ -295,7 +295,7 @@ Each column is one step: its note, its state, semitone up/down, and Accent and S
 - Click a step's note to select it (outlined in white); its note lights up orange on the keyboard.
 - Click a key on the **keyboard** to give the selected step that note. The step is turned on, you hear the note
   on the T-8, and the selection moves to the next step, so you can play a line in key by key. Untick
-  **Go to the next step after a note** to stay on the same step. The arrows move the selection.
+  **Next step after a note** to stay on the same step. The arrows move the selection.
 - The state button cycles **Off → Note → Tie**. A tie holds the previous note through the step.
 - The **Pattern** panel above the steps holds **Last step** (1–32), **Triplet** (lit orange when on) and
   **Transpose** (−12, −1, +1, +12 semitones for the whole line).
