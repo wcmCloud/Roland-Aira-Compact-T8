@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/icon/T8Editor-256.png" width="128" alt="App icon">
+
 # Roland Aira Compact T-8 Editor
 
 **Edit, generate and play the patterns of your AIRA Compact T-8 — drums and bass — from your computer, over USB.**

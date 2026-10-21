@@ -2,6 +2,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:editor="using:T8.Editor"
         x:Class="T8.Editor.Views.AboutWindow"
+        Icon="avares://T8Editor/Assets/AppIcon.png"
         Title="About Roland Aira Compact T-8 Editor"
         Width="440" SizeToContent="Height" CanResize="False"
         WindowStartupLocation="CenterOwner"
@@ -11,6 +12,7 @@
     <Border Background="{StaticResource BarBg}" BorderBrush="{StaticResource CardBorder}" BorderThickness="1" CornerRadius="8"
             Padding="18,14" HorizontalAlignment="Center">
       <StackPanel Orientation="Horizontal" Spacing="10">
+        <Image x:Name="AppIconImage" Source="avares://T8Editor/Assets/AppIcon.png" Width="64" Height="64" VerticalAlignment="Center" />
         <TextBlock Text="T-8" FontSize="44" FontWeight="Black" Foreground="{StaticResource T8Orange}" VerticalAlignment="Center" />
         <StackPanel VerticalAlignment="Center" Spacing="2">
           <TextBlock Text="AIRA COMPACT" FontSize="12" FontWeight="Bold" LetterSpacing="2.5" />

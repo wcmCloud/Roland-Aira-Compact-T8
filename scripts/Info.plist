@@ -10,6 +10,8 @@
   <string>com.wcmcloud.t8editor</string>
   <key>CFBundleExecutable</key>
   <string>T8Editor</string>
+  <key>CFBundleIconFile</key>
+  <string>T8Editor</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>

@@ -4,6 +4,7 @@
         xmlns:ports="using:T8.Midi.Ports"
         x:Class="T8.Editor.Views.MidiSettingsWindow"
         x:DataType="vm:MidiSettingsViewModel"
+        Icon="avares://T8Editor/Assets/AppIcon.png"
         Title="MIDI settings"
         Width="900" SizeToContent="Height" CanResize="False"
         WindowStartupLocation="CenterOwner"

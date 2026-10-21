@@ -283,6 +283,22 @@ public class AboutWindowTests
         Assert.DoesNotContain(texts, t => t.Contains("Avalonia", StringComparison.OrdinalIgnoreCase));
         about.Close();
     }
+
+    [AvaloniaFact]
+    public void The_windows_and_about_show_the_app_icon()
+    {
+        var about = new AboutWindow();
+        about.Show();
+        Assert.NotNull(about.Icon);
+        var image = about.FindControl<Image>("AppIconImage")!;
+        Assert.Equal(256, ((Avalonia.Media.Imaging.Bitmap)image.Source!).PixelSize.Width);
+        about.Close();
+
+        var vm = new MainWindowViewModel(FakePortProvider.WithT8(), new FakeDialogService(), driveCandidates: () => []);
+        var main = new MainWindow { DataContext = vm };
+        Assert.NotNull(main.Icon);
+        vm.Dispose();
+    }
 }
 
 public class MidiSettingsWindowTests

@@ -5,6 +5,7 @@
         xmlns:ports="using:T8.Midi.Ports"
         x:Class="T8.Editor.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
+        Icon="avares://T8Editor/Assets/AppIcon.png"
         Title="{Binding Title}"
         Width="1480" Height="860" MinWidth="900" MinHeight="640"
         Background="{StaticResource WindowBg}">
