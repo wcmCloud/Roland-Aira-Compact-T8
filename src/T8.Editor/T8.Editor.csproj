@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>T8Editor</AssemblyName>
     <Product>Roland Aira Compact T-8 Editor</Product>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Christos Christodoulidis</Authors>
     <Copyright>© 2026 Christos Christodoulidis</Copyright>
     <RootNamespace>T8.Editor</RootNamespace>

@@ -100,12 +100,12 @@ The downloads are self-contained, so there is nothing else to install:
 
 | Computer | Download |
 |---|---|
-| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.1-osx-arm64.zip` |
-| Mac with Intel | `T8Editor-1.0.1-osx-x64.zip` |
-| Windows PC (x64) | `T8Editor-1.0.1-win-x64.zip` |
-| Windows on ARM | `T8Editor-1.0.1-win-arm64.zip` |
-| Linux x64 | `T8Editor-1.0.1-linux-x64.tar.gz` |
-| Linux ARM64 | `T8Editor-1.0.1-linux-arm64.tar.gz` |
+| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.2-osx-arm64.zip` |
+| Mac with Intel | `T8Editor-1.0.2-osx-x64.zip` |
+| Windows PC (x64) | `T8Editor-1.0.2-win-x64.zip` |
+| Windows on ARM | `T8Editor-1.0.2-win-arm64.zip` |
+| Linux x64 | `T8Editor-1.0.2-linux-x64.tar.gz` |
+| Linux ARM64 | `T8Editor-1.0.2-linux-arm64.tar.gz` |
 
 - **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications. It isn't notarized by Apple, so the
   first time right-click it and choose **Open**. If macOS says it is damaged, run
@@ -483,7 +483,7 @@ dotnet run --project src/T8.Cli -- export BACKUP 1 1 pattern.mid
 ```sh
 scripts/publish.sh                 # all six packages into artifacts/
 scripts/publish.sh osx-arm64       # just one: osx-arm64, osx-x64, win-arm64, win-x64, linux-arm64, linux-x64
-VERSION=1.0.1 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
+VERSION=1.0.2 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
 ```
 
 Packages are self-contained, so no .NET install is needed to run them. On macOS the app bundle is signed ad hoc
