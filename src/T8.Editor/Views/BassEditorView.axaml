@@ -5,37 +5,49 @@
              x:Class="T8.Editor.Views.BassEditorView"
              x:DataType="vm:BassEditorViewModel">
   <DockPanel Margin="0,8,0,0">
-    <!-- Pattern settings in one outlined panel, like the generators' boxes -->
-    <Border DockPanel.Dock="Top" Classes="fieldBox" HorizontalAlignment="Left" Margin="0,0,0,8">
-      <StackPanel Orientation="Horizontal" Spacing="3">
-        <TextBlock Classes="fieldLabel" Text="LAST STEP" />
-        <NumericUpDown x:Name="BassLength" Classes="port" Value="{Binding Length}" Minimum="1" Maximum="32" FormatString="0" Width="96"
-                       ToolTip.Tip="The pattern plays steps 1 to this one" />
-        <Rectangle Classes="boxDivider" />
-        <ToggleButton x:Name="TripletCheck" Classes="chip" IsChecked="{Binding Triplet}" ToolTip.Tip="Triplet timing: three steps in the time of two">
+    <!-- Pattern settings: a card like the generator panels, with outlined boxes like KEY / SCALE / OUT -->
+    <Border x:Name="BassPatternPanel" DockPanel.Dock="Top" Classes="card strip" HorizontalAlignment="Left" Margin="0,0,0,8">
+      <StackPanel Orientation="Horizontal" Spacing="10">
+        <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
+          <Ellipse Classes="dot" Fill="{StaticResource SectionPink}" />
+          <TextBlock Classes="cardTitle" Text="PATTERN" />
+        </StackPanel>
+        <Border Classes="fieldBox">
+          <StackPanel Orientation="Horizontal" Spacing="2">
+            <TextBlock Classes="fieldLabel" Text="LAST STEP" />
+            <NumericUpDown x:Name="BassLength" Classes="port" Value="{Binding Length}" Minimum="1" Maximum="32" FormatString="0" Width="92"
+                           ToolTip.Tip="The pattern plays steps 1 to this one" />
+          </StackPanel>
+        </Border>
+        <ToggleButton x:Name="TripletCheck" Classes="chip orange" IsChecked="{Binding Triplet}" VerticalAlignment="Center"
+                      ToolTip.Tip="Triplet timing: three steps in the time of two">
           <StackPanel Orientation="Horizontal" Spacing="5">
             <PathIcon Data="{StaticResource IconTriplet}" />
             <TextBlock Text="TRIPLET" />
           </StackPanel>
         </ToggleButton>
-        <Rectangle Classes="boxDivider" />
-        <TextBlock Classes="fieldLabel" Text="TRANSPOSE" />
-        <Button x:Name="TransposeDown12Button" Classes="tool" Content="−12" Command="{Binding TransposeCommand}"
-                ToolTip.Tip="Transpose every note down 12 semitones (an octave)">
-          <Button.CommandParameter><x:Int32>-12</x:Int32></Button.CommandParameter>
-        </Button>
-        <Button x:Name="TransposeDown1Button" Classes="tool" Content="−1" Command="{Binding TransposeCommand}"
-                ToolTip.Tip="Transpose every note down 1 semitone">
-          <Button.CommandParameter><x:Int32>-1</x:Int32></Button.CommandParameter>
-        </Button>
-        <Button x:Name="TransposeUp1Button" Classes="tool" Content="+1" Command="{Binding TransposeCommand}"
-                ToolTip.Tip="Transpose every note up 1 semitone">
-          <Button.CommandParameter><x:Int32>1</x:Int32></Button.CommandParameter>
-        </Button>
-        <Button x:Name="TransposeUp12Button" Classes="tool" Content="+12" Command="{Binding TransposeCommand}"
-                ToolTip.Tip="Transpose every note up 12 semitones (an octave)">
-          <Button.CommandParameter><x:Int32>12</x:Int32></Button.CommandParameter>
-        </Button>
+        <Border x:Name="TransposeBox" Classes="fieldBox">
+          <StackPanel Orientation="Horizontal" Spacing="3">
+            <PathIcon Data="{StaticResource IconTranspose}" Width="12" Height="12" Foreground="{StaticResource MutedText}" Margin="7,0,0,0" />
+            <TextBlock Classes="fieldLabel" Text="TRANSPOSE" Margin="2,0,4,0" />
+            <Button x:Name="TransposeDown12Button" Classes="chip small" Content="−12" Command="{Binding TransposeCommand}"
+                    ToolTip.Tip="Transpose every note down 12 semitones (an octave)">
+              <Button.CommandParameter><x:Int32>-12</x:Int32></Button.CommandParameter>
+            </Button>
+            <Button x:Name="TransposeDown1Button" Classes="chip small" Content="−1" Command="{Binding TransposeCommand}"
+                    ToolTip.Tip="Transpose every note down 1 semitone">
+              <Button.CommandParameter><x:Int32>-1</x:Int32></Button.CommandParameter>
+            </Button>
+            <Button x:Name="TransposeUp1Button" Classes="chip small" Content="+1" Command="{Binding TransposeCommand}"
+                    ToolTip.Tip="Transpose every note up 1 semitone">
+              <Button.CommandParameter><x:Int32>1</x:Int32></Button.CommandParameter>
+            </Button>
+            <Button x:Name="TransposeUp12Button" Classes="chip small" Content="+12" Command="{Binding TransposeCommand}"
+                    ToolTip.Tip="Transpose every note up 12 semitones (an octave)">
+              <Button.CommandParameter><x:Int32>12</x:Int32></Button.CommandParameter>
+            </Button>
+          </StackPanel>
+        </Border>
       </StackPanel>
     </Border>
 

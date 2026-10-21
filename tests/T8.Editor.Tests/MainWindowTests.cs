@@ -221,16 +221,29 @@ public class MainWindowTests
         Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateButton")!.Content);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("UndoGenerateButton")!.Content);
 
-        // Last step, Triplet and Transpose share one outlined panel above the steps.
+        // Last step, Triplet and Transpose sit in the PATTERN panel above the steps, in outlined boxes.
         var editor = window.GetVisualDescendants().OfType<BassEditorView>().Single();
+        var panel = editor.FindControl<Border>("BassPatternPanel")!;
         var length = editor.FindControl<NumericUpDown>("BassLength")!;
+        var triplet = editor.FindControl<ToggleButton>("TripletCheck")!;
+        var up12 = editor.FindControl<Button>("TransposeUp12Button")!;
+        Assert.All(new Control[] { length, triplet, up12 }, c => Assert.Contains(panel, c.GetVisualAncestors()));
         Assert.Contains("port", length.Classes);
         Assert.Contains("fieldBox", length.FindAncestorOfType<Border>()!.Classes);
-        var triplet = editor.FindControl<ToggleButton>("TripletCheck")!;
+        Assert.Contains("fieldBox", editor.FindControl<Border>("TransposeBox")!.Classes);
+        var labels = panel.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text).ToList();
+        Assert.Contains("PATTERN", labels);
+        Assert.Contains("LAST STEP", labels);
+        Assert.Contains("TRANSPOSE", labels);
+        Assert.Contains("TRIPLET", labels);
+
         Assert.Contains("chip", triplet.Classes);
         triplet.IsChecked = !vm.Bass.Triplet;
         Assert.Equal(triplet.IsChecked, vm.Bass.Triplet);
-        Assert.NotNull(editor.FindControl<Button>("TransposeUp12Button"));
+
+        var before = vm.Bass.Steps[0].NoteName;
+        up12.Command!.Execute(up12.CommandParameter);
+        Assert.NotEqual(before, vm.Bass.Steps[0].NoteName);
         window.Close();
         vm.Dispose();
     }

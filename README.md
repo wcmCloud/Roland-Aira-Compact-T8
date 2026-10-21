@@ -297,7 +297,8 @@ Each column is one step: its note, its state, semitone up/down, and Accent and S
   on the T-8, and the selection moves to the next step, so you can play a line in key by key. Untick
   **Go to the next step after a note** to stay on the same step. The arrows move the selection.
 - The state button cycles **Off → Note → Tie**. A tie holds the previous note through the step.
-- **Last step**, **Triplet** and **Transpose** (−12, −1, +1, +12 for the whole line) are above the steps.
+- The **Pattern** panel above the steps holds **Last step** (1–32), **Triplet** (lit orange when on) and
+  **Transpose** (−12, −1, +1, +12 semitones for the whole line).
 - **Right-click a step** for every note in the T-8's range (C0–C7) by octave, plus Off/Note/Tie, Accent and Slide:
 
   ![The step menu](docs/screenshots/bass-step-menu.png)

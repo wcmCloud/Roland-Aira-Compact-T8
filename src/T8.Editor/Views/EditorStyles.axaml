@@ -50,6 +50,7 @@
     <StreamGeometry x:Key="IconMakeFill">M3,16H10V14H3M18,14V10H16V14H12V16H16V20H18V16H22V14M14,6H3V8H14M14,10H3V12H14V10Z</StreamGeometry>
     <StreamGeometry x:Key="IconSeed">M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z</StreamGeometry>
     <StreamGeometry x:Key="IconTriplet">M3,3H21V7.5H19V5H5V7.5H3ZM6,15.5A2.5,2 0 1,0 6,19.5A2.5,2 0 1,0 6,15.5ZM12,15.5A2.5,2 0 1,0 12,19.5A2.5,2 0 1,0 12,15.5ZM18,15.5A2.5,2 0 1,0 18,19.5A2.5,2 0 1,0 18,15.5ZM7.6,9H8.8V17.4H7.6ZM13.6,9H14.8V17.4H13.6ZM19.6,9H20.8V17.4H19.6Z</StreamGeometry>
+    <StreamGeometry x:Key="IconTranspose">M9,3L5,7H8V14H10V7H13M16,17V10H14V17H11L15,21L19,17H16Z</StreamGeometry>
     <SolidColorBrush x:Key="BarBg" Color="#0B0B0D" />
     <SolidColorBrush x:Key="CardBg" Color="#18181C" />
     <SolidColorBrush x:Key="CardBorder" Color="#29292F" />
@@ -483,6 +484,7 @@
   <!-- Generator: labelled outlined boxes around combos (like OUT in the top bar), and instrument chips -->
   <Style Selector="Border.fieldBox">
     <Setter Property="Background" Value="#141418" />
+    <Setter Property="MinHeight" Value="36" />
     <Setter Property="BorderBrush" Value="#2C2C33" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="CornerRadius" Value="8" />
@@ -529,6 +531,25 @@
     <Setter Property="BorderBrush" Value="#7CC3FF" />
     <Setter Property="Foreground" Value="White" />
   </Style>
+  <Style Selector="ToggleButton.chip.orange:checked /template/ ContentPresenter, ToggleButton.chip.orange:checked:pointerover /template/ ContentPresenter">
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FF9440" />
+        <GradientStop Offset="1" Color="#F06A0E" />
+      </LinearGradientBrush>
+    </Setter>
+    <Setter Property="BorderBrush" Value="#FFB070" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="Button.chip.small, ToggleButton.chip.small">
+    <Setter Property="Height" Value="22" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="Padding" Value="9,0" />
+    <Setter Property="CornerRadius" Value="11" />
+  </Style>
+  <Style Selector="Border.card.strip">
+    <Setter Property="Padding" Value="10,6" />
+  </Style>
   <Style Selector="ToggleButton.chip:pressed /template/ ContentPresenter, Button.chip:pressed /template/ ContentPresenter">
     <Setter Property="Opacity" Value="0.85" />
   </Style>
@@ -557,6 +578,21 @@
     <Setter Property="Height" Value="28" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="NumericUpDown.port /template/ ButtonSpinner /template/ RepeatButton">
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="Width" Value="22" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="5" />
+  </Style>
+  <Style Selector="NumericUpDown.port /template/ ButtonSpinner /template/ RepeatButton PathIcon, NumericUpDown.port /template/ ButtonSpinner /template/ RepeatButton Path">
+    <Setter Property="Width" Value="9" />
+    <Setter Property="Height" Value="9" />
+  </Style>
+  <Style Selector="NumericUpDown.port /template/ ButtonSpinner /template/ RepeatButton:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#26262D" />
   </Style>
   <Style Selector="Rectangle.boxDivider">
     <Setter Property="Width" Value="1" />
