@@ -6,6 +6,11 @@ namespace T8.Editor.ViewModels;
 
 public static class Converters
 {
+    /// <summary>A rhythm track's icon: the "IconTrack" + track geometry from the app's resources (EditorStyles).</summary>
+    public static readonly IValueConverter TrackIcon =
+        new FuncValueConverter<T8.Core.Patterns.RhythmTrack, Geometry?>(track =>
+            Avalonia.Application.Current?.TryGetResource($"IconTrack{track}", null, out var icon) == true ? icon as Geometry : null);
+
     /// <summary>Fills are drawn a little dimmer than the entries on the song timeline.</summary>
     public static readonly IValueConverter FillOpacity =
         new FuncValueConverter<bool, double>(isFill => isFill ? 0.6 : 1.0);

@@ -116,10 +116,15 @@
             <DataTemplate x:DataType="vm:RhythmTrackViewModel">
               <StackPanel Orientation="Horizontal" Margin="0,2">
                 <Button Classes="trackName" Classes.selected="{Binding IsSelected}" Width="118" Margin="0,0,8,0"
-                        HorizontalContentAlignment="Left" Content="{Binding Name}"
+                        HorizontalContentAlignment="Left"
                         ToolTip.Tip="Select this row (then Cmd/Ctrl+C to copy it, Cmd/Ctrl+V to paste into it)"
                         Command="{Binding $parent[UserControl].((vm:RhythmEditorViewModel)DataContext).SelectTrackCommand, FallbackValue={x:Null}}"
-                        CommandParameter="{Binding}" />
+                        CommandParameter="{Binding}">
+                  <StackPanel Orientation="Horizontal" Spacing="7">
+                    <PathIcon Classes="trackIcon" Data="{Binding Track, Converter={x:Static vm:Converters.TrackIcon}}" />
+                    <TextBlock Text="{Binding Name}" VerticalAlignment="Center" />
+                  </StackPanel>
+                </Button>
                 <ItemsControl ItemsSource="{Binding Cells}">
                   <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="3" /></ItemsPanelTemplate>

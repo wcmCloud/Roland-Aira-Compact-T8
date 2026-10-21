@@ -152,6 +152,20 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Each_row_name_has_its_own_drum_icon()
+    {
+        var (window, vm) = Show();
+        window.UpdateLayout();
+        var icons = window.GetVisualDescendants().OfType<PathIcon>().Where(p => p.Classes.Contains("trackIcon")).ToList();
+
+        Assert.Equal(7, icons.Count);
+        Assert.All(icons, icon => Assert.NotNull(icon.Data));
+        Assert.Equal(7, icons.Select(icon => icon.Data).Distinct().Count());
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Knobs_turn_with_a_drag_and_the_wheel_and_reset()
     {
         var knob = new Knob { Minimum = 0, Maximum = 100, Value = 50, DefaultValue = 20 };
