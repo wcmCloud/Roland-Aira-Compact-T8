@@ -1,0 +1,121 @@
+{
+  "format": "t8song",
+  "version": 1,
+  "title": "my test song",
+  "bpm": 112,
+  "loop": true,
+  "entries": [
+    {
+      "bank": 1,
+      "pattern": 1,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 1",
+      "color": "#FF7A1A"
+    },
+    {
+      "bank": 1,
+      "pattern": 3,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 3",
+      "color": "#5B8DEF"
+    },
+    {
+      "bank": 1,
+      "pattern": 6,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 6",
+      "color": "#4CD38A"
+    },
+    {
+      "bank": 1,
+      "pattern": 6,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 6",
+      "color": "#4CD38A"
+    },
+    {
+      "bank": 2,
+      "pattern": 7,
+      "repeats": 1,
+      "name": "Bank 2 - Pattern 7",
+      "color": "#FF5C8A"
+    },
+    {
+      "bank": 1,
+      "pattern": 9,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 9",
+      "color": "#B57BFF"
+    },
+    {
+      "bank": 1,
+      "pattern": 11,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 11",
+      "color": "#FFD23F"
+    },
+    {
+      "bank": 1,
+      "pattern": 12,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 12",
+      "color": "#3EC8C8"
+    },
+    {
+      "bank": 2,
+      "pattern": 12,
+      "repeats": 1,
+      "name": "Bank 2 - Pattern 12",
+      "color": "#E8E8E8"
+    },
+    {
+      "bank": 3,
+      "pattern": 13,
+      "repeats": 1,
+      "name": "Bank 3 - Pattern 13",
+      "color": "#FF7A1A"
+    },
+    {
+      "bank": 3,
+      "pattern": 16,
+      "repeats": 1,
+      "name": "Bank 3 - Pattern 16",
+      "color": "#5B8DEF"
+    },
+    {
+      "bank": 3,
+      "pattern": 11,
+      "repeats": 1,
+      "name": "Bank 3 - Pattern 11",
+      "color": "#4CD38A"
+    },
+    {
+      "bank": 4,
+      "pattern": 7,
+      "repeats": 1,
+      "name": "Bank 4 - Pattern 7",
+      "color": "#B57BFF"
+    },
+    {
+      "bank": 4,
+      "pattern": 9,
+      "repeats": 1,
+      "name": "Bank 4 - Pattern 9",
+      "color": "#FFD23F"
+    },
+    {
+      "bank": 3,
+      "pattern": 7,
+      "repeats": 1,
+      "name": "Bank 3 - Pattern 7",
+      "color": "#3EC8C8"
+    },
+    {
+      "bank": 3,
+      "pattern": 10,
+      "repeats": 1,
+      "name": "Bank 3 - Pattern 10",
+      "color": "#E8E8E8"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+{
+  "format": "t8song",
+  "version": 1,
+  "title": "Test song",
+  "bpm": 112,
+  "loop": false,
+  "entries": [
+    {
+      "bank": 1,
+      "pattern": 1,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 1",
+      "color": "#FF7A1A",
+      "fill": {
+        "bank": 1,
+        "pattern": 16
+      }
+    },
+    {
+      "bank": 1,
+      "pattern": 3,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 3",
+      "color": "#5B8DEF"
+    },
+    {
+      "bank": 1,
+      "pattern": 5,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 5",
+      "color": "#4CD38A"
+    },
+    {
+      "bank": 1,
+      "pattern": 8,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 8",
+      "color": "#FF5C8A"
+    },
+    {
+      "bank": 1,
+      "pattern": 10,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 10",
+      "color": "#B57BFF"
+    },
+    {
+      "bank": 1,
+      "pattern": 11,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 11",
+      "color": "#FFD23F"
+    },
+    {
+      "bank": 1,
+      "pattern": 12,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 12",
+      "color": "#3EC8C8"
+    },
+    {
+      "bank": 1,
+      "pattern": 13,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 13",
+      "color": "#E8E8E8"
+    },
+    {
+      "bank": 1,
+      "pattern": 15,
+      "repeats": 1,
+      "name": "Bank 1 - Pattern 15",
+      "color": "#FF7A1A"
+    }
+  ]
+}
