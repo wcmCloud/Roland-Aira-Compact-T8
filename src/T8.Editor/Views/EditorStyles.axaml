@@ -43,6 +43,12 @@
     <StreamGeometry x:Key="IconTabRhythm">M2,11A10,3 0 1,0 22,11A10,3 0 1,0 2,11ZM2,12.6A10,3 0 0,0 22,12.6V18.5A10,3 0 0,1 2,18.5ZM4.6,1.2L5.8,0.2L11.4,6.6L10.2,7.6ZM19.4,1.2L18.2,0.2L12.6,6.6L13.8,7.6Z</StreamGeometry>
     <StreamGeometry x:Key="IconTabBass">M12,3V13.55C11.41,13.21 10.73,13 10,13A4,4 0 0,0 6,17A4,4 0 0,0 10,21A4,4 0 0,0 14,17V7H18V3H12Z</StreamGeometry>
     <StreamGeometry x:Key="IconTabSong">M15,6H3V8H15V6M15,10H3V12H15V10M3,16H11V14H3V16M17,6V14.18C16.69,14.07 16.35,14 16,14A3,3 0 0,0 13,17A3,3 0 0,0 16,20A3,3 0 0,0 19,17V8H22V6H17Z</StreamGeometry>
+    <!-- Generator icons -->
+    <StreamGeometry x:Key="IconGenerate">M7.5,5.6L5,7L6.4,4.5L5,2L7.5,3.4L10,2L8.6,4.5L10,7L7.5,5.6M19.5,15.4L22,14L20.6,16.5L22,19L19.5,17.6L17,19L18.4,16.5L17,14L19.5,15.4M22,2L20.6,4.5L22,7L19.5,5.6L17,7L18.4,4.5L17,2L19.5,3.4L22,2M13.34,12.78L15.78,10.34L13.66,8.22L11.22,10.66L13.34,12.78M14.37,7.29L16.71,9.63C17.1,10 17.1,10.65 16.71,11.04L5.04,22.71C4.65,23.1 4,23.1 3.63,22.71L1.29,20.37C0.9,20 0.9,19.35 1.29,18.96L12.96,7.29C13.35,6.9 14,6.9 14.37,7.29Z</StreamGeometry>
+    <StreamGeometry x:Key="IconUndo">M12.5,8C9.85,8 7.45,9 5.6,10.6L2,7V16H11L7.38,12.38C8.77,11.22 10.54,10.5 12.5,10.5C16.04,10.5 19.05,12.81 20.1,16L22.47,15.22C21.08,11.03 17.15,8 12.5,8Z</StreamGeometry>
+    <StreamGeometry x:Key="IconBuildUp">M16,6L18.29,8.29L13.41,13.17L9.41,9.17L2,16.59L3.41,18L9.41,12L13.41,16L19.71,9.71L22,12V6H16Z</StreamGeometry>
+    <StreamGeometry x:Key="IconMakeFill">M3,16H10V14H3M18,14V10H16V14H12V16H16V20H18V16H22V14M14,6H3V8H14M14,10H3V12H14V10Z</StreamGeometry>
+    <StreamGeometry x:Key="IconSeed">M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z</StreamGeometry>
     <SolidColorBrush x:Key="BarBg" Color="#0B0B0D" />
     <SolidColorBrush x:Key="CardBg" Color="#18181C" />
     <SolidColorBrush x:Key="CardBorder" Color="#29292F" />
@@ -471,6 +477,62 @@
   <Style Selector="TabItem PathIcon.tabIcon">
     <Setter Property="Width" Value="13" />
     <Setter Property="Height" Value="13" />
+  </Style>
+
+  <!-- Generator: labelled outlined boxes around combos (like OUT in the top bar), and instrument chips -->
+  <Style Selector="Border.fieldBox">
+    <Setter Property="Background" Value="#141418" />
+    <Setter Property="BorderBrush" Value="#2C2C33" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="3" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="TextBlock.fieldLabel">
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LetterSpacing" Value="1" />
+    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Margin" Value="7,0,4,0" />
+  </Style>
+  <Style Selector="ToggleButton.chip, Button.chip">
+    <Setter Property="Height" Value="28" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="10,0" />
+    <Setter Property="CornerRadius" Value="14" />
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Background" Value="#141418" />
+    <Setter Property="BorderBrush" Value="#2C2C33" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="ToggleButton.chip PathIcon, Button.chip PathIcon">
+    <Setter Property="Width" Value="13" />
+    <Setter Property="Height" Value="13" />
+  </Style>
+  <Style Selector="ToggleButton.chip:pointerover /template/ ContentPresenter, Button.chip:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#222229" />
+    <Setter Property="BorderBrush" Value="#3C3C45" />
+    <Setter Property="Foreground" Value="#E4E4E9" />
+  </Style>
+  <Style Selector="ToggleButton.chip:checked /template/ ContentPresenter, ToggleButton.chip:checked:pointerover /template/ ContentPresenter">
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#5AB2FF" />
+        <GradientStop Offset="1" Color="#2B7FD9" />
+      </LinearGradientBrush>
+    </Setter>
+    <Setter Property="BorderBrush" Value="#7CC3FF" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="ToggleButton.chip:pressed /template/ ContentPresenter, Button.chip:pressed /template/ ContentPresenter">
+    <Setter Property="Opacity" Value="0.85" />
+  </Style>
+  <Style Selector="Border.fieldBox ComboBox.port">
+    <Setter Property="BorderThickness" Value="0" />
   </Style>
 
   <!-- Rhythm grid cells -->

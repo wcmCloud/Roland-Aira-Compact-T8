@@ -248,7 +248,8 @@ The rhythm generator writes a new drum pattern into the current pattern, up to i
 - **Style:** Techno, House, Electro, Breakbeat, Hip-hop / boom bap, Trap, Drum & bass, Minimal / acid or Random.
   Every style has hits that always play, like the four-on-the-floor kick and the off-beat open hats in techno,
   and hits that only play some of the time.
-- **Instruments:** BD, SD, TOM, CLAP, CH and OH switch drums on and off for the generator.
+- **Instruments:** the BD, SD, TOM, CLAP, CH and OH chips (each with its drum icon) switch drums on and off for the
+  generator; the ones in use are lit blue.
 - **Build-up at end:** adds snare and tom hits in the last four steps.
 
 | Knob | What it does |

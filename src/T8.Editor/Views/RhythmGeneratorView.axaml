@@ -13,8 +13,13 @@
 
       <!-- Generate / randomize / undo, and the fill -->
       <StackPanel DockPanel.Dock="Right" Spacing="6" VerticalAlignment="Center" Margin="16,0,0,0">
-        <Button x:Name="GenerateRhythmButton" Classes="primary" Content="Generate" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
-                HorizontalContentAlignment="Center" ToolTip.Tip="Write a pattern with these settings and seed (same seed, same pattern)" />
+        <Button x:Name="GenerateRhythmButton" Classes="primary" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center" ToolTip.Tip="Write a pattern with these settings and seed (same seed, same pattern)">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <PathIcon Data="{StaticResource IconGenerate}" />
+            <TextBlock Text="Generate" />
+          </StackPanel>
+        </Button>
         <StackPanel Orientation="Horizontal" Spacing="6">
           <Button x:Name="RandomizeRhythmButton" Classes="seg" Command="{Binding RandomizeCommand}" ToolTip.Tip="New seed: a different pattern in the same style">
             <StackPanel Orientation="Horizontal" Spacing="6">
@@ -22,9 +27,15 @@
               <TextBlock Text="Randomize" />
             </StackPanel>
           </Button>
-          <Button x:Name="UndoRhythmButton" Classes="seg" Content="Undo" Command="{Binding UndoCommand}" />
+          <Button x:Name="UndoRhythmButton" Classes="seg" Command="{Binding UndoCommand}" ToolTip.Tip="Undo the last generate">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <PathIcon Data="{StaticResource IconUndo}" />
+              <TextBlock Text="Undo" />
+            </StackPanel>
+          </Button>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="6">
+          <PathIcon Data="{StaticResource IconSeed}" Width="12" Height="12" Foreground="{StaticResource MutedText}" />
           <TextBlock Text="Seed" Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" />
           <NumericUpDown Value="{Binding Seed}" Minimum="1" Maximum="99999" FormatString="0" Width="100" ShowButtonSpinner="False" />
         </StackPanel>
@@ -32,26 +43,71 @@
 
       <!-- Style, instruments, fill -->
       <StackPanel DockPanel.Dock="Left" Spacing="7" Margin="0,0,18,0">
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <TextBlock Classes="label" Text="Style" />
-          <ComboBox x:Name="StylePicker" ItemsSource="{x:Static vm:RhythmGeneratorViewModel.Styles}" SelectedItem="{Binding Style}" Width="190" />
-        </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="3">
-          <ToggleButton Classes="seg blue" Content="BD" IsChecked="{Binding BassDrum}" ToolTip.Tip="Bass drum" />
-          <ToggleButton Classes="seg blue" Content="SD" IsChecked="{Binding Snare}" ToolTip.Tip="Snare" />
-          <ToggleButton Classes="seg blue" Content="TOM" IsChecked="{Binding Tom}" />
-          <ToggleButton Classes="seg blue" Content="CLAP" IsChecked="{Binding Clap}" ToolTip.Tip="Hand clap" />
-          <ToggleButton Classes="seg blue" Content="CH" IsChecked="{Binding ClosedHat}" ToolTip.Tip="Closed hi-hat" />
-          <ToggleButton Classes="seg blue" Content="OH" IsChecked="{Binding OpenHat}" ToolTip.Tip="Open hi-hat" />
+        <Border Classes="fieldBox" HorizontalAlignment="Left">
+          <StackPanel Orientation="Horizontal" Spacing="4">
+            <TextBlock Classes="fieldLabel" Text="STYLE" />
+            <ComboBox x:Name="StylePicker" Classes="port" ItemsSource="{x:Static vm:RhythmGeneratorViewModel.Styles}" SelectedItem="{Binding Style}" Width="190" />
+          </StackPanel>
+        </Border>
+        <StackPanel Orientation="Horizontal" Spacing="4">
+          <ToggleButton x:Name="BassDrumChip" Classes="chip" IsChecked="{Binding BassDrum}" ToolTip.Tip="Bass drum">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <PathIcon Data="{StaticResource IconTrackBD}" />
+              <TextBlock Text="BD" />
+            </StackPanel>
+          </ToggleButton>
+          <ToggleButton x:Name="SnareChip" Classes="chip" IsChecked="{Binding Snare}" ToolTip.Tip="Snare">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <PathIcon Data="{StaticResource IconTrackSD}" />
+              <TextBlock Text="SD" />
+            </StackPanel>
+          </ToggleButton>
+          <ToggleButton x:Name="TomChip" Classes="chip" IsChecked="{Binding Tom}" ToolTip.Tip="Tom">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <PathIcon Data="{StaticResource IconTrackLT}" />
+              <TextBlock Text="TOM" />
+            </StackPanel>
+          </ToggleButton>
+          <ToggleButton x:Name="ClapChip" Classes="chip" IsChecked="{Binding Clap}" ToolTip.Tip="Hand clap">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <PathIcon Data="{StaticResource IconTrackHT}" />
+              <TextBlock Text="CLAP" />
+            </StackPanel>
+          </ToggleButton>
+          <ToggleButton x:Name="ClosedHatChip" Classes="chip" IsChecked="{Binding ClosedHat}" ToolTip.Tip="Closed hi-hat">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <PathIcon Data="{StaticResource IconTrackCH}" />
+              <TextBlock Text="CH" />
+            </StackPanel>
+          </ToggleButton>
+          <ToggleButton x:Name="OpenHatChip" Classes="chip" IsChecked="{Binding OpenHat}" ToolTip.Tip="Open hi-hat">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <PathIcon Data="{StaticResource IconTrackOH}" />
+              <TextBlock Text="OH" />
+            </StackPanel>
+          </ToggleButton>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="6">
-          <ToggleButton x:Name="FillCheck" Classes="seg blue" Content="BUILD-UP AT END" IsChecked="{Binding Fill}"
-                        ToolTip.Tip="Snare and tom hits in the last four steps" />
-          <TextBlock Classes="label" Text="Fill pattern" Margin="10,0,0,0" />
-          <ComboBox x:Name="FillPatternPicker" ItemsSource="{x:Static vm:RhythmGeneratorViewModel.PatternNumbers}" SelectedItem="{Binding FillPattern}" Width="66"
-                    ToolTip.Tip="Pattern in this bank that Make fill writes to and the Fill button plays" />
-          <Button x:Name="MakeFillButton" Classes="seg" Content="Make fill" Command="{Binding MakeFillCommand}"
-                  ToolTip.Tip="Write a fill for this pattern into the fill pattern: the groove, then a build-up. On the T-8, SHIFT + STEP 8 picks it as the fill" />
+            <ToggleButton x:Name="FillCheck" Classes="chip" IsChecked="{Binding Fill}" ToolTip.Tip="Snare and tom hits in the last four steps">
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <PathIcon Data="{StaticResource IconBuildUp}" />
+                <TextBlock Text="BUILD-UP AT END" />
+              </StackPanel>
+            </ToggleButton>
+          <Border Classes="fieldBox">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Classes="fieldLabel" Text="FILL" />
+              <ComboBox x:Name="FillPatternPicker" Classes="port" ItemsSource="{x:Static vm:RhythmGeneratorViewModel.PatternNumbers}" SelectedItem="{Binding FillPattern}" Width="66"
+                        ToolTip.Tip="Fill pattern: the pattern in this bank that Make fill writes to and the Fill button plays" />
+              <Button x:Name="MakeFillButton" Classes="tool" Command="{Binding MakeFillCommand}"
+                      ToolTip.Tip="Write a fill for this pattern into the fill pattern: the groove, then a build-up. On the T-8, SHIFT + STEP 8 picks it as the fill">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconMakeFill}" />
+                  <TextBlock Text="Make fill" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Border>
         </StackPanel>
       </StackPanel>
 

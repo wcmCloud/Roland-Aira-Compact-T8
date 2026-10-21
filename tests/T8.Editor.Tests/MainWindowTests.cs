@@ -183,6 +183,29 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Rhythm_generator_has_instrument_chips_with_icons_and_outlined_combos()
+    {
+        var (window, vm) = Show();
+        var generator = window.GetVisualDescendants().OfType<RhythmGeneratorView>().Single();
+
+        var chips = new[] { "BassDrumChip", "SnareChip", "TomChip", "ClapChip", "ClosedHatChip", "OpenHatChip", "FillCheck" }
+            .Select(name => generator.FindControl<ToggleButton>(name)!).ToList();
+        Assert.All(chips, chip => Assert.NotNull(chip.GetVisualDescendants().OfType<PathIcon>().Single().Data));
+        Assert.All(chips, chip => Assert.NotNull(ToolTip.GetTip(chip)));
+
+        var snare = generator.FindControl<ToggleButton>("SnareChip")!;
+        var wasOn = vm.RhythmGenerator.Snare;
+        snare.IsChecked = !wasOn;
+        Assert.Equal(!wasOn, vm.RhythmGenerator.Snare);
+
+        Assert.Contains("port", generator.FindControl<ComboBox>("StylePicker")!.Classes);
+        Assert.Contains("port", generator.FindControl<ComboBox>("FillPatternPicker")!.Classes);
+        Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateRhythmButton")!.Content);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Each_row_name_has_its_own_drum_icon()
     {
         var (window, vm) = Show();
