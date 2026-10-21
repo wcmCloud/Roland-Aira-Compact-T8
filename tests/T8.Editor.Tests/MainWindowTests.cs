@@ -524,6 +524,23 @@ public class AboutWindowTests
 public class MidiSettingsWindowTests
 {
     [AvaloniaFact]
+    public void Saved_drum_notes_and_channels_load_into_the_fields()
+    {
+        var settings = new T8.Editor.Services.EditorSettings();
+        settings.Midi.BassChannel = 6;
+        settings.Midi.RhythmNotes[T8.Core.Patterns.RhythmTrack.SD] = 40;
+        var vm = new MidiSettingsViewModel(FakePortProvider.WithT8(), settings);
+        var window = new MidiSettingsWindow { DataContext = vm };
+        window.Show();
+        window.UpdateLayout();
+
+        Assert.Equal(6, window.FindControl<ComboBox>("BassChannelPicker")!.SelectedItem);
+        Assert.Contains(window.GetVisualDescendants().OfType<NumericUpDown>(), n => n.Value == 40);
+        Assert.Equal(40, vm.ToSettings().Midi.RhythmNotes[T8.Core.Patterns.RhythmTrack.SD]);
+        window.Close();
+    }
+
+    [AvaloniaFact]
     public void Settings_window_shows_channels_and_saves()
     {
         var vm = new MidiSettingsViewModel(FakePortProvider.WithT8(), new T8.Editor.Services.EditorSettings());
@@ -555,15 +572,37 @@ public class MidiSettingsWindowTests
         Assert.Equal(0, vm.ToSettings().Midi.RhythmChannel);
         Assert.Contains("rhCh to OFF", vm.T8SetupHelp);
 
-        // Restyled: outlined combos and number fields, chips with icons, the Save pill.
-        foreach (var name in new[] { "BassChannelPicker", "RhythmChannelPicker", "ProgramChannelPicker" })
-            Assert.Contains("outlined", window.FindControl<ComboBox>(name)!.Classes);
-        Assert.Contains("port", window.FindControl<ComboBox>("SettingsPortPicker")!.Classes);
-        Assert.All(window.GetVisualDescendants().OfType<NumericUpDown>(), n => Assert.Contains("outlined", n.Classes));
-        foreach (var name in new[] { "TestConnectionButton", "DetectChannelsButton", "ResetDefaultsButton", "SaveSettingsButton" })
+        // Restyled: every combo and drum note field sits in an outlined box with its label (and drum icon).
+        window.UpdateLayout();
+        foreach (var name in new[] { "SettingsPortPicker", "BassChannelPicker", "RhythmChannelPicker", "ProgramChannelPicker" })
+        {
+            var combo = window.FindControl<ComboBox>(name)!;
+            Assert.Contains("port", combo.Classes);
+            Assert.Contains(combo.GetVisualAncestors().OfType<Border>(), b => b.Classes.Contains("fieldBox"));
+        }
+        var noteFields = window.GetVisualDescendants().OfType<NumericUpDown>().ToList();
+        Assert.Equal(6, noteFields.Count);
+        foreach (var field in noteFields)
+        {
+            Assert.Contains("port", field.Classes);
+            var box = field.GetVisualAncestors().OfType<Border>().First(b => b.Classes.Contains("fieldBox"));
+            Assert.NotNull(box.GetVisualDescendants().OfType<PathIcon>().Single().Data);
+            Assert.Contains(box.GetVisualDescendants().OfType<TextBlock>(), t => t.Classes.Contains("fieldLabel"));
+        }
+        foreach (var name in new[] { "SettingsRefreshButton", "TestConnectionButton", "DetectChannelsButton", "ResetDefaultsButton", "CancelButton", "SaveSettingsButton" })
             Assert.NotNull(window.FindControl<Button>(name)!.GetVisualDescendants().OfType<PathIcon>().Single().Data);
         Assert.Contains("pill", window.FindControl<Button>("SaveSettingsButton")!.Classes);
 
+        // The Play button options keep clear of the panel border.
+        Assert.True(window.FindControl<Border>("PlayCard")!.Padding.Left >= 12);
+        var radioRoot = window.FindControl<RadioButton>("PreviewModeRadio")!.GetVisualDescendants().OfType<Border>().First(b => b.Name == "RootBorder");
+        Assert.True(radioRoot.Padding.Left >= 12);
+
+        // Drum notes still edit and save, and Reset puts the T-8 defaults back.
+        noteFields[0].Value = 35;
+        Assert.Equal(35, vm.ToSettings().Midi.RhythmNotes[T8.Core.Patterns.RhythmTrack.BD]);
+        window.FindControl<Button>("ResetDefaultsButton")!.Command!.Execute(null);
+        Assert.Equal(36, vm.ToSettings().Midi.RhythmNotes[T8.Core.Patterns.RhythmTrack.BD]);
 
         var output = Environment.GetEnvironmentVariable("T8_SCREENSHOT_DIR");
         if (output is not null)

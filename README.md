@@ -152,7 +152,8 @@ The editor and the T-8 must use the same MIDI channels. Open the MIDI settings w
   or when the T-8 has that part's channel set to OFF.
 - **Test connection** plays kick, snare, closed hat, open hat and a bass note on those channels, and checks that the
   T-8 answers. If you hear nothing, the channels don't match.
-- **Drum note numbers** are the notes for each drum (the T-8's defaults are filled in).
+- **Drum note numbers** are the notes for each drum (the T-8's defaults are filled in); each box shows the
+  drum's icon and takes a number from 0 to 127. **Reset to T-8 defaults** puts back the T-8's channels and notes.
 - **Play button** chooses what Play does (see [Playing patterns](#playing-patterns)).
 - **Switch the T-8 to the pattern I pick in the editor** sends a pattern change whenever you pick a pattern.
   It needs `rXPc` (receive program change) turned on in the T-8's menu.

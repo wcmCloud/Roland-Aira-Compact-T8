@@ -250,6 +250,9 @@ public sealed partial class DrumNoteViewModel(RhythmTrack track, int note, Actio
         _ => Track.ToString(),
     };
 
+    /// <summary>The name in small caps, for the label inside the note box.</summary>
+    public string Label => Name.ToUpperInvariant();
+
     public int Note
     {
         get => _note;

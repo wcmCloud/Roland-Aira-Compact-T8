@@ -59,6 +59,9 @@
     <StreamGeometry x:Key="IconSkipPrevious">M6,18V6H8V18H6M9.5,12L18,6V18L9.5,12Z</StreamGeometry>
     <StreamGeometry x:Key="IconSkipNext">M16,18H18V6H16M6,18L14.5,12L6,6V18Z</StreamGeometry>
     <StreamGeometry x:Key="IconLoop">M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z</StreamGeometry>
+    <StreamGeometry x:Key="IconClose">M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z</StreamGeometry>
+    <StreamGeometry x:Key="IconCheck">M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z</StreamGeometry>
+    <StreamGeometry x:Key="IconReset">M13,3A9,9 0 0,0 4,12H1L4.89,15.89L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z</StreamGeometry>
     <SolidColorBrush x:Key="BarBg" Color="#0B0B0D" />
     <SolidColorBrush x:Key="CardBg" Color="#18181C" />
     <SolidColorBrush x:Key="CardBorder" Color="#29292F" />
@@ -390,7 +393,7 @@
     <Setter Property="CornerRadius" Value="5" />
   </Style>
   <Style Selector="RadioButton.option /template/ Border#RootBorder">
-    <Setter Property="Padding" Value="12,8" />
+    <Setter Property="Padding" Value="12,6" />
   </Style>
   <Style Selector="RadioButton.option /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="Margin" Value="4,0,0,0" />
@@ -402,6 +405,8 @@
   <Style Selector="ToggleSwitch.compact">
     <Setter Property="MinWidth" Value="0" />
     <Setter Property="Padding" Value="0" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Height" Value="26" />
   </Style>
   <Style Selector="ToggleSwitch.compact /template/ ContentPresenter#PART_ContentPresenter">
     <Setter Property="IsVisible" Value="False" />
@@ -410,7 +415,7 @@
     <Setter Property="Background" Value="#1D1D22" />
     <Setter Property="BorderBrush" Value="{StaticResource Outline}" />
     <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="CornerRadius" Value="4" />
+    <Setter Property="CornerRadius" Value="6" />
     <Setter Property="Padding" Value="10,6" />
     <Setter Property="Margin" Value="0,0,6,6" />
   </Style>
@@ -934,5 +939,29 @@
   <Style Selector="ToggleSwitch.compact:checked /template/ Border#SwitchKnobBounds, ToggleSwitch.compact:checked:pointerover /template/ Border#SwitchKnobBounds">
     <Setter Property="Background" Value="{StaticResource T8Orange}" />
     <Setter Property="BorderBrush" Value="{StaticResource T8Orange}" />
+  </Style>
+  <!-- MIDI settings: focus highlight in outlined boxes, option cards -->
+  <Style Selector="Border.fieldBox:pointerover">
+    <Setter Property="BorderBrush" Value="#3E3E47" />
+  </Style>
+  <Style Selector="Border.fieldBox:focus-within">
+    <Setter Property="BorderBrush" Value="#7A3A0C" />
+    <Setter Property="Background" Value="#18181D" />
+  </Style>
+  <Style Selector="RadioButton.option">
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="#141418" />
+    <Setter Property="BorderBrush" Value="#2C2C33" />
+  </Style>
+  <Style Selector="RadioButton.option:pointerover /template/ Border#RootBorder">
+    <Setter Property="BorderBrush" Value="#4A4A54" />
+  </Style>
+  <Style Selector="RadioButton.option:checked">
+    <Setter Property="Background" Value="#1FFF7A1A" />
+    <Setter Property="BorderBrush" Value="{StaticResource T8Orange}" />
+  </Style>
+  <Style Selector="RadioButton.option:checked /template/ Ellipse#CheckOuterEllipse">
+    <Setter Property="Fill" Value="{StaticResource T8Orange}" />
+    <Setter Property="Stroke" Value="{StaticResource T8Orange}" />
   </Style>
 </Styles>
