@@ -32,7 +32,7 @@ for rid in "${RIDS[@]}"; do
       mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
       cp -R "$dir/." "$app/Contents/MacOS/"
       sed "s/__VERSION__/$VERSION/g" scripts/Info.plist > "$app/Contents/Info.plist"
-      cp assets/icon/T8Editor.icns "$app/Contents/Resources/"
+      cp assets/icon/app-icon.icns "$app/Contents/Resources/"
       chmod +x "$app/Contents/MacOS/T8Editor"
       # Apple Silicon only runs signed code: sign every file, then the bundle, ad hoc (no Apple
       # Developer ID needed). ditto keeps the signatures of the .dll files, which live in extended attributes.
@@ -51,7 +51,14 @@ for rid in "${RIDS[@]}"; do
       ;;
     *)
       chmod +x "$dir/T8Editor"
-      cp assets/icon/T8Editor.png "$dir/"
+      # Icons in the freedesktop layout, and a .desktop file for app menus.
+      for size in 16 24 32 48 64 128 256 512; do
+        mkdir -p "$dir/icons/hicolor/${size}x${size}/apps"
+        cp "assets/icon/png/app-icon-$size.png" "$dir/icons/hicolor/${size}x${size}/apps/t8editor.png"
+      done
+      mkdir -p "$dir/icons/hicolor/scalable/apps"
+      cp assets/icon/app-icon.svg "$dir/icons/hicolor/scalable/apps/t8editor.svg"
+      cp scripts/T8Editor.desktop "$dir/"
       rm -rf "$OUT/$name" && cp -R "$dir" "$OUT/$name"
       tar -czf "$OUT/$name.tar.gz" -C "$OUT" "$name"
       rm -rf "$OUT/$name"

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Roland Aira Compact T-8 Editor
+Comment=Edit, generate and play the patterns of the AIRA Compact T-8
+Exec=T8Editor
+Icon=t8editor
+Categories=AudioVideo;Audio;Music;
+Terminal=false

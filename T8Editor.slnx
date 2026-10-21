@@ -5,6 +5,9 @@
     <Project Path="src/T8.Editor/T8.Editor.csproj" />
     <Project Path="src/T8.Midi/T8.Midi.csproj" />
   </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/IconRenderer/IconRenderer.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/T8.Cli.Tests/T8.Cli.Tests.csproj" />
     <Project Path="tests/T8.Core.Tests/T8.Core.Tests.csproj" />

@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/icon/T8Editor-256.png" width="128" alt="App icon">
+<img src="assets/icon/app-icon.svg" width="128" alt="App icon">
 
 # Roland Aira Compact T-8 Editor
 
@@ -114,6 +114,8 @@ The downloads are self-contained, so there is nothing else to install:
   `xattr -dr com.apple.quarantine "/Applications/Roland Aira Compact T-8 Editor.app"` once.
 - **Windows:** unzip and run `T8Editor.exe`. If SmartScreen warns, choose **More info → Run anyway**.
 - **Linux:** unpack and run `./T8Editor`. Your user needs access to the MIDI devices (usually the `audio` group).
+  For an app-menu entry with the icon: `cp -r icons ~/.local/share/`, and copy `T8Editor.desktop` to
+  `~/.local/share/applications/` with `Exec=` set to the full path of `T8Editor`.
 
 > [!NOTE]
 > The apps aren't signed by Apple or Microsoft, so your system asks once before opening them — that's expected.
@@ -496,6 +498,12 @@ Packages are self-contained, so no .NET install is needed to run them. On macOS 
 (Apple Silicon only runs signed code); it isn't notarized. On Windows you can also run `scripts/publish.ps1`
 for the two Windows packages. GitHub Actions (`.github/workflows/ci.yml`) runs the tests on all three OSes and
 builds the packages on every push.
+
+### App icon
+
+The icon is an SVG, `assets/icon/app-icon.svg`. After changing it, run `scripts/render-icon.sh` and commit the
+results: `app-icon.ico` (Windows, 16–256 px), `app-icon.icns` (macOS, 16–1024 px) and `png/app-icon-<size>.png`
+(Linux and the window icon). The publish scripts put them into the exe, the .app bundle and the Linux package.
 
 ### Making a release
 

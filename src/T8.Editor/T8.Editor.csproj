@@ -13,7 +13,7 @@
     <Copyright>© 2026 Christos Christodoulidis</Copyright>
     <RootNamespace>T8.Editor</RootNamespace>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
-    <ApplicationIcon>..\..\assets\icon\T8Editor.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\assets\icon\app-icon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -30,8 +30,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- The app icon, drawn by scripts/make-icon.py -->
-    <AvaloniaResource Include="..\..\assets\icon\T8Editor-256.png" Link="Assets\AppIcon.png" />
+    <!-- The app icon (assets/icon/app-icon.svg, rendered by scripts/render-icon.sh) -->
+    <AvaloniaResource Include="..\..\assets\icon\png\app-icon-256.png" Link="Assets\AppIcon.png" />
   </ItemGroup>
 
   <ItemGroup>

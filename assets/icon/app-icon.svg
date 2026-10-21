@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- App icon for Roland Aira Compact T-8 Editor: an original drawing of a generic beat machine
+       (four knobs, eight step buttons). No logos or wordmarks. Render with scripts/render-icon.sh. -->
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6C6C72"/>
+      <stop offset="1" stop-color="#36363B"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A4A4AC" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#A4A4AC" stop-opacity="0.05"/>
+    </linearGradient>
+    <radialGradient id="cap" cx="0.38" cy="0.32" r="0.75">
+      <stop offset="0" stop-color="#6A6A72"/>
+      <stop offset="0.6" stop-color="#2E2E33"/>
+      <stop offset="1" stop-color="#1B1B1F"/>
+    </radialGradient>
+    <linearGradient id="key" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4F4F7"/>
+      <stop offset="1" stop-color="#C4C4CC"/>
+    </linearGradient>
+    <linearGradient id="keyLit" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFA552"/>
+      <stop offset="1" stop-color="#FF7A1A"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+  </defs>
+
+  <!-- Body -->
+  <rect x="100" y="118" width="824" height="824" rx="185" fill="#000" opacity="0.45" filter="url(#shadow)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#body)" stroke="#1C1C20" stroke-width="6"/>
+  <rect x="114" y="114" width="796" height="796" rx="172" fill="none" stroke="url(#rim)" stroke-width="4"/>
+
+  <!-- Four knobs: red, orange, yellow, white rings -->
+  <g>
+    <circle cx="245" cy="360" r="74" fill="#FF4040" opacity="0.35" filter="url(#glow)"/>
+    <circle cx="245" cy="368" r="72" fill="#000" opacity="0.35"/>
+    <circle cx="245" cy="360" r="72" fill="#E42424"/>
+    <circle cx="245" cy="360" r="53" fill="url(#cap)" stroke="#121215" stroke-width="3"/>
+    <line x1="233" y1="322" x2="240" y2="344" stroke="#ECECF0" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <g>
+    <circle cx="423" cy="360" r="74" fill="#FFA030" opacity="0.35" filter="url(#glow)"/>
+    <circle cx="423" cy="368" r="72" fill="#000" opacity="0.35"/>
+    <circle cx="423" cy="360" r="72" fill="#F08A14"/>
+    <circle cx="423" cy="360" r="53" fill="url(#cap)" stroke="#121215" stroke-width="3"/>
+    <line x1="411" y1="322" x2="418" y2="344" stroke="#ECECF0" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <g>
+    <circle cx="601" cy="360" r="74" fill="#FFE040" opacity="0.35" filter="url(#glow)"/>
+    <circle cx="601" cy="368" r="72" fill="#000" opacity="0.35"/>
+    <circle cx="601" cy="360" r="72" fill="#F0D41E"/>
+    <circle cx="601" cy="360" r="53" fill="url(#cap)" stroke="#121215" stroke-width="3"/>
+    <line x1="589" y1="322" x2="596" y2="344" stroke="#ECECF0" stroke-width="8" stroke-linecap="round"/>
+  </g>
+  <g>
+    <circle cx="779" cy="360" r="74" fill="#FFFFFF" opacity="0.35" filter="url(#glow)"/>
+    <circle cx="779" cy="368" r="72" fill="#000" opacity="0.35"/>
+    <circle cx="779" cy="360" r="72" fill="#EDEDF0"/>
+    <circle cx="779" cy="360" r="53" fill="url(#cap)" stroke="#121215" stroke-width="3"/>
+    <line x1="767" y1="322" x2="774" y2="344" stroke="#ECECF0" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <!-- Divider -->
+  <rect x="168" y="508" width="688" height="8" rx="4" fill="#202024" opacity="0.7"/>
+  <rect x="168" y="516" width="688" height="3" rx="1.5" fill="#8A8A92" opacity="0.5"/>
+
+  <!-- Eight step buttons, three lit in the editor's orange (#FF7A1A) -->
+  <rect x="168" y="600" width="72" height="150" rx="12" fill="#000" opacity="0.4"/>
+  <rect x="168" y="592" width="72" height="150" rx="12" fill="url(#key)" stroke="#1E1E22" stroke-width="4"/>
+  <rect x="252" y="588" width="80" height="158" rx="16" fill="#FF7A1A" opacity="0.55" filter="url(#glow)"/>
+  <rect x="256" y="600" width="72" height="150" rx="12" fill="#000" opacity="0.4"/>
+  <rect x="256" y="592" width="72" height="150" rx="12" fill="url(#keyLit)" stroke="#1E1E22" stroke-width="4"/>
+  <rect x="344" y="600" width="72" height="150" rx="12" fill="#000" opacity="0.4"/>
+  <rect x="344" y="592" width="72" height="150" rx="12" fill="url(#key)" stroke="#1E1E22" stroke-width="4"/>
+  <rect x="432" y="600" width="72" height="150" rx="12" fill="#000" opacity="0.4"/>
+  <rect x="432" y="592" width="72" height="150" rx="12" fill="url(#key)" stroke="#1E1E22" stroke-width="4"/>
+  <rect x="516" y="588" width="80" height="158" rx="16" fill="#FF7A1A" opacity="0.55" filter="url(#glow)"/>
+  <rect x="520" y="600" width="72" height="150" rx="12" fill="#000" opacity="0.4"/>
+  <rect x="520" y="592" width="72" height="150" rx="12" fill="url(#keyLit)" stroke="#1E1E22" stroke-width="4"/>
+  <rect x="608" y="600" width="72" height="150" rx="12" fill="#000" opacity="0.4"/>
+  <rect x="608" y="592" width="72" height="150" rx="12" fill="url(#key)" stroke="#1E1E22" stroke-width="4"/>
+  <rect x="692" y="588" width="80" height="158" rx="16" fill="#FF7A1A" opacity="0.55" filter="url(#glow)"/>
+  <rect x="696" y="600" width="72" height="150" rx="12" fill="#000" opacity="0.4"/>
+  <rect x="696" y="592" width="72" height="150" rx="12" fill="url(#keyLit)" stroke="#1E1E22" stroke-width="4"/>
+  <rect x="784" y="600" width="72" height="150" rx="12" fill="#000" opacity="0.4"/>
+  <rect x="784" y="592" width="72" height="150" rx="12" fill="url(#key)" stroke="#1E1E22" stroke-width="4"/>
+
+  <!-- Step LEDs under the buttons -->
+  <circle cx="204" cy="800" r="9" fill="#2A2A2F"/>
+  <circle cx="292" cy="800" r="9" fill="#FF7A1A"/>
+  <circle cx="380" cy="800" r="9" fill="#2A2A2F"/>
+  <circle cx="468" cy="800" r="9" fill="#2A2A2F"/>
+  <circle cx="556" cy="800" r="9" fill="#FF7A1A"/>
+  <circle cx="644" cy="800" r="9" fill="#2A2A2F"/>
+  <circle cx="732" cy="800" r="9" fill="#FF7A1A"/>
+  <circle cx="820" cy="800" r="9" fill="#2A2A2F"/>
+</svg>

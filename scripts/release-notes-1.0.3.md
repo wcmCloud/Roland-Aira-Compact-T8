@@ -7,7 +7,7 @@
 - A **?** button explains how to put the T-8 in drive mode and how to load written patterns (eject, then ACCENT).
 
 **Look**
-- A new **app icon** (a T-8-style beat machine) for macOS, Windows and Linux, also in the About window.
+- A new **app icon** (knobs and step buttons) for macOS, Windows and Linux, also in the About window.
 - A new top bar: buttons grouped in rounded boxes, **icons on every button**, an orange accent line and badge.
 - A shorter MIDI Out box with a smaller font.
 
