@@ -27,7 +27,7 @@
     <td align="center"><b>Bass</b> — piano-keyboard step entry and a key, scale and chord aware line generator</td>
   </tr>
   <tr>
-    <td colspan="2"><img src="docs/screenshots/main-song.png" alt="Song tab: an arrangement of patterns with repeats and fills, and the song timeline"></td>
+    <td colspan="2"><img src="docs/screenshots/song-blues.png" alt="Song tab: the song Blues, seven parts with repeats and fills, and the song timeline"></td>
   </tr>
   <tr>
     <td colspan="2" align="center"><b>Song</b> — chain patterns from the banks with repeats and fill bridges, and play the whole song</td>
@@ -321,7 +321,7 @@ steps. **Generate**, **Randomize**, **Undo** and **Seed** work as for rhythms.
 
 ## Songs
 
-![The Song tab](docs/screenshots/main-song.png)
+![The Song tab](docs/screenshots/song-blues.png)
 
 The **Song** tab chains patterns from the banks into a song.
 

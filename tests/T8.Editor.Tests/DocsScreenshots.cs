@@ -108,35 +108,40 @@ public class DocsScreenshots
         CropRect(window, area, "bass-step-menu.png");
         menu.Close();
 
-        // Song tab: intro with a fill into the main part, then the outro; the main part playing.
+        // Song tab: "Blues", seven parts with repeats and fills, the second verse playing.
         window.FindControl<TabControl>("Tabs")!.SelectedIndex = 2;
         var song = vm.Song;
-        song.Title = "Hardcore";
-        var intro = song.AddEntry(1, 1);
-        intro.Name = "Intro";
-        intro.HasFill = true;
-        var main = song.AddEntry(1, 3);
-        main.Name = "Main";
-        main.Repeats = 4;
-        var breakdown = song.AddEntry(1, 5);
-        breakdown.Name = "Breakdown";
-        breakdown.Repeats = 2;
-        breakdown.HasFill = true;
-        var outro = song.AddEntry(1, 7);
-        outro.Name = "Outro";
-        main.IsCurrent = true;
-        song.Timeline[0].Progress = 1;
-        song.Timeline[1].Progress = 1;
-        song.Timeline[2].Progress = 0.4;
-        song.CurrentText = "1-3 Main  (2/4)";
-        song.NextText = "1-3 Main";
-        song.PositionText = "Step 20 / 32 · 120 BPM";
-        song.TimeText = "00:52";
-        song.EntryProgress = 0.4;
-        song.SongProgress = 0.35;
-        vm.Status = "Playing \"Hardcore\" through the T-8's sounds.";
+        song.Title = "Blues";
+        var parts = new (int Pattern, string Name, int Repeats, bool Fill)[]
+        {
+            (1, "Intro", 1, true),
+            (2, "Verse 1", 4, false),
+            (3, "Turnaround", 1, false),
+            (2, "Verse 2", 4, true),
+            (5, "Bridge", 2, false),
+            (6, "Solo", 4, true),
+            (7, "Outro", 1, false),
+        };
+        foreach (var (pattern, name, repeats, fill) in parts)
+        {
+            var entry = song.AddEntry(1, pattern);
+            entry.Name = name;
+            entry.Repeats = repeats;
+            entry.HasFill = fill;
+        }
+        song.LoopChoice = song.LoopChoices.Single(c => c.Value == SongViewModel.LoopSong);
+        song.Entries[3].IsCurrent = true; // Verse 2, third time round
+        foreach (var block in song.Timeline)
+            block.Progress = block.Entry < 3 ? 1 : block.Entry == 3 && !block.IsFill ? 0.62 : 0;
+        song.CurrentText = "1-2 Verse 2  (3/4)";
+        song.NextText = "1-2 Verse 2";
+        song.PositionText = "Step 9 / 16 · 120 BPM";
+        song.TimeText = "01:18";
+        song.EntryProgress = 0.55;
+        song.SongProgress = 0.36;
+        vm.Status = "Playing \"Blues\" through the T-8's sounds.";
         Settle(window);
-        Save(window, "main-song.png");
+        Save(window, "song-blues.png");
         window.FindControl<TabControl>("Tabs")!.SelectedIndex = 0;
 
         // MIDI settings after detecting the T-8's channels.
