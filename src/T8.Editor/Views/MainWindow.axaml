@@ -10,49 +10,138 @@
         Background="{StaticResource WindowBg}">
   <DockPanel>
     <!-- Top bar: files, T-8 drive, pattern clipboard, MIDI connection -->
+    <Border DockPanel.Dock="Top" Classes="topbarAccent" />
     <Border DockPanel.Dock="Top" Classes="topbar">
       <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
-          <TextBlock Text="Out" Foreground="{StaticResource MutedText}" VerticalAlignment="Center" FontSize="12" />
-          <ComboBox x:Name="PortPicker" MinWidth="180" ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}"
-                    PlaceholderText="No MIDI outputs" FontSize="12.5">
-            <ComboBox.ItemTemplate>
-              <DataTemplate x:DataType="ports:MidiPortInfo">
-                <TextBlock Text="{Binding Name}" />
-              </DataTemplate>
-            </ComboBox.ItemTemplate>
-          </ComboBox>
-          <Button x:Name="RefreshButton" Classes="tool icon" Command="{Binding RefreshPortsCommand}" ToolTip.Tip="Refresh MIDI ports">
-            <PathIcon Data="{StaticResource IconRefresh}" />
-          </Button>
-          <Button x:Name="TestConnectionButton" Classes="tool" Content="Test" Command="{Binding TestConnectionCommand}"
-                  ToolTip.Tip="Play test sounds on the T-8 and check that it answers" />
-          <Button x:Name="MidiSettingsButton" Classes="tool icon" Command="{Binding OpenMidiSettingsCommand}"
-                  ToolTip.Tip="MIDI settings: channels, drum notes, what Play does">
-            <PathIcon Data="{StaticResource IconCog}" />
-          </Button>
-          <Button x:Name="AboutButton" Classes="tool icon" Command="{Binding ShowAboutCommand}" ToolTip.Tip="About this editor">
-            <PathIcon Data="{StaticResource IconInfo}" />
-          </Button>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+          <Border Classes="toolgroup">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Text="OUT" Foreground="{StaticResource MutedText}" VerticalAlignment="Center" FontSize="10"
+                         FontWeight="SemiBold" LetterSpacing="1" Margin="7,0,2,0" />
+              <ComboBox x:Name="PortPicker" Classes="port" MinWidth="170" ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}"
+                        PlaceholderText="No MIDI outputs">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="ports:MidiPortInfo">
+                    <TextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Button x:Name="RefreshButton" Classes="tool icon" Command="{Binding RefreshPortsCommand}" ToolTip.Tip="Refresh MIDI ports">
+                <PathIcon Data="{StaticResource IconRefresh}" />
+              </Button>
+              <Button x:Name="TestConnectionButton" Classes="tool" Command="{Binding TestConnectionCommand}" ToolTip.Tip="Play test sounds on the T-8 and check that it answers">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconPulse}" />
+                  <TextBlock Text="Test" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Border>
+          <Border Classes="toolgroup">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <Button x:Name="MidiSettingsButton" Classes="tool icon" Command="{Binding OpenMidiSettingsCommand}"
+                      ToolTip.Tip="MIDI settings: channels, drum notes, what Play does">
+                <PathIcon Data="{StaticResource IconCog}" />
+              </Button>
+              <Button x:Name="AboutButton" Classes="tool icon" Command="{Binding ShowAboutCommand}" ToolTip.Tip="About this editor">
+                <PathIcon Data="{StaticResource IconInfo}" />
+              </Button>
+            </StackPanel>
+          </Border>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="6">
-          <StackPanel Orientation="Horizontal" Spacing="5" Margin="0,0,10,0">
-            <TextBlock Classes="logo" Text="T-8" />
-            <TextBlock Classes="logoSub" Text="EDITOR" />
-          </StackPanel>
-          <Button x:Name="NewButton" Classes="tool" Content="New" Command="{Binding NewLibraryCommand}" ToolTip.Tip="64 blank patterns" />
-          <Button x:Name="OpenButton" Classes="tool" Content="Open…" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open a BACKUP folder or the T-8 drive" />
-          <Button x:Name="SaveButton" Classes="tool" Content="Save" Command="{Binding SaveCommand}" HotKey="Ctrl+S" />
-          <Button x:Name="SaveAsButton" Classes="tool" Content="Save as…" Command="{Binding SaveAsCommand}" />
-          <Rectangle Classes="divider" />
-          <Button x:Name="LoadFromT8Button" Classes="tool" Content="Load from T-8" Command="{Binding LoadFromT8Command}"
-                  ToolTip.Tip="Read the patterns from the T-8 drive (switch the T-8 on while holding PLAY)" />
-          <Button x:Name="WriteToT8Button" Classes="tool" Content="Write to T-8" Command="{Binding WriteToT8Command}"
-                  ToolTip.Tip="Write all 64 patterns to the T-8 drive's RESTORE folder" />
-          <Rectangle Classes="divider" />
-          <Button x:Name="CopyButton" Classes="tool" Content="Copy" Command="{Binding CopyPatternCommand}" ToolTip.Tip="Copy this pattern (bass and rhythm)" />
-          <Button x:Name="PasteButton" Classes="tool" Content="Paste" Command="{Binding PastePatternCommand}" ToolTip.Tip="Paste into this pattern" />
-          <Button x:Name="ClearButton" Classes="tool" Content="Clear" Command="{Binding ClearPatternCommand}" ToolTip.Tip="Clear this pattern" />
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Border Classes="logoBadge" Margin="0,0,4,0">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <TextBlock Classes="logo" Text="T-8" />
+              <TextBlock Classes="logoSub" Text="EDITOR" />
+            </StackPanel>
+          </Border>
+          <Border Classes="toolgroup">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <Button x:Name="NewButton" Classes="tool" Command="{Binding NewLibraryCommand}" ToolTip.Tip="64 blank patterns">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconNew}" />
+                  <TextBlock Text="New" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="OpenButton" Classes="tool" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open a BACKUP folder or the T-8 drive">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconOpen}" />
+                  <TextBlock Text="Open…" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="SaveButton" Classes="tool" Command="{Binding SaveCommand}" HotKey="Ctrl+S" ToolTip.Tip="Save the patterns (Ctrl/Cmd+S)">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconSave}" />
+                  <TextBlock Text="Save" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="SaveAsButton" Classes="tool" Command="{Binding SaveAsCommand}" ToolTip.Tip="Save the patterns to another folder">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconSaveAs}" />
+                  <TextBlock Text="Save as…" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Border>
+          <Border Classes="toolgroup">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <Ellipse x:Name="T8DriveDot" Classes="driveDot" Classes.on="{Binding IsT8DriveConnected}" ToolTip.Tip="{Binding T8DriveStatus}" />
+              <Button x:Name="LoadFromT8Button" Classes="tool t8" Command="{Binding LoadFromT8Command}" ToolTip.Tip="Read the patterns from the T-8 drive (the T-8 in drive mode: switch it on while holding PLAY)">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconLoadFrom}" />
+                  <TextBlock Text="Load from T-8" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="WriteToT8Button" Classes="tool t8" Command="{Binding WriteToT8Command}" ToolTip.Tip="Write all 64 patterns to the T-8 drive's RESTORE folder">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconWriteTo}" />
+                  <TextBlock Text="Write to T-8" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="CheckT8DriveButton" Classes="tool" Command="{Binding CheckT8DriveCommand}" ToolTip.Tip="Look for the T-8 drive again">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconSearch}" />
+                  <TextBlock Text="Check" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="T8DriveHelpButton" Classes="tool icon" ToolTip.Tip="How to connect the T-8 as a drive">
+                <PathIcon Data="{StaticResource IconHelp}" />
+                <Button.Flyout>
+                  <Flyout Placement="BottomEdgeAlignedLeft">
+                    <StackPanel Width="380" Spacing="8">
+                      <TextBlock Text="T-8 drive mode" FontWeight="Bold" FontSize="13" />
+                      <TextBlock Text="{Binding T8DriveStatus}" FontSize="12" TextWrapping="Wrap"
+                                 Foreground="{StaticResource SectionGreen}" IsVisible="{Binding IsT8DriveConnected}" />
+                      <TextBlock Text="{Binding T8DriveHelpText}" FontSize="12" TextWrapping="Wrap" LineHeight="18" />
+                    </StackPanel>
+                  </Flyout>
+                </Button.Flyout>
+              </Button>
+            </StackPanel>
+          </Border>
+          <Border Classes="toolgroup">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <Button x:Name="CopyButton" Classes="tool" Command="{Binding CopyPatternCommand}" ToolTip.Tip="Copy this pattern (bass and rhythm)">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconCopy}" />
+                  <TextBlock Text="Copy" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="PasteButton" Classes="tool" Command="{Binding PastePatternCommand}" ToolTip.Tip="Paste into this pattern">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconPaste}" />
+                  <TextBlock Text="Paste" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="ClearButton" Classes="tool" Command="{Binding ClearPatternCommand}" ToolTip.Tip="Clear this pattern">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconEraser}" />
+                  <TextBlock Text="Clear" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Border>
         </StackPanel>
       </DockPanel>
     </Border>

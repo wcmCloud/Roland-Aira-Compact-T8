@@ -14,9 +14,9 @@ namespace T8.Editor.Tests;
 
 public class MainWindowTests
 {
-    private static (MainWindow Window, MainWindowViewModel Vm) Show()
+    private static (MainWindow Window, MainWindowViewModel Vm) Show(params string[] driveCandidates)
     {
-        var vm = new MainWindowViewModel(FakePortProvider.WithT8(), new FakeDialogService());
+        var vm = new MainWindowViewModel(FakePortProvider.WithT8(), new FakeDialogService(), driveCandidates: () => driveCandidates);
         vm.OpenFolder(TestPaths.Backup);
         var window = new MainWindow { DataContext = vm };
         window.Show();
@@ -323,5 +323,31 @@ public class MidiSettingsWindowTests
         if (output is not null)
             window.CaptureRenderedFrame()!.Save(Path.Combine(output, "midi-settings.png"));
         window.Close();
+    }
+
+    [AvaloniaFact]
+    public void Load_and_write_buttons_follow_the_t8_drive_and_check_finds_it()
+    {
+        var drives = new List<string>();
+        var vm = new MainWindowViewModel(FakePortProvider.WithT8(), new FakeDialogService(), driveCandidates: () => drives);
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+
+        var load = window.FindControl<Button>("LoadFromT8Button")!;
+        var write = window.FindControl<Button>("WriteToT8Button")!;
+        Assert.False(load.IsEffectivelyEnabled);
+        Assert.False(write.IsEffectivelyEnabled);
+        Assert.NotNull(window.FindControl<Button>("T8DriveHelpButton")!.Flyout);
+
+        // The test data folder holds a BACKUP folder like the T-8 drive.
+        drives.Add(Path.GetDirectoryName(TestPaths.Backup)!);
+        window.FindControl<Button>("CheckT8DriveButton")!.Command!.Execute(null);
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+
+        Assert.True(load.IsEffectivelyEnabled);
+        Assert.True(write.IsEffectivelyEnabled);
+        Assert.Contains("on", window.FindControl<Avalonia.Controls.Shapes.Ellipse>("T8DriveDot")!.Classes);
+        window.Close();
+        vm.Dispose();
     }
 }

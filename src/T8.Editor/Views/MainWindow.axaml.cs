@@ -15,5 +15,7 @@ public partial class MainWindow : Window
         _playheadTimer.Tick += (_, _) => (DataContext as MainWindowViewModel)?.UpdatePlayhead();
         Opened += (_, _) => _playheadTimer.Start();
         Closed += (_, _) => _playheadTimer.Stop();
+        // Coming back to the editor, e.g. after switching the T-8 into drive mode: look for its drive again.
+        Activated += (_, _) => (DataContext as MainWindowViewModel)?.RefreshT8Drive();
     }
 }

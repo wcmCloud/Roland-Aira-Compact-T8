@@ -34,7 +34,9 @@ public class DocsScreenshots
         settings.Midi.RhythmChannel = 5;
         settings.Midi.ProgramChangeChannel = 7;
         var ports = new FakePortProvider(new T8.Midi.Ports.MidiPortInfo("T-8 MIDI IN", "T-8 MIDI IN"));
-        var vm = new MainWindowViewModel(ports, new FakeDialogService(), new MemorySettingsStore(settings));
+        // The test data folder holds a BACKUP folder like the T-8 drive, so the drive shows as connected.
+        var vm = new MainWindowViewModel(ports, new FakeDialogService(), new MemorySettingsStore(settings),
+            () => [Path.GetDirectoryName(TestPaths.Backup)!]);
         vm.OpenFolder(TestPaths.Backup);
         vm.Status = "Loaded 64 patterns from BACKUP.";
         var window = new MainWindow { DataContext = vm, Width = 1470, Height = 890 };

@@ -21,6 +21,15 @@
     <StreamGeometry x:Key="IconLeft">M15.41,16.58L10.83,12L15.41,7.41L14,6L8,12L14,18L15.41,16.58Z</StreamGeometry>
     <StreamGeometry x:Key="IconRight">M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z</StreamGeometry>
     <StreamGeometry x:Key="IconDice">M5,3H19A2,2 0 0,1 21,5V19A2,2 0 0,1 19,21H5A2,2 0 0,1 3,19V5A2,2 0 0,1 5,3M7,5A2,2 0 0,0 5,7A2,2 0 0,0 7,9A2,2 0 0,0 9,7A2,2 0 0,0 7,5M17,15A2,2 0 0,0 15,17A2,2 0 0,0 17,19A2,2 0 0,0 19,17A2,2 0 0,0 17,15M17,5A2,2 0 0,0 15,7A2,2 0 0,0 17,9A2,2 0 0,0 19,7A2,2 0 0,0 17,5M12,10A2,2 0 0,0 10,12A2,2 0 0,0 12,14A2,2 0 0,0 14,12A2,2 0 0,0 12,10M7,15A2,2 0 0,0 5,17A2,2 0 0,0 7,19A2,2 0 0,0 9,17A2,2 0 0,0 7,15Z</StreamGeometry>
+    <StreamGeometry x:Key="IconNew">M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M10,11H12V14H15V16H12V19H10V16H7V14H10Z</StreamGeometry>
+    <StreamGeometry x:Key="IconOpen">M19,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4H10L12,6H19A2,2 0 0,1 21,8H21L4,8V18L6.14,10H23.21L20.93,18.5C20.7,19.37 19.92,20 19,20Z</StreamGeometry>
+    <StreamGeometry x:Key="IconSave">M15,9H5V5H15M12,19A3,3 0 0,1 9,16A3,3 0 0,1 12,13A3,3 0 0,1 15,16A3,3 0 0,1 12,19M17,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V7L17,3Z</StreamGeometry>
+    <StreamGeometry x:Key="IconSaveAs">M17,7V3H7V7H17M14,17A3,3 0 0,0 17,14A3,3 0 0,0 14,11A3,3 0 0,0 11,14A3,3 0 0,0 14,17M19,1L23,5V17A2,2 0 0,1 21,19H7C5.89,19 5,18.1 5,17V3A2,2 0 0,1 7,1H19M1,7H3V21H17V23H3A2,2 0 0,1 1,21V7Z</StreamGeometry>
+    <StreamGeometry x:Key="IconLoadFrom">M2,12H4V17H20V12H22V17C22,18.11 21.11,19 20,19H4C2.9,19 2,18.11 2,17V12M12,15L17.55,9.54L16.13,8.13L13,11.25V2H11V11.25L7.88,8.13L6.46,9.55L12,15Z</StreamGeometry>
+    <StreamGeometry x:Key="IconWriteTo">M2,12H4V17H20V12H22V17C22,18.11 21.11,19 20,19H4C2.9,19 2,18.11 2,17V12M12,2L6.46,7.46L7.88,8.88L11,5.75V15H13V5.75L16.13,8.88L17.55,7.45L12,2Z</StreamGeometry>
+    <StreamGeometry x:Key="IconSearch">M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z</StreamGeometry>
+    <StreamGeometry x:Key="IconHelp">M11,18H13V16H11V18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,6A4,4 0 0,0 8,10H10A2,2 0 0,1 12,8A2,2 0 0,1 14,10C14,12 11,11.75 11,15H13C13,12.75 16,12.5 16,10A4,4 0 0,0 12,6Z</StreamGeometry>
+    <StreamGeometry x:Key="IconPulse">M3,13H5.79L10.1,4.79L11.28,13.75L14.5,9.66L17.83,13H21V15H17L14.67,12.67L9.92,18.73L8.94,11.31L7,15H3V13Z</StreamGeometry>
     <SolidColorBrush x:Key="BarBg" Color="#0B0B0D" />
     <SolidColorBrush x:Key="CardBg" Color="#18181C" />
     <SolidColorBrush x:Key="CardBorder" Color="#29292F" />
@@ -35,10 +44,83 @@
 
   <!-- Window chrome: top bar, cards with a coloured dot and title -->
   <Style Selector="Border.topbar">
-    <Setter Property="Background" Value="{StaticResource BarBg}" />
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#1B1B21" />
+        <GradientStop Offset="1" Color="#0D0D10" />
+      </LinearGradientBrush>
+    </Setter>
     <Setter Property="BorderBrush" Value="{StaticResource CardBorder}" />
     <Setter Property="BorderThickness" Value="0,0,0,1" />
     <Setter Property="Padding" Value="12,7" />
+  </Style>
+  <!-- A thin orange line under the top bar -->
+  <Style Selector="Border.topbarAccent">
+    <Setter Property="Height" Value="2" />
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+        <GradientStop Offset="0" Color="#FF7A1A" />
+        <GradientStop Offset="0.45" Color="#55FF7A1A" />
+        <GradientStop Offset="1" Color="#00FF7A1A" />
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <!-- Groups of top bar buttons in one rounded box -->
+  <Style Selector="Border.toolgroup">
+    <Setter Property="Background" Value="#141418" />
+    <Setter Property="BorderBrush" Value="#2C2C33" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="3" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Border.toolgroup Button.tool">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="CornerRadius" Value="5" />
+  </Style>
+  <Style Selector="Button.tool:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#2A2A32" />
+  </Style>
+  <Style Selector="Button.tool:disabled /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Opacity" Value="0.38" />
+  </Style>
+  <Style Selector="Button.tool PathIcon">
+    <Setter Property="Width" Value="13" />
+    <Setter Property="Height" Value="13" />
+    <Setter Property="Foreground" Value="#C9C9D1" />
+  </Style>
+  <Style Selector="Button.tool.t8 PathIcon">
+    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+  </Style>
+  <Style Selector="Border.logoBadge">
+    <Setter Property="Background" Value="#22FF7A1A" />
+    <Setter Property="BorderBrush" Value="#66FF7A1A" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Padding" Value="7,1" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Ellipse.driveDot">
+    <Setter Property="Width" Value="7" />
+    <Setter Property="Height" Value="7" />
+    <Setter Property="Margin" Value="6,0,3,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Fill" Value="#55555E" />
+  </Style>
+  <Style Selector="Ellipse.driveDot.on">
+    <Setter Property="Fill" Value="{StaticResource SectionGreen}" />
+  </Style>
+  <Style Selector="ComboBox.port">
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Padding" Value="9,0,6,0" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Background" Value="#141418" />
+    <Setter Property="BorderBrush" Value="#2C2C33" />
   </Style>
   <Style Selector="Border.card, Border.panel">
     <Setter Property="Background" Value="{StaticResource CardBg}" />
@@ -74,8 +156,8 @@
 
   <!-- Top bar buttons -->
   <Style Selector="Button.tool">
-    <Setter Property="FontSize" Value="12.5" />
-    <Setter Property="Padding" Value="11,5" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Padding" Value="9,4" />
     <Setter Property="MinHeight" Value="0" />
     <Setter Property="CornerRadius" Value="4" />
     <Setter Property="Background" Value="#1D1D22" />

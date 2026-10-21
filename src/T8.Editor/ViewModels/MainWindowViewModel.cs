@@ -115,6 +115,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         };
         LoadSelectedPattern();
         RefreshPorts();
+        _t8DrivePath = T8Drive.Find(_driveCandidates());
     }
 
     /// <summary>The Song tab.</summary>
@@ -434,12 +435,45 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     private const string DriveHelp =
         "Connect the T-8 by USB and switch it on while holding PLAY; it then shows up as a drive named T-8.";
 
-    /// <summary>Opens the patterns from a mounted T-8's BACKUP folder.</summary>
+    /// <summary>Shown by the help icon next to Load from T-8 and Write to T-8.</summary>
+    public string T8DriveHelpText { get; } =
+        "Load from T-8 and Write to T-8 work with the T-8 in drive mode, where it shows up on the computer as a USB drive " +
+        "named T-8 (the T-8 doesn't send its patterns over MIDI).\n\n" +
+        "1. Switch the T-8 off and connect it by USB.\n" +
+        "2. Hold PLAY and switch the T-8 on; keep holding until the step buttons light up.\n" +
+        "3. Wait about a minute until the T-8 drive appears, then press Check.\n\n" +
+        "After Write to T-8: eject the drive, then press ACCENT on the T-8 and wait for dOnE.\n" +
+        "In drive mode the T-8 isn't a MIDI device: switch it off and on normally to play it again.";
+
+    /// <summary>Where the T-8 drive is mounted, or null when it isn't (the T-8 isn't in drive mode).</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsT8DriveConnected), nameof(T8DriveStatus))]
+    [NotifyCanExecuteChangedFor(nameof(LoadFromT8Command), nameof(WriteToT8Command))]
+    private string? _t8DrivePath;
+
+    public bool IsT8DriveConnected => T8DrivePath is not null;
+
+    public string T8DriveStatus => T8DrivePath is { } path
+        ? $"T-8 drive connected at {path}"
+        : "T-8 drive not connected. Put the T-8 in drive mode (hold PLAY while switching it on), then press Check.";
+
+    /// <summary>Looks for the T-8 drive again; the Check button.</summary>
     [RelayCommand]
+    private void CheckT8Drive()
+    {
+        RefreshT8Drive();
+        Status = IsT8DriveConnected ? $"{T8DriveStatus}." : $"T-8 drive not found. {DriveHelp}";
+    }
+
+    /// <summary>Looks for the T-8 drive without a message, e.g. when the window becomes active again.</summary>
+    public void RefreshT8Drive() => T8DrivePath = T8Drive.Find(_driveCandidates());
+
+    /// <summary>Opens the patterns from a mounted T-8's BACKUP folder.</summary>
+    [RelayCommand(CanExecute = nameof(IsT8DriveConnected))]
     private async Task LoadFromT8Async()
     {
-        var drive = T8Drive.Find(_driveCandidates());
-        if (drive is null)
+        RefreshT8Drive();
+        if (T8DrivePath is not { } drive)
         {
             Status = $"T-8 drive not found. {DriveHelp}";
             return;
@@ -450,11 +484,11 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     }
 
     /// <summary>Writes all 64 patterns to a mounted T-8's RESTORE folder.</summary>
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(IsT8DriveConnected))]
     private async Task WriteToT8Async()
     {
-        var drive = T8Drive.Find(_driveCandidates());
-        if (drive is null)
+        RefreshT8Drive();
+        if (T8DrivePath is not { } drive)
         {
             Status = $"T-8 drive not found. {DriveHelp}";
             return;

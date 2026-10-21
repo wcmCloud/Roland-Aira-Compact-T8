@@ -218,4 +218,64 @@ public class MainWindowMidiAndDriveTests : IDisposable
         Assert.Contains("T-8 drive not found", Vm.Status);
         Assert.Equal(0, _dialogs.ConfirmCount);
     }
+
+    [Fact]
+    public void Load_and_write_are_disabled_until_the_t8_drive_is_found()
+    {
+        Assert.False(Vm.IsT8DriveConnected);
+        Assert.False(Vm.LoadFromT8Command.CanExecute(null));
+        Assert.False(Vm.WriteToT8Command.CanExecute(null));
+        Assert.Contains("not connected", Vm.T8DriveStatus);
+
+        var drive = MountT8();
+        Vm.CheckT8DriveCommand.Execute(null);
+
+        Assert.True(Vm.IsT8DriveConnected);
+        Assert.Equal(drive, Vm.T8DrivePath);
+        Assert.True(Vm.LoadFromT8Command.CanExecute(null));
+        Assert.True(Vm.WriteToT8Command.CanExecute(null));
+        Assert.Contains("T-8 drive connected", Vm.Status);
+    }
+
+    [Fact]
+    public void A_drive_mounted_before_start_is_found_straight_away()
+    {
+        MountT8();
+        Assert.True(Vm.IsT8DriveConnected);
+        Assert.True(Vm.LoadFromT8Command.CanExecute(null));
+    }
+
+    [Fact]
+    public void Check_explains_drive_mode_when_the_drive_is_missing()
+    {
+        Vm.CheckT8DriveCommand.Execute(null);
+        Assert.Contains("T-8 drive not found", Vm.Status);
+        Assert.Contains("holding PLAY", Vm.Status);
+        Assert.Contains("Hold PLAY", Vm.T8DriveHelpText);
+    }
+
+    [Fact]
+    public async Task An_ejected_drive_disables_load_and_write_again()
+    {
+        MountT8();
+        Assert.True(Vm.IsT8DriveConnected);
+        _driveCandidates.Clear();
+
+        await Vm.WriteToT8Command.ExecuteAsync(null);
+
+        Assert.False(Vm.IsT8DriveConnected);
+        Assert.False(Vm.WriteToT8Command.CanExecute(null));
+        Assert.Contains("T-8 drive not found", Vm.Status);
+        Assert.Equal(0, _dialogs.ConfirmCount);
+    }
+
+    [Fact]
+    public void Refreshing_finds_a_drive_without_a_message()
+    {
+        Vm.Status = "";
+        MountT8();
+        Vm.RefreshT8Drive();
+        Assert.True(Vm.IsT8DriveConnected);
+        Assert.Equal("", Vm.Status);
+    }
 }

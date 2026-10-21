@@ -170,7 +170,7 @@ they are remembered between runs.
 
 The screenshots at the top show the whole window on each tab. From top to bottom:
 
-- **Top bar:** New (64 blank patterns), Open…, Save, Save as…; Load from T-8 and Write to T-8; Copy, Paste and Clear
+- **Top bar:** New (64 blank patterns), Open…, Save, Save as…; Load from T-8, Write to T-8, Check and ? (T-8 drive); Copy, Paste and Clear
   for the current pattern (bass and rhythm together); and on the right the MIDI output, refresh, Test, settings and About (ⓘ).
 - **Patterns** and **Playback** cards, described below.
 - **Rhythm** and **Bass** tabs with the editors and their generators.
@@ -410,11 +410,15 @@ The T-8 doesn't send its patterns over MIDI. Instead it can show up on your comp
 Press **Load from T-8** in the top bar. The editor finds the T-8 drive and opens its `BACKUP` folder; the 64
 patterns appear in the pattern grid.
 
+**Load from T-8** and **Write to T-8** are only enabled while the T-8 drive is connected; the dot next to them
+turns green when it is. The editor looks for the drive when it starts and whenever you come back to its window;
+press **Check** to look again, and the **?** button explains how to put the T-8 in drive mode.
+
 Then press **Save as…** and pick a folder on your computer, so you keep a copy after the T-8 is switched off.
 That copy is a normal backup: you can open it again any time with **Open…**, without the T-8 connected.
 
 > [!TIP]
-> If **Load from T-8** says it can't find the drive, wait until the step buttons stop counting, or use **Open…**
+> If **Load from T-8** stays greyed out, wait until the step buttons stop counting and press **Check**, or use **Open…**
 > and choose the `BACKUP` folder on the T-8 drive yourself.
 
 When you're done, eject the T-8 drive (drag it to the Trash on macOS, or right-click it and choose **Eject** on
