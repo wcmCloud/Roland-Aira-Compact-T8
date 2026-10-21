@@ -21,7 +21,11 @@ public class MainWindowViewModelTests : IDisposable
     {
         Assert.Null(_vm.FolderPath);
         Assert.False(_vm.IsDirty);
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.4 - Untitled", _vm.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.4", _vm.Title);
+        Assert.Equal("Untitled", _vm.LibraryLabel);
+        _vm.FolderPath = "/Volumes/T-8/BACKUP/"; // a trailing slash still gives the folder's name
+        Assert.Equal("BACKUP", _vm.LibraryLabel);
+        _vm.FolderPath = null;
         Assert.Equal(16, _vm.Rhythm.Length);
         Assert.Equal([1, 2, 3, 4], _vm.BankNumbers);
         Assert.Equal(16, _vm.PatternNumbers.Count);
@@ -43,7 +47,8 @@ public class MainWindowViewModelTests : IDisposable
         Assert.Equal(12, _vm.Bass.Length);
         Assert.Equal(32, _vm.Rhythm.Length);
         Assert.Contains("Loaded 64 patterns", _vm.Status);
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.4 - BACKUP", _vm.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.4", _vm.Title);
+        Assert.Equal("BACKUP", _vm.LibraryLabel);
     }
 
     [Fact]
@@ -106,7 +111,8 @@ public class MainWindowViewModelTests : IDisposable
     {
         _vm.Rhythm[RhythmTrack.BD].Cells[0].On = true;
         Assert.True(_vm.IsDirty);
-        Assert.EndsWith("*", _vm.Title);
+        Assert.EndsWith("v1.0.4", _vm.Title); // the title ends with the version; unsaved shows on the Patterns card
+        Assert.EndsWith("not saved", _vm.LibraryLabel);
 
         _vm.Bass.Steps[0].Accent = true;
         Assert.True(_vm.CurrentBass.Steps[0].Accent);

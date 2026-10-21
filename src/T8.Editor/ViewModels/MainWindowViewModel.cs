@@ -22,11 +22,11 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     private (BassPattern Bass, RhythmPattern Rhythm)? _clipboard;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Title))]
+    [NotifyPropertyChangedFor(nameof(LibraryLabel))]
     private string? _folderPath;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Title))]
+    [NotifyPropertyChangedFor(nameof(LibraryLabel))]
     private bool _isDirty;
 
     [ObservableProperty]
@@ -219,7 +219,20 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     public const string AppName = AppInfo.Name;
 
-    public string Title => $"{AppName} - {AppInfo.DisplayVersion} - {(FolderPath is null ? "Untitled" : Path.GetFileName(FolderPath))}{(IsDirty ? " *" : "")}";
+    /// <summary>The window title: the app name and version, nothing after it.</summary>
+    public string Title => $"{AppName} - {AppInfo.DisplayVersion}";
+
+    /// <summary>The open set of patterns and whether it has unsaved changes, shown on the Patterns card.</summary>
+    public string LibraryLabel
+    {
+        get
+        {
+            var name = FolderPath is null ? "Untitled" : Path.GetFileName(Path.TrimEndingDirectorySeparator(FolderPath));
+            if (string.IsNullOrEmpty(name))
+                name = FolderPath;
+            return IsDirty ? $"{name} · not saved" : name!;
+        }
+    }
 
     public string PatternLabel => $"Bank {SelectedBank} · Pattern {SelectedPattern}";
 

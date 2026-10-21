@@ -30,7 +30,7 @@ public class MainWindowTests
     {
         var (window, vm) = Show();
 
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.4 - BACKUP", window.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.4", window.Title);
         Assert.Contains("Loaded 64 patterns", window.FindControl<TextBlock>("StatusText")!.Text);
         // CY has no sound on the T-8, so its row is hidden.
         Assert.Equal(7, window.GetVisualDescendants().OfType<RhythmEditorView>().Single()
