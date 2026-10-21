@@ -555,6 +555,16 @@ public class MidiSettingsWindowTests
         Assert.Equal(0, vm.ToSettings().Midi.RhythmChannel);
         Assert.Contains("rhCh to OFF", vm.T8SetupHelp);
 
+        // Restyled: outlined combos and number fields, chips with icons, the Save pill.
+        foreach (var name in new[] { "BassChannelPicker", "RhythmChannelPicker", "ProgramChannelPicker" })
+            Assert.Contains("outlined", window.FindControl<ComboBox>(name)!.Classes);
+        Assert.Contains("port", window.FindControl<ComboBox>("SettingsPortPicker")!.Classes);
+        Assert.All(window.GetVisualDescendants().OfType<NumericUpDown>(), n => Assert.Contains("outlined", n.Classes));
+        foreach (var name in new[] { "TestConnectionButton", "DetectChannelsButton", "ResetDefaultsButton", "SaveSettingsButton" })
+            Assert.NotNull(window.FindControl<Button>(name)!.GetVisualDescendants().OfType<PathIcon>().Single().Data);
+        Assert.Contains("pill", window.FindControl<Button>("SaveSettingsButton")!.Classes);
+
+
         var output = Environment.GetEnvironmentVariable("T8_SCREENSHOT_DIR");
         if (output is not null)
             window.CaptureRenderedFrame()!.Save(Path.Combine(output, "midi-settings.png"));

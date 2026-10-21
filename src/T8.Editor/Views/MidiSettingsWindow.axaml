@@ -20,8 +20,13 @@
 
     <!-- Footer -->
     <DockPanel DockPanel.Dock="Bottom" Margin="0,14,0,0">
-      <Button DockPanel.Dock="Left" Classes="seg" Content="Reset to T-8 defaults" Command="{Binding ResetToT8DefaultsCommand}"
-              ToolTip.Tip="Channels 2 / 10 / 16 and the T-8's drum notes" />
+      <Button x:Name="ResetDefaultsButton" DockPanel.Dock="Left" Classes="chip" Command="{Binding ResetToT8DefaultsCommand}"
+              ToolTip.Tip="Channels 2 / 10 / 16 and the T-8's drum notes">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <PathIcon Data="{StaticResource IconUndo}" />
+          <TextBlock Text="RESET TO T-8 DEFAULTS" />
+        </StackPanel>
+      </Button>
       <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
         <ItemsControl x:Name="ErrorList" ItemsSource="{Binding Errors}" VerticalAlignment="Center" Margin="0,0,10,0">
           <ItemsControl.ItemTemplate>
@@ -30,9 +35,14 @@
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
-        <Button x:Name="CancelButton" Classes="seg" Content="Cancel" IsCancel="True" Click="OnCancel" MinWidth="90" />
-        <Button x:Name="SaveSettingsButton" Classes="primary" Content="Save" IsDefault="True" IsEnabled="{Binding IsValid}" Click="OnSave"
-                MinWidth="90" HorizontalContentAlignment="Center" />
+        <Button x:Name="CancelButton" Classes="chip" Content="CANCEL" IsCancel="True" Click="OnCancel" MinWidth="90" HorizontalContentAlignment="Center" />
+        <Button x:Name="SaveSettingsButton" Classes="primary pill" IsDefault="True" IsEnabled="{Binding IsValid}" Click="OnSave"
+                MinWidth="100" HorizontalContentAlignment="Center">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <PathIcon Data="{StaticResource IconSave}" />
+            <TextBlock Text="Save" />
+          </StackPanel>
+        </Button>
       </StackPanel>
     </DockPanel>
 
@@ -45,8 +55,10 @@
             <TextBlock Classes="cardTitle" Text="CONNECTION" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBlock Text="MIDI out" Classes="label" />
-            <ComboBox x:Name="SettingsPortPicker" MinWidth="300" ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}"
+            <Border Classes="fieldBox">
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <TextBlock Classes="fieldLabel" Text="MIDI OUT" />
+            <ComboBox x:Name="SettingsPortPicker" Classes="port" MinWidth="300" ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}"
                       PlaceholderText="No MIDI outputs">
               <ComboBox.ItemTemplate>
                 <DataTemplate x:DataType="ports:MidiPortInfo">
@@ -54,11 +66,18 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <Button Classes="tool icon" Command="{Binding RefreshPortsCommand}" ToolTip.Tip="Refresh MIDI ports">
-              <PathIcon Data="{StaticResource IconRefresh}" />
+                <Button Classes="tool icon" Command="{Binding RefreshPortsCommand}" ToolTip.Tip="Refresh MIDI ports">
+                  <PathIcon Data="{StaticResource IconRefresh}" />
+                </Button>
+              </StackPanel>
+            </Border>
+            <Button x:Name="TestConnectionButton" Classes="chip" Command="{Binding TestConnectionCommand}" VerticalAlignment="Center"
+                    ToolTip.Tip="Play kick, snare, hats and a bass note on these channels, and check the T-8 answers">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconPulse}" />
+                <TextBlock Text="TEST CONNECTION" />
+              </StackPanel>
             </Button>
-            <Button x:Name="TestConnectionButton" Classes="seg green" Content="TEST CONNECTION" Command="{Binding TestConnectionCommand}"
-                    ToolTip.Tip="Play kick, snare, hats and a bass note on these channels, and check the T-8 answers" />
           </StackPanel>
           <TextBlock x:Name="TestResultText" Text="{Binding TestResult}" TextWrapping="Wrap" FontSize="12"
                      IsVisible="{Binding TestResult, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"
@@ -70,9 +89,13 @@
       <Border Grid.Row="1" Classes="card">
         <StackPanel Spacing="10">
           <DockPanel>
-            <Button x:Name="DetectChannelsButton" DockPanel.Dock="Right" Classes="seg" Content="DETECT FROM T-8"
-                    Command="{Binding DetectChannelsCommand}"
-                    ToolTip.Tip="Listen to the T-8: press Start on it (and change pattern with tXPc on) to find its channels" />
+            <Button x:Name="DetectChannelsButton" DockPanel.Dock="Right" Classes="chip small" Command="{Binding DetectChannelsCommand}"
+                    ToolTip.Tip="Listen to the T-8: press Start on it (and change pattern with tXPc on) to find its channels">
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <PathIcon Data="{StaticResource IconSearch}" Width="11" Height="11" />
+                <TextBlock Text="DETECT FROM T-8" />
+              </StackPanel>
+            </Button>
             <StackPanel Orientation="Horizontal" Spacing="7">
               <Ellipse Classes="dot" Fill="{StaticResource SectionOrange}" />
               <TextBlock Classes="cardTitle" Text="MIDI CHANNELS" />
@@ -81,7 +104,7 @@
           <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
             <StackPanel Spacing="4">
               <TextBlock Classes="settingName" Text="BASS · bACh" />
-              <ComboBox x:Name="BassChannelPicker" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.PartChannels}" SelectedItem="{Binding BassChannel}">
+              <ComboBox x:Name="BassChannelPicker" Classes="port outlined" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.PartChannels}" SelectedItem="{Binding BassChannel}">
                 <ComboBox.ItemTemplate>
                   <DataTemplate x:DataType="x:Int32">
                     <TextBlock Text="{Binding Converter={x:Static vm:Converters.ChannelName}}" />
@@ -91,7 +114,7 @@
             </StackPanel>
             <StackPanel Grid.Column="1" Spacing="4">
               <TextBlock Classes="settingName" Text="RHYTHM · rhCh" />
-              <ComboBox x:Name="RhythmChannelPicker" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.PartChannels}" SelectedItem="{Binding RhythmChannel}">
+              <ComboBox x:Name="RhythmChannelPicker" Classes="port outlined" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.PartChannels}" SelectedItem="{Binding RhythmChannel}">
                 <ComboBox.ItemTemplate>
                   <DataTemplate x:DataType="x:Int32">
                     <TextBlock Text="{Binding Converter={x:Static vm:Converters.ChannelName}}" />
@@ -101,7 +124,7 @@
             </StackPanel>
             <StackPanel Grid.Column="2" Spacing="4">
               <TextBlock Classes="settingName" Text="PATTERN · Pc.Ch" />
-              <ComboBox x:Name="ProgramChannelPicker" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.Channels}" SelectedItem="{Binding ProgramChangeChannel}" />
+              <ComboBox x:Name="ProgramChannelPicker" Classes="port outlined" HorizontalAlignment="Stretch" ItemsSource="{x:Static vm:MidiSettingsViewModel.Channels}" SelectedItem="{Binding ProgramChangeChannel}" />
             </StackPanel>
           </Grid>
           <TextBlock x:Name="DetectResultText" Text="{Binding DetectResult}" TextWrapping="Wrap" FontSize="12"
@@ -126,8 +149,8 @@
               <DataTemplate x:DataType="vm:DrumNoteViewModel">
                 <StackPanel Spacing="3" Margin="0,0,8,8">
                   <TextBlock Classes="settingName" Text="{Binding Name}" />
-                  <NumericUpDown Value="{Binding Note}" Minimum="0" Maximum="127" FormatString="0" ShowButtonSpinner="False"
-                                 HorizontalAlignment="Stretch" />
+                  <NumericUpDown Classes="port outlined" Value="{Binding Note}" Minimum="0" Maximum="127" FormatString="0" ShowButtonSpinner="False"
+                                 HorizontalAlignment="Stretch" ToolTip.Tip="MIDI note number (0–127)" />
                 </StackPanel>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
@@ -145,7 +168,7 @@
           <RadioButton x:Name="PreviewModeRadio" Classes="option" GroupName="PlayMode"
                        IsChecked="{Binding PlayMode, Converter={x:Static vm:Converters.IsPreviewMode}}">
             <StackPanel Spacing="2">
-              <TextBlock Text="Play through the T-8's sounds" FontWeight="SemiBold" />
+              <TextBlock Text="Play through the T-8's sounds" FontWeight="SemiBold" FontSize="12.5" />
               <TextBlock Text="The editor sends the pattern as notes: you hear your edits straight away." FontSize="11.5"
                          Foreground="{StaticResource MutedText}" TextWrapping="Wrap" />
             </StackPanel>
@@ -153,19 +176,19 @@
           <RadioButton x:Name="SyncModeRadio" Classes="option" GroupName="PlayMode"
                        IsChecked="{Binding PlayMode, Converter={x:Static vm:Converters.IsSyncMode}}">
             <StackPanel Spacing="2">
-              <TextBlock Text="Run the T-8's own sequencer" FontWeight="SemiBold" />
+              <TextBlock Text="Run the T-8's own sequencer" FontWeight="SemiBold" FontSize="12.5" />
               <TextBlock Text="The T-8 plays its stored patterns, following the editor's clock." FontSize="11.5"
                          Foreground="{StaticResource MutedText}" TextWrapping="Wrap" />
             </StackPanel>
           </RadioButton>
           <StackPanel Orientation="Horizontal" Spacing="4" Margin="2,4,0,0">
             <ToggleSwitch x:Name="FollowSelectionCheck" Classes="compact" IsChecked="{Binding FollowSelection}" OnContent="" OffContent="" />
-            <TextBlock Text="Switch the T-8 to the pattern I pick in the editor" FontSize="12.5" VerticalAlignment="Center" />
+            <TextBlock Text="Switch the T-8 to the pattern I pick in the editor" FontSize="12" VerticalAlignment="Center" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="4" Margin="2,0,0,0"
                       ToolTip.Tip="Needs tXPc on for pattern changes; the playing step shows when you press Play on the T-8">
             <ToggleSwitch x:Name="FollowT8Check" Classes="compact" IsChecked="{Binding FollowT8}" OnContent="" OffContent="" />
-            <TextBlock Text="Follow the T-8: its pattern changes and its playing step" FontSize="12.5" VerticalAlignment="Center" />
+            <TextBlock Text="Follow the T-8: its pattern changes and its playing step" FontSize="12" VerticalAlignment="Center" />
           </StackPanel>
         </StackPanel>
       </Border>

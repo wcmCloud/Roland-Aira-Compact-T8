@@ -389,6 +389,12 @@
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="CornerRadius" Value="5" />
   </Style>
+  <Style Selector="RadioButton.option /template/ Border#RootBorder">
+    <Setter Property="Padding" Value="12,8" />
+  </Style>
+  <Style Selector="RadioButton.option /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Margin" Value="4,0,0,0" />
+  </Style>
   <Style Selector="RadioButton.option:checked">
     <Setter Property="Background" Value="#1FFF5C8A" />
     <Setter Property="BorderBrush" Value="{StaticResource SectionPink}" />
@@ -897,5 +903,36 @@
   </Style>
   <Style Selector="Border.songRow NumericUpDown.port /template/ ButtonSpinner /template/ RepeatButton">
     <Setter Property="Width" Value="18" />
+  </Style>
+  <!-- Outlined .port combos and number fields outside boxes (MIDI settings) -->
+  <Style Selector="ComboBox.port.outlined">
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="#2C2C33" />
+    <Setter Property="Background" Value="#141418" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+  <Style Selector="NumericUpDown.port.outlined /template/ ButtonSpinner">
+    <Setter Property="Height" Value="28" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="#2C2C33" />
+    <Setter Property="Background" Value="#141418" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+  <Style Selector="ComboBox.port.outlined:pointerover /template/ Border#Background">
+    <Setter Property="BorderBrush" Value="#4A4A54" />
+  </Style>
+  <Style Selector="NumericUpDown.port.outlined:pointerover /template/ ButtonSpinner">
+    <Setter Property="BorderBrush" Value="#4A4A54" />
+  </Style>
+  <Style Selector="TextBlock.settingName">
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="LetterSpacing" Value="0.8" />
+    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+  </Style>
+  <!-- Toggle switches lit in the app's orange -->
+  <Style Selector="ToggleSwitch.compact:checked /template/ Border#SwitchKnobBounds, ToggleSwitch.compact:checked:pointerover /template/ Border#SwitchKnobBounds">
+    <Setter Property="Background" Value="{StaticResource T8Orange}" />
+    <Setter Property="BorderBrush" Value="{StaticResource T8Orange}" />
   </Style>
 </Styles>
