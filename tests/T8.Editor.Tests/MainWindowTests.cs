@@ -375,7 +375,7 @@ public class MainWindowTests
         Assert.Contains("batch", panel.Classes);
         Assert.Equal(cell.Description, editor.FindControl<TextBlock>("SelectedStepText")!.Text);
         Assert.Contains("batch", editor.FindControl<Slider>("VelocitySlider")!.Classes);
-        Assert.Contains("batch", editor.FindControl<ComboBox>("SubStepPicker")!.Classes);
+        Assert.Contains("outlined", editor.FindControl<ComboBox>("SubStepPicker")!.Classes);
 
         var on = editor.FindControl<ToggleButton>("SelectedStepOnToggle")!;
         var wasOn = cell.On;
@@ -386,10 +386,15 @@ public class MainWindowTests
         Assert.Equal(3, cell.Velocity);
 
         // With several steps picked, the multi-select panel shows instead.
+        var top = panel.TranslatePoint(new Avalonia.Point(0, 0), editor)!.Value.Y;
         vm.Rhythm.SelectAllActiveCommand.Execute(null);
         window.UpdateLayout();
         Assert.False(panel.IsEffectivelyVisible);
-        Assert.True(editor.FindControl<Border>("BatchInspector")!.IsEffectivelyVisible);
+        var batch = editor.FindControl<Border>("BatchInspector")!;
+        Assert.True(batch.IsEffectivelyVisible);
+        // Both panels sit in the same place with the same width, so the layout doesn't jump.
+        Assert.Equal(top, batch.TranslatePoint(new Avalonia.Point(0, 0), editor)!.Value.Y);
+        Assert.Equal(panel.Width, batch.Width);
         window.Close();
         vm.Dispose();
     }

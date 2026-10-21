@@ -28,8 +28,10 @@
       <Border x:Name="BatchInspector" Classes="batch" Margin="0,10,0,0" HorizontalAlignment="Left"
               Width="{Binding #PatternKnobs.Bounds.Width}" IsVisible="{Binding HasMultiSelection}">
         <StackPanel Spacing="2">
-          <TextBlock x:Name="MultiSelectionText" Text="{Binding MultiSelectionLabel}" FontSize="12" FontWeight="SemiBold"
-                     Foreground="{StaticResource SectionBlue}" Margin="0,0,0,2" />
+          <DockPanel Margin="0,0,0,4" MinHeight="22">
+            <TextBlock x:Name="MultiSelectionText" Text="{Binding MultiSelectionLabel}" FontSize="12" FontWeight="SemiBold"
+                       Foreground="{StaticResource SectionBlue}" VerticalAlignment="Center" />
+          </DockPanel>
           <DockPanel>
             <TextBlock DockPanel.Dock="Right" Text="{Binding BatchVelocity, StringFormat='v.{0}'}" Classes="batchValue" />
             <TextBlock Text="Velocity" Classes="batchLabel" />
@@ -41,8 +43,8 @@
           </DockPanel>
           <Slider Classes="batch" Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True" Value="{Binding BatchProbabilityPercent}" />
           <DockPanel Margin="0,2,0,0">
-            <TextBlock Text="Sub step" Classes="batchLabel" VerticalAlignment="Center" Margin="0,0,8,0" />
-            <ComboBox x:Name="BatchSubStepPicker" Classes="batch" HorizontalAlignment="Stretch"
+            <TextBlock Text="SUB STEP" Classes="fieldLabel" Margin="0,0,8,0" />
+            <ComboBox x:Name="BatchSubStepPicker" Classes="port outlined" HorizontalAlignment="Stretch"
                       ItemsSource="{x:Static vm:RhythmEditorViewModel.SubStepOptions}" SelectedItem="{Binding BatchSubStep}" />
           </DockPanel>
           <DockPanel IsVisible="{Binding BatchHasSubStep}" Margin="0,2,0,0">
@@ -60,12 +62,6 @@
         </StackPanel>
       </Border>
 
-      <StackPanel Spacing="4" Margin="0,12,0,0" IsVisible="{Binding !HasMultiSelection}">
-        <Button x:Name="SelectAllActiveButton" Classes="seg" Content="Select all active steps" Command="{Binding SelectAllActiveCommand}"
-                HorizontalAlignment="Left" ToolTip.Tip="Pick every active step to set velocity, probability and sub step for all of them" />
-        <TextBlock Text="Ctrl/Cmd-click or Shift-click active steps to pick several." FontSize="11.5" TextWrapping="Wrap"
-                   Foreground="{StaticResource MutedText}" />
-      </StackPanel>
 
       <!-- One step selected: the same compact panel as the multi-select one, in orange -->
       <Border x:Name="Inspector" Classes="batch single" Margin="0,10,0,0" HorizontalAlignment="Left"
@@ -77,7 +73,7 @@
           </MultiBinding>
         </Border.IsVisible>
         <StackPanel Spacing="2">
-          <DockPanel Margin="0,0,0,4">
+          <DockPanel Margin="0,0,0,4" MinHeight="22">
             <ToggleButton x:Name="SelectedStepOnToggle" DockPanel.Dock="Right" Classes="chip small orange"
                           IsChecked="{Binding SelectedCell.On, FallbackValue=False}" ToolTip.Tip="Turn this step on or off">
               <TextBlock Text="ON" />
@@ -98,8 +94,8 @@
           <Slider x:Name="ProbabilitySlider" Classes="batch" Minimum="0" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True"
                   Value="{Binding SelectedCell.ProbabilityPercent, FallbackValue=100}" />
           <DockPanel Margin="0,2,0,0">
-            <TextBlock Text="Sub step" Classes="batchLabel" VerticalAlignment="Center" Margin="0,0,8,0" />
-            <ComboBox x:Name="SubStepPicker" Classes="batch" HorizontalAlignment="Stretch"
+            <TextBlock Text="SUB STEP" Classes="fieldLabel" Margin="0,0,8,0" />
+            <ComboBox x:Name="SubStepPicker" Classes="port outlined" HorizontalAlignment="Stretch"
                       ItemsSource="{x:Static vm:RhythmEditorViewModel.SubStepOptions}"
                       SelectedItem="{Binding SelectedCell.SubStep, FallbackValue={x:Null}}" />
           </DockPanel>
@@ -112,6 +108,14 @@
                   IsVisible="{Binding SelectedCell.HasSubStep, FallbackValue=False}" />
         </StackPanel>
       </Border>
+
+      <!-- Picking several steps -->
+      <StackPanel Spacing="4" Margin="0,10,0,0" IsVisible="{Binding !HasMultiSelection}">
+        <Button x:Name="SelectAllActiveButton" Classes="seg" Content="Select all active steps" Command="{Binding SelectAllActiveCommand}"
+                HorizontalAlignment="Left" ToolTip.Tip="Pick every active step to set velocity, probability and sub step for all of them" />
+        <TextBlock Text="Ctrl/Cmd-click or Shift-click active steps to pick several." FontSize="11.5" TextWrapping="Wrap"
+                   Foreground="{StaticResource MutedText}" />
+      </StackPanel>
     </StackPanel>
     </ScrollViewer>
 
