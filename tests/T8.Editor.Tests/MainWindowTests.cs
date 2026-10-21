@@ -182,6 +182,22 @@ public class MainWindowTests
         vm.Dispose();
     }
 
+    /// <summary>Generate, Randomize, Undo and Seed sit together in one outlined panel, with icons.</summary>
+    private static void AssertActionPanel(Control generator, string panelName, string generate, string randomize, string undo, string seed)
+    {
+        var panel = generator.FindControl<Border>(panelName)!;
+        Assert.Contains("fieldBox", panel.Classes);
+        foreach (var name in new[] { generate, randomize, undo })
+        {
+            var button = generator.FindControl<Button>(name)!;
+            Assert.Contains(panel, button.GetVisualAncestors());
+            Assert.NotNull(button.GetVisualDescendants().OfType<PathIcon>().Single().Data);
+        }
+        Assert.Contains("pill", generator.FindControl<Button>(generate)!.Classes);
+        Assert.Contains("chip", generator.FindControl<Button>(randomize)!.Classes);
+        Assert.Contains(panel, generator.FindControl<NumericUpDown>(seed)!.GetVisualAncestors());
+    }
+
     [AvaloniaFact]
     public void Rhythm_generator_has_instrument_chips_with_icons_and_outlined_combos()
     {
@@ -202,6 +218,7 @@ public class MainWindowTests
         Assert.Contains("port", generator.FindControl<ComboBox>("FillPatternPicker")!.Classes);
         Assert.Contains("port", generator.FindControl<NumericUpDown>("RhythmSeedInput")!.Classes);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateRhythmButton")!.Content);
+        AssertActionPanel(generator, "RhythmActionPanel", "GenerateRhythmButton", "RandomizeRhythmButton", "UndoRhythmButton", "RhythmSeedInput");
         window.Close();
         vm.Dispose();
     }
@@ -216,10 +233,11 @@ public class MainWindowTests
 
         foreach (var name in new[] { "KeyPicker", "ScalePicker", "ProgressionPicker", "ChordLengthPicker" })
             Assert.Contains("port", generator.FindControl<ComboBox>(name)!.Classes);
-        Assert.Equal(4, generator.GetVisualDescendants().OfType<Border>().Count(b => b.Classes.Contains("fieldBox")));
+        Assert.Equal(5, generator.GetVisualDescendants().OfType<Border>().Count(b => b.Classes.Contains("fieldBox"))); // Key, Scale, Chords, the action panel and Seed
         Assert.Contains("port", generator.FindControl<NumericUpDown>("SeedInput")!.Classes);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateButton")!.Content);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("UndoGenerateButton")!.Content);
+        AssertActionPanel(generator, "BassActionPanel", "GenerateButton", "RandomizeButton", "UndoGenerateButton", "SeedInput");
 
         // Last step, Triplet and Transpose sit in the PATTERN panel above the steps, in outlined boxes.
         var editor = window.GetVisualDescendants().OfType<BassEditorView>().Single();

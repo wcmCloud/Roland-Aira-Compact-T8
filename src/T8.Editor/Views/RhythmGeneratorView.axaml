@@ -11,37 +11,42 @@
         <TextBlock Classes="cardTitle" Text="RHYTHM GENERATOR" />
       </StackPanel>
 
-      <!-- Generate / randomize / undo, and the fill -->
-      <StackPanel DockPanel.Dock="Right" Spacing="6" VerticalAlignment="Center" Margin="16,0,0,0">
-        <Button x:Name="GenerateRhythmButton" Classes="primary" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
-                HorizontalContentAlignment="Center" ToolTip.Tip="Write a pattern with these settings and seed (same seed, same pattern)">
-          <StackPanel Orientation="Horizontal" Spacing="7">
-            <PathIcon Data="{StaticResource IconGenerate}" />
-            <TextBlock Text="Generate" />
-          </StackPanel>
-        </Button>
-        <StackPanel Orientation="Horizontal" Spacing="6">
-          <Button x:Name="RandomizeRhythmButton" Classes="seg" Command="{Binding RandomizeCommand}" ToolTip.Tip="New seed: a different pattern in the same style">
-            <StackPanel Orientation="Horizontal" Spacing="6">
-              <PathIcon Data="{StaticResource IconDice}" />
-              <TextBlock Text="Randomize" />
+      <!-- Generate, randomize, undo and seed in one outlined panel -->
+      <Border x:Name="RhythmActionPanel" DockPanel.Dock="Right" Classes="fieldBox" Padding="8" VerticalAlignment="Center" Margin="16,0,0,0" Width="250">
+        <StackPanel Spacing="7">
+          <Button x:Name="GenerateRhythmButton" Classes="primary pill" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
+                  HorizontalContentAlignment="Center" ToolTip.Tip="Write a pattern with these settings and seed (same seed, same pattern)">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <PathIcon Data="{StaticResource IconGenerate}" />
+              <TextBlock Text="Generate" />
             </StackPanel>
           </Button>
-          <Button x:Name="UndoRhythmButton" Classes="seg" Command="{Binding UndoCommand}" ToolTip.Tip="Undo the last generate">
-            <StackPanel Orientation="Horizontal" Spacing="6">
-              <PathIcon Data="{StaticResource IconUndo}" />
-              <TextBlock Text="Undo" />
-            </StackPanel>
-          </Button>
+          <Grid ColumnDefinitions="*,*" ColumnSpacing="6">
+            <Button x:Name="RandomizeRhythmButton" Classes="chip" Command="{Binding RandomizeCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    ToolTip.Tip="New seed: a different pattern in the same style">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconDice}" />
+                <TextBlock Text="RANDOMIZE" />
+              </StackPanel>
+            </Button>
+            <Button x:Name="UndoRhythmButton" Grid.Column="1" Classes="chip" Command="{Binding UndoCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    ToolTip.Tip="Undo the last generate">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconUndo}" />
+                <TextBlock Text="UNDO" />
+              </StackPanel>
+            </Button>
+          </Grid>
+          <Border Classes="fieldBox" MinHeight="0" Padding="0">
+            <DockPanel>
+              <PathIcon DockPanel.Dock="Left" Data="{StaticResource IconSeed}" Width="11" Height="11" Foreground="{StaticResource MutedText}" Margin="10,0,0,0" />
+              <TextBlock DockPanel.Dock="Left" Classes="fieldLabel" Text="SEED" Margin="6,0,4,0" />
+              <NumericUpDown Classes="port" x:Name="RhythmSeedInput" Value="{Binding Seed}" Minimum="1" Maximum="99999" FormatString="0" ShowButtonSpinner="False"
+                             ToolTip.Tip="Same seed and settings, same result: type a number to get one back" />
+            </DockPanel>
+          </Border>
         </StackPanel>
-        <Border Classes="fieldBox" HorizontalAlignment="Left">
-          <StackPanel Orientation="Horizontal" Spacing="4">
-            <PathIcon Data="{StaticResource IconSeed}" Width="11" Height="11" Foreground="{StaticResource MutedText}" Margin="7,0,0,0" />
-            <TextBlock Classes="fieldLabel" Text="SEED" Margin="2,0,4,0" />
-            <NumericUpDown Classes="port" x:Name="RhythmSeedInput" Value="{Binding Seed}" Minimum="1" Maximum="99999" FormatString="0" Width="86" ShowButtonSpinner="False" />
-          </StackPanel>
-        </Border>
-      </StackPanel>
+      </Border>
 
       <!-- Style, instruments, fill -->
       <StackPanel DockPanel.Dock="Left" Spacing="7" Margin="0,0,18,0">
