@@ -5,11 +5,12 @@
 # Default: macOS, Windows and Linux, each for Apple Silicon/ARM64 and Intel/AMD64.
 # Output: artifacts/T8Editor-<version>-<rid>.zip (macOS, Windows) or .tar.gz (Linux).
 #
-# macOS: when this Mac has a "Developer ID Application" certificate, the app is signed with it (hardened
-# runtime, scripts/Entitlements.plist) and notarized with the notarytool keychain profile in
-# NOTARY_PROFILE (default "maXfolders"), and the ticket is stapled, so Gatekeeper opens it without warnings.
-# Set it up once with: xcrun notarytool store-credentials "<profile>" --apple-id ... --team-id ...
-# Without the certificate (or with SIGN_IDENTITY=-) the app is signed ad hoc, as before.
+# macOS signing and notarization (optional): set SIGN_IDENTITY to a "Developer ID Application: ..." certificate
+# name in your keychain and NOTARY_PROFILE to a notarytool keychain profile, in the environment or in
+# scripts/signing.local.env (git-ignored; see scripts/signing.local.env.example). The app is then signed with the
+# hardened runtime (scripts/Entitlements.plist), zipped, submitted with notarytool --wait, stapled, and checked
+# with spctl and stapler validate. Without SIGN_IDENTITY the app is signed ad hoc and not notarized.
+# NOTARIZE=0 signs with the Developer ID but skips notarization.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -19,9 +20,20 @@ if [ ${#RIDS[@]} -eq 0 ]; then
 fi
 VERSION="${VERSION:-$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' src/T8.Editor/T8.Editor.csproj)}"
 APP_NAME="Roland Aira Compact T-8 Editor"
-SIGN_IDENTITY="${SIGN_IDENTITY:-$(security find-identity -v -p codesigning 2>/dev/null | sed -n 's/.*"\(Developer ID Application: [^"]*\)".*/\1/p' | head -1)}"
+if [ -f scripts/signing.local.env ]; then
+  # Local, git-ignored names only (no secrets): SIGN_IDENTITY and NOTARY_PROFILE. The environment wins.
+  while IFS='=' read -r key value; do
+    case "$key" in
+      SIGN_IDENTITY|NOTARY_PROFILE) [ -z "${!key:-}" ] && export "$key=${value//\"/}" ;;
+    esac
+  done < <(grep -E '^(SIGN_IDENTITY|NOTARY_PROFILE)=' scripts/signing.local.env)
+fi
 SIGN_IDENTITY="${SIGN_IDENTITY:--}"
-NOTARY_PROFILE="${NOTARY_PROFILE:-maXfolders}"
+NOTARY_PROFILE="${NOTARY_PROFILE:-}"
+if [ "$SIGN_IDENTITY" != "-" ] && [ "${NOTARIZE:-1}" != "0" ] && [ -z "$NOTARY_PROFILE" ]; then
+  echo "SIGN_IDENTITY is set but NOTARY_PROFILE isn't: set it, or NOTARIZE=0 to sign without notarizing." >&2
+  exit 1
+fi
 OUT=artifacts
 mkdir -p "$OUT"
 
@@ -47,11 +59,11 @@ for rid in "${RIDS[@]}"; do
       # of the .dll files, which live in extended attributes.
       if command -v codesign > /dev/null; then
         if [ "$SIGN_IDENTITY" = "-" ]; then
-          echo "Signing ad hoc (no Developer ID Application certificate found)"
+          echo "Signing ad hoc (no SIGN_IDENTITY set; not notarized)"
           find "$app/Contents/MacOS" -type f -exec codesign --force --sign - {} \;
           codesign --force --sign - "$app"
         else
-          echo "Signing with $SIGN_IDENTITY"
+          echo "Signing with the Developer ID certificate"
           find "$app/Contents/MacOS" -type f -exec codesign --force --timestamp --options runtime \
             --entitlements scripts/Entitlements.plist --sign "$SIGN_IDENTITY" {} \;
           codesign --force --timestamp --options runtime --entitlements scripts/Entitlements.plist \
@@ -59,7 +71,7 @@ for rid in "${RIDS[@]}"; do
         fi
         codesign --verify --deep --strict "$app"
         if [ "$SIGN_IDENTITY" != "-" ] && [ "${NOTARIZE:-1}" != "0" ]; then
-          echo "Notarizing with the notarytool profile $NOTARY_PROFILE"
+          echo "Notarizing (notarytool --wait)…"
           (cd "$OUT" && ditto -c -k --keepParent "$name/$APP_NAME.app" "$name-notarize.zip")
           xcrun notarytool submit "$OUT/$name-notarize.zip" --keychain-profile "$NOTARY_PROFILE" --wait \
             | tee "$OUT/$name-notarize.log"
@@ -72,6 +84,7 @@ for rid in "${RIDS[@]}"; do
           fi
           rm -f "$OUT/$name-notarize.log"
           xcrun stapler staple "$app"
+          xcrun stapler validate "$app"
           spctl --assess --type execute --verbose "$app"
         fi
         (cd "$OUT" && ditto -c -k --keepParent "$name" "$name.zip")

@@ -487,3 +487,6 @@ $RECYCLE.BIN/
 # The app icon (the macOS "Icon" rule above matches the folder name on case-insensitive disks)
 !assets/icon/
 !assets/icon/**
+
+# Local macOS signing names for scripts/publish.sh
+scripts/signing.local.env

@@ -86,3 +86,26 @@ Blocked: **Load from T-8** and **Write to T-8**, which go straight to `/Volumes/
 - Store name.
 - Apple Silicon only, or universal?
 - Keep the GitHub (direct download) builds as they are alongside the store build? (Recommended: yes.)
+
+## Developer ID notarization (done for direct downloads)
+
+The same Apple Developer account (the "Developer ID Application" certificate already on the release Mac)
+signs and notarizes the direct-download builds:
+
+- [x] `scripts/publish.sh` signs the macOS app with the hardened runtime and `scripts/Entitlements.plist`
+      (JIT, unsigned executable memory, dyld environment variables, library validation off: what a
+      self-contained .NET app needs), zips it, submits it with `notarytool --wait`, staples the ticket and checks
+      it with `stapler validate` and `spctl`.
+- [x] Names only, no secrets, in the git-ignored `scripts/signing.local.env` (`SIGN_IDENTITY`, `NOTARY_PROFILE`);
+      the app-specific password lives in the keychain profile. Without it the script signs ad hoc as before.
+- [x] Tested on a local arm64 build (2026-10-21): Apple **accepted** it, stapling and Gatekeeper passed, and the
+      app runs with the hardened runtime.
+- [ ] **1.0.6** is the first release built this way. Before it: build on the release Mac with
+      `scripts/signing.local.env` in place (it takes 1–3 minutes per Mac build to notarize, so allow a long
+      timeout); check the notarized Intel (osx-x64) build too; update the release notes (no more "right-click →
+      Open" / `xattr` steps).
+
+For the Mac App Store the same account needs, in addition: an "Apple Distribution" certificate (already in the
+keychain), a "Mac Installer Distribution" certificate for the .pkg, an App ID and a Mac App Store provisioning
+profile, and sandbox entitlements instead of the Developer ID ones (see the sandbox section above).
+

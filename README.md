@@ -504,10 +504,11 @@ scripts/publish.sh osx-arm64       # just one: osx-arm64, osx-x64, win-arm64, wi
 VERSION=1.0.5 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
 ```
 
-Packages are self-contained, so no .NET install is needed to run them. On macOS, if the Mac has a
-"Developer ID Application" certificate, the app is signed with it (hardened runtime, `scripts/Entitlements.plist`),
-notarized with the `notarytool` keychain profile in `NOTARY_PROFILE` (default `maXfolders`) and stapled; without one
-it is signed ad hoc (Apple Silicon only runs signed code). `NOTARIZE=0` signs without notarizing. On Windows you can also run `scripts/publish.ps1`
+Packages are self-contained, so no .NET install is needed to run them. On macOS the app is signed ad hoc
+(Apple Silicon only runs signed code) unless you set up Developer ID signing: copy
+`scripts/signing.local.env.example` to `scripts/signing.local.env` (git-ignored) and fill in your certificate's name and
+a `notarytool` keychain profile. The app is then signed with the hardened runtime (`scripts/Entitlements.plist`),
+notarized by Apple, stapled and checked with `spctl`. `NOTARIZE=0` signs without notarizing. On Windows you can also run `scripts/publish.ps1`
 for the two Windows packages. GitHub Actions (`.github/workflows/ci.yml`) runs the tests on all three OSes and
 builds the packages on every push.
 
