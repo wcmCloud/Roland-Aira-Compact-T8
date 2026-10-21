@@ -230,7 +230,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             var name = FolderPath is null ? "Untitled" : Path.GetFileName(Path.TrimEndingDirectorySeparator(FolderPath));
             if (string.IsNullOrEmpty(name))
                 name = FolderPath;
-            return IsDirty ? $"{name} · not saved" : name!;
+            return IsDirty ? $"{name} · unsaved changes" : name!;
         }
     }
 

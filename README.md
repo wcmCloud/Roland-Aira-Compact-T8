@@ -178,7 +178,7 @@ The screenshots at the top show the whole window on each tab. From top to bottom
 - **Top bar:** New (64 blank patterns), Open…, Save, Save as…; Load from T-8, Write to T-8, Check and ? (T-8 drive); Copy, Paste and Clear
   for the current pattern (bass and rhythm together); and on the right the MIDI output, refresh, Test, settings and About (ⓘ).
 - **Patterns** and **Playback** cards, described below. The Patterns card shows the open folder (e.g. BACKUP) and
-  "not saved" while you have unsaved changes; the title bar just shows the app name and version.
+  an orange dot and "unsaved changes" while there are unsaved edits; the title bar just shows the app name and version.
 - **Rhythm**, **Bass** and **Song** tabs (a rounded selector with icons; the open tab is a raised orange pill): the editors,
   their generators, and songs.
 - **Status bar:** what just happened on the left, the MIDI channels in use on the right.

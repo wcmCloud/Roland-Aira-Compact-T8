@@ -31,6 +31,13 @@ public class MainWindowTests
         var (window, vm) = Show();
 
         Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.4", window.Title);
+        Assert.Equal("BACKUP", window.FindControl<TextBlock>("LibraryText")!.Text);
+        Assert.False(window.FindControl<Avalonia.Controls.Shapes.Ellipse>("UnsavedDot")!.IsVisible);
+        vm.Rhythm.Tracks[0].Cells[1].On = !vm.Rhythm.Tracks[0].Cells[1].On;
+        Assert.True(vm.IsDirty);
+        Assert.True(window.FindControl<Avalonia.Controls.Shapes.Ellipse>("UnsavedDot")!.IsVisible);
+        Assert.Equal("BACKUP · unsaved changes", window.FindControl<TextBlock>("LibraryText")!.Text);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.4", window.Title);
         Assert.Contains("Loaded 64 patterns", window.FindControl<TextBlock>("StatusText")!.Text);
         // CY has no sound on the T-8, so its row is hidden.
         Assert.Equal(7, window.GetVisualDescendants().OfType<RhythmEditorView>().Single()

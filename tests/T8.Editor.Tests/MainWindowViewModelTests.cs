@@ -112,7 +112,7 @@ public class MainWindowViewModelTests : IDisposable
         _vm.Rhythm[RhythmTrack.BD].Cells[0].On = true;
         Assert.True(_vm.IsDirty);
         Assert.EndsWith("v1.0.4", _vm.Title); // the title ends with the version; unsaved shows on the Patterns card
-        Assert.EndsWith("not saved", _vm.LibraryLabel);
+        Assert.EndsWith("unsaved changes", _vm.LibraryLabel);
 
         _vm.Bass.Steps[0].Accent = true;
         Assert.True(_vm.CurrentBass.Steps[0].Accent);

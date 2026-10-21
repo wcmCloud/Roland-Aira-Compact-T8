@@ -155,8 +155,10 @@
             <Ellipse Classes="dot" Fill="{StaticResource SectionOrange}" />
             <TextBlock Classes="cardTitle" Text="PATTERNS" />
             <TextBlock Text="{Binding PatternLabel}" FontSize="11" Foreground="{StaticResource MutedText}" Margin="8,0,0,0" VerticalAlignment="Center" />
+            <Ellipse x:Name="UnsavedDot" Width="7" Height="7" Fill="{StaticResource T8Orange}" Margin="10,0,0,0" VerticalAlignment="Center"
+                     IsVisible="{Binding IsDirty}" ToolTip.Tip="Unsaved changes" />
             <TextBlock x:Name="LibraryText" Text="{Binding LibraryLabel}" FontSize="11" Foreground="{StaticResource MutedText}" Opacity="0.75"
-                       Margin="10,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="320"
+                       Margin="4,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="320"
                        ToolTip.Tip="{Binding FolderPath}" />
           </StackPanel>
           <ItemsControl x:Name="PatternGrid" ItemsSource="{Binding PatternBanks}">
