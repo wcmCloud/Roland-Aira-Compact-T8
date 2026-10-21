@@ -337,13 +337,14 @@ steps. **Generate**, **Randomize**, **Undo** and **Seed** work as for rhythms.
 The **Song** tab chains patterns from the banks into a song.
 
 1. With the Song tab open, **click a pattern in the pattern grid** at the top: it's added to the end of the song,
-   named "Bank n - Pattern y". Click the next one, and so on. (**+ Add selected pattern** does the same for the
+   named "Bank n - Pattern y". Click the next one, and so on. (**Add selected pattern** does the same for the
    pattern that's already open.)
 2. For each entry set the **bank** and **pattern**, how many times it **repeats**, a **name** and a **colour**
    (click the swatch to change it). **Steps** shows how long one pass of the pattern is (its last step).
 3. Turn on **FILL** to play a fill pattern once after the repeats, as a bridge into the next entry, and pick the
    fill pattern (same bank; 16 by default, as made by [Make fill](#fills)).
-4. Reorder with ▲ ▼, duplicate with ⧉, remove with ✕, or press ▶ on a row to play the song from there.
+4. Use the icon buttons at the end of a row: ▶ plays the song from there, the chevrons move it up or down, copy
+   duplicates it and the bin removes it. **FILL** (lit blue when on) adds a fill into the next entry.
 
 Press **PLAY SONG** to play it. The playing entry is outlined in green, the timeline fills up as the song plays,
 and the bottom row shows what's playing now (with the repeat, e.g. 2/4), what comes next, the step and the time.

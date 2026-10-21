@@ -51,6 +51,14 @@
     <StreamGeometry x:Key="IconSeed">M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z</StreamGeometry>
     <StreamGeometry x:Key="IconTriplet">M3,3H21V7.5H19V5H5V7.5H3ZM6,15.5A2.5,2 0 1,0 6,19.5A2.5,2 0 1,0 6,15.5ZM12,15.5A2.5,2 0 1,0 12,19.5A2.5,2 0 1,0 12,15.5ZM18,15.5A2.5,2 0 1,0 18,19.5A2.5,2 0 1,0 18,15.5ZM7.6,9H8.8V17.4H7.6ZM13.6,9H14.8V17.4H13.6ZM19.6,9H20.8V17.4H19.6Z</StreamGeometry>
     <StreamGeometry x:Key="IconTranspose">M9,3L5,7H8V14H10V7H13M16,17V10H14V17H11L15,21L19,17H16Z</StreamGeometry>
+    <!-- Song icons -->
+    <StreamGeometry x:Key="IconChevronUp">M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z</StreamGeometry>
+    <StreamGeometry x:Key="IconChevronDown">M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z</StreamGeometry>
+    <StreamGeometry x:Key="IconTrash">M19,4H15.5L14.5,3H9.5L8.5,4H5V6H19M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19Z</StreamGeometry>
+    <StreamGeometry x:Key="IconPlus">M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z</StreamGeometry>
+    <StreamGeometry x:Key="IconSkipPrevious">M6,18V6H8V18H6M9.5,12L18,6V18L9.5,12Z</StreamGeometry>
+    <StreamGeometry x:Key="IconSkipNext">M16,18H18V6H16M6,18L14.5,12L6,6V18Z</StreamGeometry>
+    <StreamGeometry x:Key="IconLoop">M17,17H7V14L3,18L7,22V19H19V13H17M7,7H17V10L21,6L17,2V5H5V11H7V7Z</StreamGeometry>
     <SolidColorBrush x:Key="BarBg" Color="#0B0B0D" />
     <SolidColorBrush x:Key="CardBg" Color="#18181C" />
     <SolidColorBrush x:Key="CardBorder" Color="#29292F" />
@@ -286,8 +294,8 @@
     <Setter Property="ColumnSpacing" Value="8" />
   </Style>
   <Style Selector="Border.songRow">
-    <Setter Property="CornerRadius" Value="4" />
-    <Setter Property="Padding" Value="8,2" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Padding" Value="8,3" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="BorderBrush" Value="{StaticResource CardBorder}" />
   </Style>
@@ -298,12 +306,7 @@
     <Setter Property="BorderBrush" Value="White" />
   </Style>
   <!-- Compact controls in the song rows -->
-  <Style Selector="Border.songRow ComboBox, Border.songRow TextBox, Border.songRow NumericUpDown">
-    <Setter Property="FontSize" Value="12" />
-    <Setter Property="MinHeight" Value="24" />
-    <Setter Property="Height" Value="24" />
-    <Setter Property="Padding" Value="6,0" />
-  </Style>
+
   <Style Selector="Border.songRow NumericUpDown /template/ ButtonSpinner">
     <Setter Property="MinHeight" Value="24" />
   </Style>
@@ -806,5 +809,93 @@
   </Style>
   <Style Selector="ListBox.picker ListBoxItem:selected /template/ ContentPresenter">
     <Setter Property="Background" Value="{StaticResource T8Orange}" />
+  </Style>
+  <!-- Row tools: hover and pressed states; delete turns red -->
+  <Style Selector="Button.rowTool:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#2A2A32" />
+    <Setter Property="BorderBrush" Value="#4A4A54" />
+  </Style>
+  <Style Selector="Button.rowTool:pressed /template/ ContentPresenter">
+    <Setter Property="Background" Value="#34343D" />
+  </Style>
+  <Style Selector="Button.rowTool.danger:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#40E5484D" />
+    <Setter Property="BorderBrush" Value="#E5484D" />
+    <Setter Property="Foreground" Value="#FF6B70" />
+  </Style>
+
+  <!-- Song: outlined text fields, lit chips in the play area, the orange pill -->
+  <Style Selector="TextBox.field">
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="Background" Value="#CC141418" />
+    <Setter Property="BorderBrush" Value="#3A3A42" />
+  </Style>
+  <Style Selector="Border.fieldBox TextBox.field">
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="Border.fieldBox TextBox.field:pointerover /template/ Border#PART_BorderElement, Border.fieldBox TextBox.field:focus /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="#1E1E24" />
+    <Setter Property="BorderThickness" Value="0" />
+  </Style>
+  <Style Selector="Button.chip.lit /template/ ContentPresenter, Button.chip.lit:pointerover /template/ ContentPresenter">
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Offset="0" Color="#FF9440" />
+        <GradientStop Offset="1" Color="#F06A0E" />
+      </LinearGradientBrush>
+    </Setter>
+    <Setter Property="BorderBrush" Value="#FFB070" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+  <Style Selector="Button.chip:disabled /template/ ContentPresenter">
+    <Setter Property="Opacity" Value="0.4" />
+  </Style>
+  <Style Selector="Button.primary.pill">
+    <Setter Property="CornerRadius" Value="15" />
+    <Setter Property="Height" Value="30" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="14,0" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.primary.pill PathIcon">
+    <Setter Property="Width" Value="12" />
+    <Setter Property="Height" Value="12" />
+  </Style>
+  <!-- Outlined fields in the song rows (after the .port styles so the outline wins) -->
+  <Style Selector="Border.songRow ComboBox.port, Border.songRow NumericUpDown.port">
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="#3A3A42" />
+    <Setter Property="Background" Value="#CC141418" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+  <Style Selector="Border.songRow NumericUpDown.port /template/ ButtonSpinner">
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="#3A3A42" />
+    <Setter Property="Background" Value="#CC141418" />
+    <Setter Property="CornerRadius" Value="6" />
+  </Style>
+  <Style Selector="NumericUpDown.port /template/ ButtonSpinner /template/ RepeatButton:disabled /template/ ContentPresenter">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Opacity" Value="0.35" />
+  </Style>
+  <Style Selector="Button.chip:disabled /template/ ContentPresenter">
+    <Setter Property="Background" Value="#141418" />
+    <Setter Property="BorderBrush" Value="#2C2C33" />
+  </Style>
+  <Style Selector="Border.songRow NumericUpDown.port /template/ TextBox">
+    <Setter Property="Height" Value="26" />
+    <Setter Property="Padding" Value="8,0,2,0" />
+  </Style>
+  <Style Selector="Border.songRow NumericUpDown.port /template/ ButtonSpinner /template/ RepeatButton">
+    <Setter Property="Width" Value="18" />
   </Style>
 </Styles>

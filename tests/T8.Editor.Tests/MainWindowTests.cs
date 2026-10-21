@@ -249,6 +249,50 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Song_tab_buttons_have_icons_combos_are_outlined_and_rows_still_work()
+    {
+        var (window, vm) = Show();
+        window.FindControl<TabControl>("Tabs")!.SelectedIndex = 2;
+        vm.Song.AddCurrentPatternCommand.Execute(null);
+        vm.Song.AddCurrentPatternCommand.Execute(null);
+        window.UpdateLayout();
+        var song = window.GetVisualDescendants().OfType<SongView>().Single();
+
+        foreach (var name in new[] { "CopyToBankButton", "NewSongButton", "OpenSongButton", "SaveSongButton", "SaveSongAsButton",
+                     "AddCurrentPatternButton", "PlaySongButton", "StopSongButton", "PreviousEntryButton", "NextEntryButton" })
+            Assert.NotNull(song.FindControl<Button>(name)!.GetVisualDescendants().OfType<PathIcon>().Single().Data);
+        foreach (var name in new[] { "CopyBankPicker", "LoopEntryPicker" })
+            Assert.Contains("port", song.FindControl<ComboBox>(name)!.Classes);
+        Assert.Contains("field", song.FindControl<TextBox>("SongTitleBox")!.Classes);
+        var labels = song.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text).ToList();
+        Assert.Contains("TITLE", labels);
+        Assert.Contains("COPY TO BANK", labels);
+        Assert.Contains("LOOP", labels);
+
+        // Each row: outlined combos and repeat field, a FILL chip with an icon, and five icon buttons (delete in red).
+        var rows = song.GetVisualDescendants().OfType<Border>().Where(b => b.Classes.Contains("songRow")).ToList();
+        Assert.Equal(2, rows.Count);
+        var row = rows[0];
+        Assert.Equal(3, row.GetVisualDescendants().OfType<ComboBox>().Count(c => c.Classes.Contains("port")));
+        Assert.Contains("port", row.GetVisualDescendants().OfType<NumericUpDown>().Single().Classes);
+        var tools = row.GetVisualDescendants().OfType<Button>().Where(b => b.Classes.Contains("rowTool")).ToList();
+        Assert.Equal(5, tools.Count);
+        Assert.All(tools, b => Assert.NotNull(b.GetVisualDescendants().OfType<PathIcon>().Single().Data));
+        Assert.Contains("danger", tools[4].Classes);
+
+        var fill = row.GetVisualDescendants().OfType<ToggleButton>().Single(t => t.Classes.Contains("chip"));
+        Assert.NotNull(fill.GetVisualDescendants().OfType<PathIcon>().Single().Data);
+        var hadFill = vm.Song.Entries[0].HasFill;
+        fill.IsChecked = !hadFill;
+        Assert.Equal(!hadFill, vm.Song.Entries[0].HasFill);
+
+        tools[4].Command!.Execute(tools[4].CommandParameter); // delete
+        Assert.Single(vm.Song.Entries);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Each_row_name_has_its_own_drum_icon()
     {
         var (window, vm) = Show();

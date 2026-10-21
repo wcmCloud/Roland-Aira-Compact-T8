@@ -5,25 +5,62 @@
              x:Class="T8.Editor.Views.SongView"
              x:DataType="vm:SongViewModel">
   <DockPanel Margin="0,8,0,0">
-    <!-- Song: title, file, loop -->
+    <!-- Song: title, copy to bank, file -->
     <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,10">
       <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
-          <TextBlock Text="Copy to bank" Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" />
-          <ComboBox x:Name="CopyBankPicker" ItemsSource="{x:Static vm:SongViewModel.Banks}" SelectedItem="{Binding CopyTargetBank}" Width="64"
-                    ToolTip.Tip="Bank to copy the song's patterns into" />
-          <Button x:Name="CopyToBankButton" Classes="seg" Content="Copy" Command="{Binding CopyToBankCommand}" Margin="0,0,14,0"
-                  ToolTip.Tip="Copy the song's patterns into this bank in song order (entry 1 to pattern 1…, then fills); the rest of the bank is left empty" />
-          <Button x:Name="NewSongButton" Classes="seg" Content="New song" Command="{Binding NewSongCommand}" />
-          <Button x:Name="OpenSongButton" Classes="seg" Content="Open song…" Command="{Binding OpenSongCommand}" />
-          <Button x:Name="SaveSongButton" Classes="seg" Content="Save song" Command="{Binding SaveSongCommand}" />
-          <Button x:Name="SaveSongAsButton" Classes="seg" Content="Save as…" Command="{Binding SaveSongAsCommand}" />
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Border Classes="fieldBox">
+            <StackPanel Orientation="Horizontal" Spacing="4">
+              <TextBlock Classes="fieldLabel" Text="COPY TO BANK" />
+              <ComboBox x:Name="CopyBankPicker" Classes="port" ItemsSource="{x:Static vm:SongViewModel.Banks}" SelectedItem="{Binding CopyTargetBank}" Width="62"
+                        ToolTip.Tip="Bank to copy the song's patterns into" />
+              <Button x:Name="CopyToBankButton" Classes="tool" Command="{Binding CopyToBankCommand}" ToolTip.Tip="Copy the song's patterns into this bank in song order (entry 1 to pattern 1…, then fills); the rest of the bank is left empty">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconCopy}" />
+                  <TextBlock Text="Copy" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Border>
+          <Border Classes="toolgroup">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <Button x:Name="NewSongButton" Classes="tool" Command="{Binding NewSongCommand}" ToolTip.Tip="Start a new, empty song">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconNew}" />
+                  <TextBlock Text="New song" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="OpenSongButton" Classes="tool" Command="{Binding OpenSongCommand}" ToolTip.Tip="Open a .t8song file">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconOpen}" />
+                  <TextBlock Text="Open song…" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="SaveSongButton" Classes="tool" Command="{Binding SaveSongCommand}" ToolTip.Tip="Save the song">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconSave}" />
+                  <TextBlock Text="Save song" />
+                </StackPanel>
+              </Button>
+              <Button x:Name="SaveSongAsButton" Classes="tool" Command="{Binding SaveSongAsCommand}" ToolTip.Tip="Save the song to a new file">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <PathIcon Data="{StaticResource IconSaveAs}" />
+                  <TextBlock Text="Save as…" />
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Border>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="10">
-          <Ellipse Classes="dot" Fill="{StaticResource SectionPurple}" />
+          <Ellipse Classes="dot" Fill="{StaticResource SectionPurple}" VerticalAlignment="Center" />
           <TextBlock Classes="cardTitle" Text="SONG" />
-          <TextBox x:Name="SongTitleBox" Text="{Binding Title}" Width="280" Watermark="Song title" Margin="8,0,0,0" />
-          <TextBlock Text="{Binding FileLabel}" Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" />
+          <Border Classes="fieldBox" Margin="6,0,0,0">
+            <StackPanel Orientation="Horizontal" Spacing="2">
+              <TextBlock Classes="fieldLabel" Text="TITLE" />
+              <TextBox x:Name="SongTitleBox" Classes="field" Text="{Binding Title}" Width="260" Watermark="Song title" />
+            </StackPanel>
+          </Border>
+          <TextBlock Text="{Binding FileLabel}" Foreground="{StaticResource MutedText}" FontSize="11.5" VerticalAlignment="Center" />
         </StackPanel>
       </DockPanel>
     </Border>
@@ -32,35 +69,38 @@
     <Border DockPanel.Dock="Bottom" Classes="card" Margin="0,10,0,0">
       <StackPanel Spacing="10">
         <DockPanel>
-          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-            <TextBlock Text="Loop" Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" />
-            <ComboBox x:Name="LoopEntryPicker" ItemsSource="{Binding LoopChoices}" SelectedItem="{Binding LoopChoice}" MinWidth="220"
-                      ToolTip.Tip="Play the song once, loop the whole song from the start when it ends, or keep looping one entry" />
-          </StackPanel>
-          <StackPanel Orientation="Horizontal" Spacing="4">
-            <Button x:Name="PlaySongButton" Classes="seg green" Classes.active="{Binding IsPlaying}" Command="{Binding PlayCommand}"
+          <Border DockPanel.Dock="Right" Classes="fieldBox">
+            <StackPanel Orientation="Horizontal" Spacing="3">
+              <PathIcon Data="{StaticResource IconLoop}" Width="12" Height="12" Foreground="{StaticResource MutedText}" Margin="7,0,0,0" />
+              <TextBlock Classes="fieldLabel" Text="LOOP" Margin="2,0,4,0" />
+              <ComboBox x:Name="LoopEntryPicker" Classes="port" ItemsSource="{Binding LoopChoices}" SelectedItem="{Binding LoopChoice}" MinWidth="210"
+                        ToolTip.Tip="Play the song once, loop the whole song from the start when it ends, or keep looping one entry" />
+            </StackPanel>
+          </Border>
+          <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+            <Button x:Name="PlaySongButton" Classes="chip" Classes.lit="{Binding IsPlaying}" Command="{Binding PlayCommand}"
                     ToolTip.Tip="Play the song from the start (or the looped entry)">
-              <StackPanel Orientation="Horizontal" Spacing="5">
-                <PathIcon Data="{StaticResource IconPlay}" Width="11" Height="11" />
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconPlay}" />
                 <TextBlock Text="PLAY SONG" />
               </StackPanel>
             </Button>
-            <Button x:Name="StopSongButton" Classes="seg" Command="{Binding StopCommand}">
-              <StackPanel Orientation="Horizontal" Spacing="5">
-                <PathIcon Data="{StaticResource IconStop}" Width="10" Height="10" />
+            <Button x:Name="StopSongButton" Classes="chip" Command="{Binding StopCommand}" ToolTip.Tip="Stop the song">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconStop}" Width="11" Height="11" />
                 <TextBlock Text="STOP" />
               </StackPanel>
             </Button>
-            <Button x:Name="PreviousEntryButton" Classes="seg" Command="{Binding PreviousCommand}" Margin="8,0,0,0" ToolTip.Tip="Go to the previous entry">
-              <StackPanel Orientation="Horizontal" Spacing="4">
-                <PathIcon Data="{StaticResource IconLeft}" />
+            <Button x:Name="PreviousEntryButton" Classes="chip" Command="{Binding PreviousCommand}" Margin="8,0,0,0" ToolTip.Tip="Go to the previous entry">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconSkipPrevious}" />
                 <TextBlock Text="PREVIOUS" />
               </StackPanel>
             </Button>
-            <Button x:Name="NextEntryButton" Classes="seg" Command="{Binding NextCommand}" ToolTip.Tip="Go to the next entry">
-              <StackPanel Orientation="Horizontal" Spacing="4">
+            <Button x:Name="NextEntryButton" Classes="chip" Command="{Binding NextCommand}" ToolTip.Tip="Go to the next entry">
+              <StackPanel Orientation="Horizontal" Spacing="6">
                 <TextBlock Text="NEXT" />
-                <PathIcon Data="{StaticResource IconRight}" />
+                <PathIcon Data="{StaticResource IconSkipNext}" />
               </StackPanel>
             </Button>
           </StackPanel>
@@ -115,9 +155,12 @@
       <DockPanel>
         <DockPanel DockPanel.Dock="Top" Margin="0,0,0,8">
           <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6">
-            <Button x:Name="AddCurrentPatternButton" Classes="primary" Command="{Binding AddCurrentPatternCommand}"
+            <Button x:Name="AddCurrentPatternButton" Classes="primary pill" Command="{Binding AddCurrentPatternCommand}"
                     ToolTip.Tip="Add the pattern selected in the pattern grid">
-              <TextBlock Text="+ Add selected pattern" />
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconPlus}" />
+                <TextBlock Text="Add selected pattern" />
+              </StackPanel>
             </Button>
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="7">
@@ -129,7 +172,7 @@
         </DockPanel>
 
         <!-- Column headings -->
-        <Grid DockPanel.Dock="Top" Classes="songColumns" ColumnDefinitions="36,60,64,84,44,*,52,60,36,150" Margin="10,0,10,4">
+        <Grid DockPanel.Dock="Top" Classes="songColumns" ColumnDefinitions="36,66,68,86,44,*,70,66,36,146" Margin="10,0,10,4">
           <TextBlock Text="#" Classes="miniLabel" />
           <TextBlock Grid.Column="1" Text="BANK" Classes="miniLabel" />
           <TextBlock Grid.Column="2" Text="PATTERN" Classes="miniLabel" />
@@ -156,32 +199,48 @@
                         <Binding Path="IsCurrent" />
                       </MultiBinding>
                     </Border.Background>
-                    <Grid Classes="songColumns" ColumnDefinitions="36,60,64,84,44,*,52,60,36,150">
+                    <Grid Classes="songColumns" ColumnDefinitions="36,66,68,86,44,*,70,66,36,146">
                       <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                         <PathIcon Data="{StaticResource IconPlay}" Width="9" Height="9" Foreground="{StaticResource SectionGreen}"
                                   IsVisible="{Binding IsCurrent}" />
                         <TextBlock Text="{Binding Number}" FontWeight="SemiBold" FontSize="12" VerticalAlignment="Center" />
                       </StackPanel>
-                      <ComboBox Grid.Column="1" ItemsSource="{x:Static vm:SongViewModel.Banks}" SelectedItem="{Binding Bank}" HorizontalAlignment="Stretch" />
-                      <ComboBox Grid.Column="2" ItemsSource="{x:Static vm:SongViewModel.Patterns}" SelectedItem="{Binding Pattern}" HorizontalAlignment="Stretch" />
-                      <NumericUpDown Grid.Column="3" Value="{Binding Repeats}" Minimum="1" Maximum="99" FormatString="0" HorizontalAlignment="Stretch" />
+                      <ComboBox Grid.Column="1" Classes="port" ItemsSource="{x:Static vm:SongViewModel.Banks}" SelectedItem="{Binding Bank}" HorizontalAlignment="Stretch" Margin="0,0,4,0"
+                                ToolTip.Tip="Bank" />
+                      <ComboBox Grid.Column="2" Classes="port" ItemsSource="{x:Static vm:SongViewModel.Patterns}" SelectedItem="{Binding Pattern}" HorizontalAlignment="Stretch" Margin="0,0,4,0"
+                                ToolTip.Tip="Pattern" />
+                      <NumericUpDown Grid.Column="3" Classes="port" Value="{Binding Repeats}" Minimum="1" Maximum="99" FormatString="0" HorizontalAlignment="Stretch" Margin="0,0,4,0"
+                                     ToolTip.Tip="How many times this entry plays" />
                       <TextBlock Grid.Column="4" Text="{Binding Steps}" FontSize="12" Opacity="0.8" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                      <TextBox Grid.Column="5" Text="{Binding Name}" Watermark="Name" />
-                      <ToggleButton Grid.Column="6" Classes="seg blue" Content="FILL" IsChecked="{Binding HasFill}"
-                                    ToolTip.Tip="After the repeats, play a fill pattern once as a bridge into the next entry" />
-                      <ComboBox Grid.Column="7" ItemsSource="{x:Static vm:SongViewModel.Patterns}" SelectedItem="{Binding FillPattern}"
+                      <TextBox Grid.Column="5" Classes="field" Text="{Binding Name}" Watermark="Name" Margin="0,0,8,0" />
+                      <ToggleButton Grid.Column="6" Classes="chip small" IsChecked="{Binding HasFill}" HorizontalAlignment="Left"
+                                    ToolTip.Tip="After the repeats, play a fill pattern once as a bridge into the next entry">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                          <PathIcon Data="{StaticResource IconBuildUp}" Width="11" Height="11" />
+                          <TextBlock Text="FILL" />
+                        </StackPanel>
+                      </ToggleButton>
+                      <ComboBox Grid.Column="7" Classes="port" ItemsSource="{x:Static vm:SongViewModel.Patterns}" SelectedItem="{Binding FillPattern}"
                                 IsEnabled="{Binding HasFill}" HorizontalAlignment="Stretch" ToolTip.Tip="Fill pattern, in the same bank" />
                       <Button Grid.Column="8" Classes="swatch" Command="{Binding NextColorCommand}" ToolTip.Tip="Change the colour">
                         <Border Background="{Binding Color, Converter={x:Static vm:Converters.HexPlaying}}" CornerRadius="3" Width="22" Height="14" />
                       </Button>
                       <StackPanel Grid.Column="9" Orientation="Horizontal" Spacing="3" HorizontalAlignment="Right">
-                        <Button Classes="seg mini" Command="{Binding PlayFromHereCommand}" ToolTip.Tip="Play the song from here">
-                          <PathIcon Data="{StaticResource IconPlay}" Width="10" Height="10" />
+                        <Button Classes="rowTool" Command="{Binding PlayFromHereCommand}" ToolTip.Tip="Play the song from here">
+                          <PathIcon Data="{StaticResource IconPlay}" />
                         </Button>
-                        <Button Classes="seg mini" Content="▲" Command="{Binding MoveUpCommand}" ToolTip.Tip="Move up" />
-                        <Button Classes="seg mini" Content="▼" Command="{Binding MoveDownCommand}" ToolTip.Tip="Move down" />
-                        <Button Classes="seg mini" Content="⧉" Command="{Binding DuplicateCommand}" ToolTip.Tip="Duplicate" />
-                        <Button Classes="seg mini" Content="✕" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove" />
+                        <Button Classes="rowTool" Command="{Binding MoveUpCommand}" ToolTip.Tip="Move up">
+                          <PathIcon Data="{StaticResource IconChevronUp}" />
+                        </Button>
+                        <Button Classes="rowTool" Command="{Binding MoveDownCommand}" ToolTip.Tip="Move down">
+                          <PathIcon Data="{StaticResource IconChevronDown}" />
+                        </Button>
+                        <Button Classes="rowTool" Command="{Binding DuplicateCommand}" ToolTip.Tip="Duplicate">
+                          <PathIcon Data="{StaticResource IconCopy}" />
+                        </Button>
+                        <Button Classes="rowTool danger" Command="{Binding RemoveCommand}" ToolTip.Tip="Remove">
+                          <PathIcon Data="{StaticResource IconTrash}" />
+                        </Button>
                       </StackPanel>
                     </Grid>
                   </Border>
