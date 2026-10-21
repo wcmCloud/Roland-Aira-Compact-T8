@@ -297,6 +297,12 @@ public class MainWindowTests
         previous.Command!.Execute(null);
         Assert.Same(vm.Bass.Steps[0], vm.Bass.SelectedStep);
 
+        // Clicking a step's number selects the step too.
+        var numbers = editor.GetVisualDescendants().OfType<Button>().Where(b => b.Classes.Contains("stepNumber")).ToList();
+        Assert.Equal(32, numbers.Count);
+        Click(window, numbers[4]);
+        Assert.Same(vm.Bass.Steps[4], vm.Bass.SelectedStep);
+
         var before = vm.Bass.Steps[0].NoteName;
         up12.Command!.Execute(up12.CommandParameter);
         Assert.NotEqual(before, vm.Bass.Steps[0].NoteName);

@@ -62,7 +62,8 @@
               <Border Classes="bassStep" Classes.beat="{Binding IsBeat}" Classes.outside="{Binding !IsInLength}"
                       Classes.selected="{Binding IsSelected}" Classes.playing="{Binding IsPlaying}" ContextRequested="OnStepContextRequested">
                 <StackPanel Spacing="3">
-                  <TextBlock Text="{Binding Number}" HorizontalAlignment="Center" FontSize="11" Opacity="0.6" />
+                  <Button Classes="stepNumber" Content="{Binding Number}" Command="{Binding SelectCommand}"
+                          ToolTip.Tip="Select this step" />
                   <Button Classes="note" Classes.on="{Binding HasNote}" Content="{Binding NoteName}"
                           Command="{Binding SelectCommand}" ToolTip.Tip="Select, then play a key below (right-click for all notes)" />
                   <Button Classes="state" Classes.on="{Binding HasNote}" Content="{Binding StateLabel}"

@@ -296,7 +296,7 @@ SHIFT + STEP 7 (FILL TRG) plays it once before going back to the main pattern.
 
 Each column is one step: its note, its state, semitone up/down, and Accent and Slide.
 
-- Click a step's note to select it (outlined in white); its note lights up orange on the keyboard.
+- Click a step's note or its number to select it (outlined in white); its note lights up orange on the keyboard.
 - Click a key on the **keyboard** to give the selected step that note. The step is turned on, you hear the note
   on the T-8, and the selection moves to the next step, so you can play a line in key by key. Turn off
   **Next step after a note** (in the **Step editor** panel above the keyboard) to stay on the same step. The
