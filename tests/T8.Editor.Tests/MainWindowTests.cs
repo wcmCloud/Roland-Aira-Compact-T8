@@ -200,6 +200,7 @@ public class MainWindowTests
 
         Assert.Contains("port", generator.FindControl<ComboBox>("StylePicker")!.Classes);
         Assert.Contains("port", generator.FindControl<ComboBox>("FillPatternPicker")!.Classes);
+        Assert.Contains("port", generator.FindControl<NumericUpDown>("RhythmSeedInput")!.Classes);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateRhythmButton")!.Content);
         window.Close();
         vm.Dispose();
@@ -215,7 +216,8 @@ public class MainWindowTests
 
         foreach (var name in new[] { "KeyPicker", "ScalePicker", "ProgressionPicker", "ChordLengthPicker" })
             Assert.Contains("port", generator.FindControl<ComboBox>(name)!.Classes);
-        Assert.Equal(3, generator.GetVisualDescendants().OfType<Border>().Count(b => b.Classes.Contains("fieldBox")));
+        Assert.Equal(4, generator.GetVisualDescendants().OfType<Border>().Count(b => b.Classes.Contains("fieldBox")));
+        Assert.Contains("port", generator.FindControl<NumericUpDown>("SeedInput")!.Classes);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateButton")!.Content);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("UndoGenerateButton")!.Content);
         window.Close();
