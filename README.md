@@ -109,9 +109,8 @@ The downloads are self-contained, so there is nothing else to install:
 | Linux x64 | `T8Editor-1.0.5-linux-x64.tar.gz` |
 | Linux ARM64 | `T8Editor-1.0.5-linux-arm64.tar.gz` |
 
-- **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications. It isn't notarized by Apple, so the
-  first time right-click it and choose **Open**. If macOS says it is damaged, run
-  `xattr -dr com.apple.quarantine "/Applications/Roland Aira Compact T-8 Editor.app"` once.
+- **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications, then open it. The app is signed with
+  a Developer ID and notarized by Apple, so it opens without warnings.
 - **Windows:** unzip and run `T8Editor.exe`. If SmartScreen warns, choose **More info → Run anyway**.
 - **Linux:** unpack and run `./T8Editor`. Your user needs access to the MIDI devices (usually the `audio` group).
   For an app-menu entry with the icon: `cp -r icons ~/.local/share/`, and copy `T8Editor.desktop` to
@@ -505,8 +504,10 @@ scripts/publish.sh osx-arm64       # just one: osx-arm64, osx-x64, win-arm64, wi
 VERSION=1.0.5 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
 ```
 
-Packages are self-contained, so no .NET install is needed to run them. On macOS the app bundle is signed ad hoc
-(Apple Silicon only runs signed code); it isn't notarized. On Windows you can also run `scripts/publish.ps1`
+Packages are self-contained, so no .NET install is needed to run them. On macOS, if the Mac has a
+"Developer ID Application" certificate, the app is signed with it (hardened runtime, `scripts/Entitlements.plist`),
+notarized with the `notarytool` keychain profile in `NOTARY_PROFILE` (default `maXfolders`) and stapled; without one
+it is signed ad hoc (Apple Silicon only runs signed code). `NOTARIZE=0` signs without notarizing. On Windows you can also run `scripts/publish.ps1`
 for the two Windows packages. GitHub Actions (`.github/workflows/ci.yml`) runs the tests on all three OSes and
 builds the packages on every push.
 

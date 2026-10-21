@@ -27,9 +27,8 @@ Self-contained builds: nothing else to install. Download the one for your comput
 | Linux x64 | `T8Editor-<version>-linux-x64.tar.gz` |
 | Linux ARM64 (e.g. Raspberry Pi 4/5 with a 64-bit OS) | `T8Editor-<version>-linux-arm64.tar.gz` |
 
-- **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications. The app isn't notarized by Apple, so the
-  first time right-click it and choose **Open**. If macOS says it is damaged, run
-  `xattr -dr com.apple.quarantine "/Applications/Roland Aira Compact T-8 Editor.app"` once.
+- **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications, then open it. The app is signed with
+  a Developer ID and notarized by Apple, so it opens without warnings.
 - **Windows:** unzip and run `T8Editor.exe`. If SmartScreen warns, choose **More info → Run anyway**.
 - **Linux:** `tar -xzf T8Editor-<version>-linux-x64.tar.gz` and run `./T8Editor` in the folder. Your user needs access
   to the MIDI devices (usually the `audio` group).
