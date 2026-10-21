@@ -220,6 +220,17 @@ public class MainWindowTests
         Assert.Contains("port", generator.FindControl<NumericUpDown>("SeedInput")!.Classes);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateButton")!.Content);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("UndoGenerateButton")!.Content);
+
+        // Last step, Triplet and Transpose share one outlined panel above the steps.
+        var editor = window.GetVisualDescendants().OfType<BassEditorView>().Single();
+        var length = editor.FindControl<NumericUpDown>("BassLength")!;
+        Assert.Contains("port", length.Classes);
+        Assert.Contains("fieldBox", length.FindAncestorOfType<Border>()!.Classes);
+        var triplet = editor.FindControl<ToggleButton>("TripletCheck")!;
+        Assert.Contains("chip", triplet.Classes);
+        triplet.IsChecked = !vm.Bass.Triplet;
+        Assert.Equal(triplet.IsChecked, vm.Bass.Triplet);
+        Assert.NotNull(editor.FindControl<Button>("TransposeUp12Button"));
         window.Close();
         vm.Dispose();
     }

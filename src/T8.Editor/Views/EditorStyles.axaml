@@ -49,6 +49,7 @@
     <StreamGeometry x:Key="IconBuildUp">M16,6L18.29,8.29L13.41,13.17L9.41,9.17L2,16.59L3.41,18L9.41,12L13.41,16L19.71,9.71L22,12V6H16Z</StreamGeometry>
     <StreamGeometry x:Key="IconMakeFill">M3,16H10V14H3M18,14V10H16V14H12V16H16V20H18V16H22V14M14,6H3V8H14M14,10H3V12H14V10Z</StreamGeometry>
     <StreamGeometry x:Key="IconSeed">M17,8C8,10 5.9,16.17 3.82,21.34L5.71,22L6.66,19.7C7.14,19.87 7.64,20 8,20C19,20 22,3 22,3C21,5 14,5.25 9,6.25C4,7.25 2,11.5 2,13.5C2,15.5 3.75,17.25 3.75,17.25C7,8 17,8 17,8Z</StreamGeometry>
+    <StreamGeometry x:Key="IconTriplet">M3,3H21V7.5H19V5H5V7.5H3ZM6,15.5A2.5,2 0 1,0 6,19.5A2.5,2 0 1,0 6,15.5ZM12,15.5A2.5,2 0 1,0 12,19.5A2.5,2 0 1,0 12,15.5ZM18,15.5A2.5,2 0 1,0 18,19.5A2.5,2 0 1,0 18,15.5ZM7.6,9H8.8V17.4H7.6ZM13.6,9H14.8V17.4H13.6ZM19.6,9H20.8V17.4H19.6Z</StreamGeometry>
     <SolidColorBrush x:Key="BarBg" Color="#0B0B0D" />
     <SolidColorBrush x:Key="CardBg" Color="#18181C" />
     <SolidColorBrush x:Key="CardBorder" Color="#29292F" />
@@ -93,7 +94,7 @@
     <Setter Property="Padding" Value="3" />
     <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
-  <Style Selector="Border.toolgroup Button.tool">
+  <Style Selector="Border.toolgroup Button.tool, Border.fieldBox Button.tool">
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="CornerRadius" Value="5" />
@@ -550,6 +551,19 @@
   <Style Selector="NumericUpDown.port /template/ TextBox:pointerover /template/ Border#PART_BorderElement, NumericUpDown.port /template/ TextBox:focus /template/ Border#PART_BorderElement">
     <Setter Property="Background" Value="#1E1E24" />
     <Setter Property="BorderThickness" Value="0" />
+  </Style>
+  <Style Selector="NumericUpDown.port /template/ ButtonSpinner">
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Height" Value="28" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="Rectangle.boxDivider">
+    <Setter Property="Width" Value="1" />
+    <Setter Property="Height" Value="18" />
+    <Setter Property="Fill" Value="#2C2C33" />
+    <Setter Property="Margin" Value="6,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
   </Style>
   <Style Selector="Border.fieldBox ComboBox.port">
     <Setter Property="BorderThickness" Value="0" />
