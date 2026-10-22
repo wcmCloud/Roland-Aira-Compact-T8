@@ -154,7 +154,7 @@ The editor and the T-8 must use the same MIDI channels. Open the MIDI settings w
 - **Drum note numbers** are the notes for each drum (the T-8's defaults are filled in); each box shows the
   drum's icon and takes a number from 0 to 127. **Reset to T-8 defaults** puts back the T-8's channels and notes.
 - **Play button** chooses what Play does (see [Playing patterns](#playing-patterns)).
-- **Switch the T-8 to the pattern I pick in the editor** sends a pattern change whenever you pick a pattern.
+- **Switch the T-8 to the pattern I pick in the editor** (on by default) sends a pattern change whenever you pick a pattern.
   It needs `rXPc` (receive program change) turned on in the T-8's menu.
 - **Follow the T-8** (on by default) works the other way round: when you change pattern on the T-8, the editor
   switches to it (turn `tXPc`, transmit program change, on in the T-8's menu), and when you press Play on the T-8,

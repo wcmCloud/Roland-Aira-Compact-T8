@@ -21,8 +21,8 @@ public sealed class EditorSettings
     public T8MidiMap Midi { get; set; } = new();
     public PlayMode PlayMode { get; set; } = PlayMode.PreviewNotes;
 
-    /// <summary>Send a program change whenever a pattern is picked in the editor.</summary>
-    public bool FollowSelection { get; set; }
+    /// <summary>Send a program change whenever a pattern is picked in the editor (on by default; needs rXPc on the T-8).</summary>
+    public bool FollowSelection { get; set; } = true;
 
     /// <summary>
     /// Listen to the T-8: switch to the pattern picked on it (it sends a program change when tXPc is

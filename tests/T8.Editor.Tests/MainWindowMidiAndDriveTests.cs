@@ -133,7 +133,7 @@ public class MainWindowMidiAndDriveTests : IDisposable
     [Fact]
     public void Sync_mode_selects_the_pattern_and_runs_the_t8_clock()
     {
-        _store.Stored = new EditorSettings { PlayMode = PlayMode.SyncT8Sequencer };
+        _store.Stored = new EditorSettings { PlayMode = PlayMode.SyncT8Sequencer, FollowSelection = false };
         Vm.SelectedBank = 2;
 
         Vm.PlayCommand.Execute(null);
@@ -160,8 +160,17 @@ public class MainWindowMidiAndDriveTests : IDisposable
     }
 
     [Fact]
+    public void Switching_the_t8_to_the_picked_pattern_is_on_by_default()
+    {
+        Assert.True(new EditorSettings().FollowSelection);
+        Vm.SelectedPattern = 9;
+        Assert.Contains(_ports.LastOpened!.Events, e => e is ProgramChangeEvent p && p.ProgramNumber == 8);
+    }
+
+    [Fact]
     public void Without_follow_selection_picking_patterns_sends_nothing()
     {
+        _store.Stored = new EditorSettings { FollowSelection = false };
         Vm.SelectedPattern = 9;
         Assert.Empty(_ports.Opened);
     }

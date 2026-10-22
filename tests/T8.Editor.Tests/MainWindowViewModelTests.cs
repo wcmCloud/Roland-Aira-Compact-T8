@@ -232,6 +232,7 @@ public class MainWindowViewModelTests : IDisposable
     {
         _vm.SelectedBank = 2;
         _vm.SelectedPattern = 4;
+        _ports.LastOpened?.Clear(); // picking the pattern already switched the T-8 (on by default)
         _vm.SelectOnT8Command.Execute(null);
 
         var pc = Assert.IsType<ProgramChangeEvent>(Assert.Single(_ports.LastOpened!.Events));

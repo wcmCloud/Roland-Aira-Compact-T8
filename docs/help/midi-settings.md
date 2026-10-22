@@ -21,7 +21,7 @@ The MIDI note for each drum (0–127). The T-8's defaults: bass drum 36, snare 3
 
 - **Play through the T-8's sounds:** the editor sends the pattern as notes; you hear edits straight away and Fill works. Stop the T-8's own sequencer first.
 - **Run the T-8's own sequencer:** the editor selects the pattern and sends MIDI clock; the T-8 plays its stored pattern at the editor's tempo. Set `SYnC` to AUTO or USB and turn `rXPc` on.
-- **Switch the T-8 to the pattern I pick in the editor** needs `rXPc` on.
+- **Switch the T-8 to the pattern I pick in the editor** (on by default) needs `rXPc` on.
 - **Follow the T-8:** the editor follows pattern changes made on the T-8 (needs `tXPc` on) and shows its playing step and tempo.
 
 ## Updates
