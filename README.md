@@ -338,7 +338,7 @@ Each column is one step: its note, its state, semitone up/down, and Accent and S
   under **Tones**), and grey keys are outside the scale. A grey key still plays. Generate and Vary use this same key.
 - Click a key on the **keyboard** to give the selected step that note. The step is turned on, you hear the note
   on the T-8, and the selection moves to the next step, so you can play a line in key by key. Turn off
-  **Next step after a note** (in the **Step editor** panel above the keyboard) to stay on the same step. The
+  **Next step** (next step after a note, in the **Step editor** panel above the keyboard) to stay on the same step. The
   chevrons there move the selection. The pink keys move with the selection when a progression changes chord.
 - The state button cycles **Off → Note → Tie**. A tie holds the previous note through the step.
 - The **Pattern** panel above the steps holds **Last step** (1–32), **Triplet** (lit orange when on) and

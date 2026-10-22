@@ -106,10 +106,10 @@
               </Button>
             </StackPanel>
             <ToggleButton x:Name="AdvanceCheck" Classes="chip orange compact" IsChecked="{Binding AdvanceAfterNote}" VerticalAlignment="Center"
-                          ToolTip.Tip="After you pick a note on the keyboard, select the next step">
+                          ToolTip.Tip="Next step after a note: after you pick a note on the keyboard (here or on the T-8), select the next step">
               <StackPanel Orientation="Horizontal" Spacing="5">
                 <PathIcon Data="{StaticResource IconSkipNext}" />
-                <TextBlock Text="NEXT STEP AFTER A NOTE" />
+                <TextBlock Text="NEXT STEP" />
               </StackPanel>
             </ToggleButton>
             <Border DataContext="{Binding Harmony}" Background="Transparent" VerticalAlignment="Center">
