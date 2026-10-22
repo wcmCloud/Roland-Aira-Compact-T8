@@ -32,6 +32,10 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
     [ObservableProperty]
     private string _summary = "";
 
+    /// <summary>Colour the scale and the current chord on the bass keyboard. Off leaves every key plain.</summary>
+    [ObservableProperty]
+    private bool _showColours;
+
     /// <param name="patternAt">The library's bass pattern for a bank and pattern.</param>
     /// <param name="rhythmAt">The library's rhythm pattern for a slot Fill bank copies the drums into.</param>
     /// <param name="freeSlots">The next empty slots after the one being edited.</param>
@@ -160,6 +164,15 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
     {
         get => _options.LockRoots;
         set => Set(value, _options.LockRoots, v => _options.LockRoots = v);
+    }
+
+    /// <summary>Sets the key and scale from the notes in the line. An empty line is left as it is.</summary>
+    public void MatchPattern(BassPattern pattern)
+    {
+        if (BassGenerator.DetectKey(pattern) is not { } detected)
+            return;
+        Key = Keys[detected.Root];
+        Scale = Scales.First(s => s.Value == detected.Scale);
     }
 
     public BassGeneratorOptions Options => _options.Clone();

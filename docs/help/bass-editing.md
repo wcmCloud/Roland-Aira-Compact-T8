@@ -11,6 +11,9 @@ Each column is one step: its note, its state, semitone up / down, **Accent** and
 ## Piano keyboard and step editor
 
 - Click a key to give the selected step that note. The step is turned on and you hear the note on the T-8.
+- **KEY**, **SCALE** and **CHORDS** on the step editor are the pattern's key. Opening a pattern sets the key and scale from the notes already in the line. Generate and Vary use that same key.
+- **COLOURS** starts off, so the keyboard is plain. Turn it on and bright keys are the scale. Pink keys are the selected step's chord: its root, third and fifth, named under **TONES**. Grey keys are outside the scale, and you can still play them.
+- The pink keys follow the selected step. With a progression, they move on when the selection crosses into the next chord.
 - **Next step after a note** (lit orange when on): the selection then moves on, so you can play a line in key by key.
 - The chevrons in the **STEP EDITOR** panel move the selection to the previous or next step.
 

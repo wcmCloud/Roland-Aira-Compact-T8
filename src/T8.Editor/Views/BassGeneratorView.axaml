@@ -72,38 +72,7 @@
         </StackPanel>
       </Border>
 
-      <!-- Harmony: outlined boxes like OUT in the top bar -->
-      <StackPanel DockPanel.Dock="Left" Spacing="5" Margin="0,0,18,0" VerticalAlignment="Center">
-        <Border Classes="fieldBox" HorizontalAlignment="Left">
-          <StackPanel Orientation="Horizontal" Spacing="4">
-            <TextBlock Classes="fieldLabel" Text="KEY" Width="54" />
-            <ComboBox x:Name="KeyPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.Keys}" SelectedItem="{Binding Key}" Width="216" />
-          </StackPanel>
-        </Border>
-        <Border Classes="fieldBox" HorizontalAlignment="Left">
-          <StackPanel Orientation="Horizontal" Spacing="4">
-            <TextBlock Classes="fieldLabel" Text="SCALE" Width="54" />
-            <ComboBox x:Name="ScalePicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.Scales}" SelectedItem="{Binding Scale}" Width="216" />
-          </StackPanel>
-        </Border>
-        <Border Classes="fieldBox" HorizontalAlignment="Left">
-          <StackPanel Orientation="Horizontal" Spacing="4">
-            <TextBlock Classes="fieldLabel" Text="CHORDS" Width="54" />
-            <ComboBox x:Name="ProgressionPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.Progressions}" SelectedItem="{Binding Progression}" Width="150" />
-            <ComboBox x:Name="ChordLengthPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.ChordLengths}" SelectedItem="{Binding StepsPerChord}" Width="62"
-                      ToolTip.Tip="Steps per chord" />
-            <ToggleButton x:Name="LockRootsChip" Classes="chip small orange" IsChecked="{Binding LockRoots}"
-                          ToolTip.Tip="Vary keeps the octave of a chord root that falls on the beat. Pitches and rhythm always stay">
-              <StackPanel Orientation="Horizontal" Spacing="5">
-                <PathIcon Data="{StaticResource IconLock}" />
-                <TextBlock Text="LOCK ROOTS" />
-              </StackPanel>
-            </ToggleButton>
-          </StackPanel>
-        </Border>
-      </StackPanel>
-
-      <!-- Range and chances -->
+      <!-- Range and chances. Key, scale and chords sit on the step editor, and this generator uses that same key. -->
       <WrapPanel Orientation="Horizontal" VerticalAlignment="Center">
         <views:Knob x:Name="OctaveKnob" Value="{Binding LowestOctave}" Minimum="0" Maximum="5" DefaultValue="1" Label="From octave"
                     Accent="{StaticResource SectionPurple}" ToolTip.Tip="Octave of the lowest note (C1 is the classic bass range)" />
@@ -119,6 +88,13 @@
         <views:Knob Value="{Binding AccentChance}" Format="{}{0}%" DefaultValue="25" Label="Accents" Accent="{StaticResource SectionPink}" />
         <views:Knob Value="{Binding OctaveJumpChance}" Format="{}{0}%" DefaultValue="15" Label="Octave jumps"
                     Accent="{StaticResource SectionPink}" ToolTip.Tip="How often a note jumps an octave up or down" />
+        <ToggleButton x:Name="LockRootsChip" Classes="chip orange" IsChecked="{Binding LockRoots}" VerticalAlignment="Center" Margin="4,0,0,8"
+                      ToolTip.Tip="Vary keeps the octave of a chord root that falls on the beat. Pitches and rhythm always stay">
+          <StackPanel Orientation="Horizontal" Spacing="5">
+            <PathIcon Data="{StaticResource IconLock}" />
+            <TextBlock Text="LOCK ROOTS" />
+          </StackPanel>
+        </ToggleButton>
       </WrapPanel>
     </DockPanel>
   </Border>

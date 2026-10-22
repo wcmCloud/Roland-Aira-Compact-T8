@@ -126,6 +126,14 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             if (e.PropertyName == nameof(RhythmGeneratorViewModel.FillPattern))
                 RefreshSlots();
         };
+        BassGenerator.ShowColours = Settings.ShowBassColours;
+        BassGenerator.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(BassGeneratorViewModel.ShowColours))
+                return;
+            Settings.ShowBassColours = BassGenerator.ShowColours;
+            SaveSettings();
+        };
         LoadSelectedPattern();
         RefreshPorts();
         _t8DrivePath = T8Drive.Find(_driveCandidates());
@@ -930,7 +938,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     private void LoadSelectedPattern()
     {
-        Bass = new BassEditorViewModel(CurrentBass, MarkDirty, AuditionBass);
+        Bass?.Detach();
+        BassGenerator.MatchPattern(CurrentBass);
+        Bass = new BassEditorViewModel(CurrentBass, MarkDirty, AuditionBass, BassGenerator);
         Rhythm = new RhythmEditorViewModel(CurrentRhythm, MarkDirty, AuditionDrum, _rowClipboard);
         BassGenerator.Target = Bass;
         RhythmGenerator.Target = Rhythm;
@@ -969,6 +979,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     public void Dispose()
     {
+        Bass?.Detach();
         Song?.Stop();
         CloseListener();
         _controller?.Dispose();

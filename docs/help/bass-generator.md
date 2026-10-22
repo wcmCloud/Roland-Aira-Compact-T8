@@ -1,10 +1,12 @@
 # Bass generator
 
-Writes a bass line into the current pattern, up to its last step, following a key and a scale.
+Writes a bass line into the current pattern, up to its last step, following the key set on the step editor.
+
+**KEY**, **SCALE** and **CHORDS** sit above the keyboard. Opening a pattern sets the key and scale from the notes in the line. Changing them changes what Generate and Vary write. **COLOURS** starts off; turn it on and the keyboard lights that scale. Grey keys are outside it.
 
 - **KEY:** C to B.
 - **SCALE:** major, the minors, the pentatonics, blues and the modes (Dorian, Phrygian, Lydian, Mixolydian, Locrian, Phrygian dominant).
-- **CHORDS:** a progression built from the scale (for example i – VI – III – VII), and how many steps each chord lasts.
+- **CHORDS:** a progression built from the scale (for example i – VI – III – VII), and how many steps each chord lasts. **TONES** names the root, third and fifth at the selected step.
 - **LOCK ROOTS:** on by default. Vary keeps the octave of a chord root that falls on the beat.
 
 ## Knobs

@@ -260,9 +260,7 @@ public class MainWindowTests
         window.UpdateLayout();
         var generator = window.GetVisualDescendants().OfType<BassGeneratorView>().Single();
 
-        foreach (var name in new[] { "KeyPicker", "ScalePicker", "ProgressionPicker", "ChordLengthPicker" })
-            Assert.Contains("port", generator.FindControl<ComboBox>(name)!.Classes);
-        Assert.Equal(5, generator.GetVisualDescendants().OfType<Border>().Count(b => b.Classes.Contains("fieldBox"))); // Key, Scale, Chords, the action panel and Seed
+        Assert.Equal(2, generator.GetVisualDescendants().OfType<Border>().Count(b => b.Classes.Contains("fieldBox"))); // the action panel and Seed
         Assert.Contains("port", generator.FindControl<NumericUpDown>("SeedInput")!.Classes);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateButton")!.Content);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("UndoGenerateButton")!.Content);
@@ -300,12 +298,22 @@ public class MainWindowTests
         var next = editor.FindControl<Button>("NextStepButton")!;
         var advance = editor.FindControl<ToggleButton>("AdvanceCheck")!;
         var readout = editor.FindControl<Border>("StepPickerBox")!;
-        var hint = editor.FindControl<StackPanel>("StepEditorHint")!;
-        Assert.All(new Control[] { previous, next, advance, readout, hint }, c => Assert.Contains(stepPanel, c.GetVisualAncestors()));
+        var colours = editor.FindControl<ToggleButton>("ColourCheck")!;
+        Assert.All(new Control[] { previous, next, advance, readout, colours }, c => Assert.Contains(stepPanel, c.GetVisualAncestors()));
         Assert.Contains("STEP EDITOR", stepPanel.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text));
         Assert.Contains("fieldBox", readout.Classes);
-        Assert.All(new Control[] { previous, next, advance, hint },
+        // Key, scale and chords are set here, and the generator uses the same ones.
+        foreach (var name in new[] { "KeyPicker", "ScalePicker", "ProgressionPicker", "ChordLengthPicker" })
+        {
+            var combo = editor.FindControl<ComboBox>(name)!;
+            Assert.Contains("port", combo.Classes);
+            Assert.Contains(stepPanel, combo.GetVisualAncestors());
+        }
+        Assert.Contains(stepPanel, editor.FindControl<Border>("ChordBox")!.GetVisualAncestors());
+        Assert.All(new Control[] { previous, next, advance },
             c => Assert.NotNull(c.GetVisualDescendants().OfType<PathIcon>().First().Data));
+        Assert.Contains("chip", colours.Classes);
+        Assert.False(colours.IsChecked);
         Assert.Contains("chip", advance.Classes);
         advance.IsChecked = !vm.Bass.AdvanceAfterNote;
         Assert.Equal(advance.IsChecked, vm.Bass.AdvanceAfterNote);
@@ -489,6 +497,99 @@ public class MainWindowTests
         Assert.Equal(14, vm.Bass.Steps[2].Note);
         Assert.Equal(T8.Core.Patterns.BassStepState.Note, vm.Bass.Steps[2].State);
         Assert.Same(vm.Bass.Steps[3], vm.Bass.SelectedStep);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
+    public void Bass_keyboard_lights_the_scale_and_the_chord_and_greys_the_rest()
+    {
+        var keys = new PianoKeyboard
+        {
+            ShowScale = true,
+            ScaleMask = BassGenerator.PitchClassMask([0, 2, 4, 5, 7, 9, 11]),
+            ChordMask = BassGenerator.PitchClassMask([1, 5, 8]),
+        };
+        Assert.Equal(KeyTone.Chord, keys.ToneOf(1));
+        Assert.Equal(KeyTone.Scale, keys.ToneOf(0));
+        Assert.Equal(KeyTone.Outside, keys.ToneOf(3));
+        Assert.Same(PianoKeyboard.BlackChordBrush, keys.FillFor(1));
+        Assert.Same(PianoKeyboard.WhiteBrush, keys.FillFor(0));
+        Assert.Same(PianoKeyboard.BlackOutsideBrush, keys.FillFor(3));
+        keys.HighlightedNote = 3;
+        keys.PlayingNote = 0;
+        Assert.Same(PianoKeyboard.HighlightBrush, keys.FillFor(3));
+        Assert.Same(PianoKeyboard.PlayingBrush, keys.FillFor(0));
+        keys.HighlightedNote = null;
+        keys.PlayingNote = null;
+        keys.ShowScale = false;
+        Assert.Equal(KeyTone.Plain, keys.ToneOf(3));
+        Assert.Same(PianoKeyboard.BlackBrush, keys.FillFor(3));
+
+        var (window, vm) = Show();
+        window.FindControl<TabControl>("Tabs")!.SelectedIndex = 1;
+        window.UpdateLayout();
+        var editor = window.GetVisualDescendants().OfType<BassEditorView>().Single();
+        var keyboard = editor.FindControl<PianoKeyboard>("BassKeyboard")!;
+
+        // Bank 1 pattern 1 is C, Eb, G and Bb: C minor pentatonic.
+        Assert.Equal(0, vm.BassGenerator.Options.Root);
+        Assert.Equal(Scale.MinorPentatonic, vm.BassGenerator.Options.Scale);
+
+        // Colours start off: the keys stay plain until the switch is turned on.
+        Assert.False(keyboard.ShowScale);
+        Assert.False(editor.FindControl<ToggleButton>("ColourCheck")!.IsChecked);
+
+        // Opening the backup's line picks its own key. Set E minor pentatonic to check the colours.
+        vm.BassGenerator.Key = BassGeneratorViewModel.Keys[4];
+        vm.BassGenerator.Scale = BassGeneratorViewModel.Scales.Single(s => s.Value == Scale.MinorPentatonic);
+        vm.BassGenerator.Progression = BassGeneratorViewModel.Progressions.Single(p => p.Value == Progression.None);
+        vm.BassGenerator.ShowColours = true;
+        window.UpdateLayout();
+
+        // E minor pentatonic: E G A are the chord and C is outside it.
+        Assert.True(keyboard.ShowScale);
+        Assert.Equal(vm.Bass.ScaleMask, keyboard.ScaleMask);
+        Assert.Equal(KeyTone.Chord, keyboard.ToneOf(16));
+        Assert.Equal(KeyTone.Scale, keyboard.ToneOf(14));
+        Assert.Equal(KeyTone.Outside, keyboard.ToneOf(12));
+        Assert.Equal("E · G · A", editor.FindControl<TextBlock>("ChordReadout")!.Text);
+
+        editor.FindControl<ComboBox>("KeyPicker")!.SelectedItem = BassGeneratorViewModel.Keys[0];
+        vm.BassGenerator.Scale = BassGeneratorViewModel.Scales.Single(s => s.Value == Scale.NaturalMinor);
+        vm.BassGenerator.Progression = BassGeneratorViewModel.Progressions.Single(p => p.Value == Progression.OneSixThreeSeven);
+        vm.BassGenerator.StepsPerChord = 4;
+        vm.Bass.SelectedStep = vm.Bass.Steps[4];
+        vm.Bass.Steps[4].State = BassStepState.Off;
+        vm.Bass.AdvanceAfterNote = false;
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        window.UpdateLayout();
+
+        Assert.Equal(0, vm.BassGenerator.Options.Root);
+        Assert.Equal("G# · C · D#", editor.FindControl<TextBlock>("ChordReadout")!.Text);
+        Assert.Equal(KeyTone.Chord, keyboard.ToneOf(20));
+        Assert.Same(PianoKeyboard.BlackChordBrush, keyboard.FillFor(20));
+
+        // E0 is outside C natural minor. A grey key still sets the step.
+        Assert.Equal(KeyTone.Outside, keyboard.ToneOf(16));
+        var point = keyboard.TranslatePoint(new Point(PianoKeyboard.WhiteWidth * 2.5, 100), window)!.Value;
+        window.MouseDown(point, MouseButton.Left);
+        window.MouseUp(point, MouseButton.Left);
+        Assert.Equal(16, vm.Bass.Steps[4].Note);
+        Assert.Equal(BassStepState.Note, vm.Bass.Steps[4].State);
+
+        editor.FindControl<ToggleButton>("ColourCheck")!.IsChecked = false;
+        window.UpdateLayout();
+        Assert.False(vm.Bass.ShowColours);
+        Assert.False(vm.BassGenerator.ShowColours);
+        Assert.False(keyboard.ShowScale);
+        Assert.Equal(KeyTone.Plain, keyboard.ToneOf(16));
+        Assert.False(editor.FindControl<Border>("ChordBox")!.IsEffectivelyVisible);
+        Assert.Equal(0, vm.BassGenerator.Options.Root);
+
+        editor.FindControl<ToggleButton>("ColourCheck")!.IsChecked = true;
+        window.UpdateLayout();
+        Assert.True(keyboard.ShowScale);
         window.Close();
         vm.Dispose();
     }

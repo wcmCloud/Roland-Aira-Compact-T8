@@ -7,9 +7,23 @@ using Avalonia.Media;
 
 namespace T8.Editor.Views;
 
+/// <summary>How a key relates to the scale shown on the keyboard.</summary>
+public enum KeyTone
+{
+    /// <summary>No scale is applied; the key uses the ordinary piano colours.</summary>
+    Plain,
+    /// <summary>In the scale, and not a tone of the current chord.</summary>
+    Scale,
+    /// <summary>Root, third or fifth of the current chord.</summary>
+    Chord,
+    /// <summary>Outside the scale.</summary>
+    Outside,
+}
+
 /// <summary>
 /// A clickable piano keyboard. Clicking a key runs <see cref="Command"/> with the MIDI note number;
-/// <see cref="HighlightedNote"/> is drawn in the T-8's orange.
+/// <see cref="HighlightedNote"/> is drawn in the T-8's orange. With <see cref="ShowScale"/> on, scale
+/// tones stay bright, the current chord is pink, and every other key is grey. Grey keys can still be played.
 /// </summary>
 public sealed class PianoKeyboard : Control
 {
@@ -28,18 +42,39 @@ public sealed class PianoKeyboard : Control
     public static readonly StyledProperty<ICommand?> CommandProperty =
         AvaloniaProperty.Register<PianoKeyboard, ICommand?>(nameof(Command));
 
+    public static readonly StyledProperty<bool> ShowScaleProperty =
+        AvaloniaProperty.Register<PianoKeyboard, bool>(nameof(ShowScale));
+
+    /// <summary>Bits 0–11: pitch classes in the scale.</summary>
+    public static readonly StyledProperty<int> ScaleMaskProperty =
+        AvaloniaProperty.Register<PianoKeyboard, int>(nameof(ScaleMask));
+
+    /// <summary>Bits 0–11: root, third and fifth of the current chord.</summary>
+    public static readonly StyledProperty<int> ChordMaskProperty =
+        AvaloniaProperty.Register<PianoKeyboard, int>(nameof(ChordMask));
+
     public const double WhiteWidth = 28;
     private const double WhiteHeight = 110;
     private const double BlackWidth = 17;
     private const double BlackHeight = 66;
 
-    private static readonly IBrush WhiteBrush = new SolidColorBrush(Color.Parse("#E8E8E8"));
+    internal static readonly IBrush WhiteBrush = new SolidColorBrush(Color.Parse("#E8E8E8"));
     private static readonly IBrush WhiteHoverBrush = new SolidColorBrush(Color.Parse("#FFFFFF"));
-    private static readonly IBrush BlackBrush = new SolidColorBrush(Color.Parse("#1A1A1C"));
+    internal static readonly IBrush WhiteOutsideBrush = new SolidColorBrush(Color.Parse("#6E6E76"));
+    private static readonly IBrush WhiteOutsideHoverBrush = new SolidColorBrush(Color.Parse("#86868E"));
+    internal static readonly IBrush WhiteChordBrush = new SolidColorBrush(Color.Parse("#FF8FB5"));
+    private static readonly IBrush WhiteChordHoverBrush = new SolidColorBrush(Color.Parse("#FFC2D6"));
+    internal static readonly IBrush BlackBrush = new SolidColorBrush(Color.Parse("#1A1A1C"));
     private static readonly IBrush BlackHoverBrush = new SolidColorBrush(Color.Parse("#48484E"));
-    private static readonly IBrush HighlightBrush = new SolidColorBrush(Color.Parse("#FF7A1A"));
-    private static readonly IBrush PlayingBrush = new SolidColorBrush(Color.Parse("#FFD23F"));
+    internal static readonly IBrush BlackOutsideBrush = new SolidColorBrush(Color.Parse("#3A3A40"));
+    private static readonly IBrush BlackOutsideHoverBrush = new SolidColorBrush(Color.Parse("#52525A"));
+    internal static readonly IBrush BlackChordBrush = new SolidColorBrush(Color.Parse("#C43166"));
+    private static readonly IBrush BlackChordHoverBrush = new SolidColorBrush(Color.Parse("#E05A88"));
+    internal static readonly IBrush HighlightBrush = new SolidColorBrush(Color.Parse("#FF7A1A"));
+    internal static readonly IBrush PlayingBrush = new SolidColorBrush(Color.Parse("#FFD23F"));
     private static readonly IBrush LabelBrush = new SolidColorBrush(Color.Parse("#606066"));
+    private static readonly IBrush OutsideLabelBrush = new SolidColorBrush(Color.Parse("#3A3A40"));
+    private static readonly IBrush ChordLabelBrush = new SolidColorBrush(Color.Parse("#4A1830"));
     private static readonly IPen KeyPen = new Pen(new SolidColorBrush(Color.Parse("#0E0E10")), 1);
 
     private int? _hoverNote;
@@ -47,7 +82,7 @@ public sealed class PianoKeyboard : Control
     static PianoKeyboard()
     {
         AffectsMeasure<PianoKeyboard>(LowestNoteProperty, HighestNoteProperty);
-        AffectsRender<PianoKeyboard>(HighlightedNoteProperty, PlayingNoteProperty);
+        AffectsRender<PianoKeyboard>(HighlightedNoteProperty, PlayingNoteProperty, ShowScaleProperty, ScaleMaskProperty, ChordMaskProperty);
     }
 
     public PianoKeyboard() => Cursor = new Cursor(StandardCursorType.Hand);
@@ -82,6 +117,41 @@ public sealed class PianoKeyboard : Control
         get => GetValue(CommandProperty);
         set => SetValue(CommandProperty, value);
     }
+
+    /// <summary>Lights scale tones and the current chord, and greys every other key.</summary>
+    public bool ShowScale
+    {
+        get => GetValue(ShowScaleProperty);
+        set => SetValue(ShowScaleProperty, value);
+    }
+
+    public int ScaleMask
+    {
+        get => GetValue(ScaleMaskProperty);
+        set => SetValue(ScaleMaskProperty, value);
+    }
+
+    public int ChordMask
+    {
+        get => GetValue(ChordMaskProperty);
+        set => SetValue(ChordMaskProperty, value);
+    }
+
+    /// <summary>The key's place in the scale. Highlight and playback paint over this.</summary>
+    public KeyTone ToneOf(int note)
+    {
+        if (!ShowScale)
+            return KeyTone.Plain;
+        var bit = 1 << (note % 12);
+        if ((ChordMask & bit) != 0)
+            return KeyTone.Chord;
+        if ((ScaleMask & bit) != 0)
+            return KeyTone.Scale;
+        return KeyTone.Outside;
+    }
+
+    /// <summary>The fill used for this key, including hover, the selected note and the note being played.</summary>
+    internal IBrush FillFor(int note) => KeyBrush(note);
 
     public static bool IsBlack(int note) => (note % 12) is 1 or 3 or 6 or 8 or 10;
 
@@ -120,27 +190,48 @@ public sealed class PianoKeyboard : Control
     {
         foreach (var (note, rect) in WhiteKeys())
         {
-            var brush = KeyBrush(note, WhiteHoverBrush, WhiteBrush);
-            context.DrawRectangle(brush, KeyPen, rect, 2, 2);
+            context.DrawRectangle(KeyBrush(note), KeyPen, rect, 2, 2);
             if (note % 12 == 0)
             {
                 var label = new FormattedText($"C{note / 12 - 1}", CultureInfo.InvariantCulture, FlowDirection.LeftToRight,
-                    Typeface.Default, 10, note == HighlightedNote ? Brushes.White : LabelBrush);
+                    Typeface.Default, 10, LabelFor(note));
                 context.DrawText(label, new Point(rect.X + (rect.Width - label.Width) / 2, rect.Bottom - label.Height - 4));
             }
         }
         foreach (var (note, rect) in BlackKeys())
-        {
-            var brush = KeyBrush(note, BlackHoverBrush, BlackBrush);
-            context.DrawRectangle(brush, KeyPen, rect, 0, 2);
-        }
+            context.DrawRectangle(KeyBrush(note), KeyPen, rect, 0, 2);
     }
 
-    private IBrush KeyBrush(int note, IBrush hover, IBrush normal) =>
-        note == PlayingNote ? PlayingBrush
-        : note == HighlightedNote ? HighlightBrush
-        : note == _hoverNote ? hover
-        : normal;
+    private IBrush LabelFor(int note) =>
+        note == PlayingNote || note == HighlightedNote ? Brushes.White
+        : ToneOf(note) switch
+        {
+            KeyTone.Chord => ChordLabelBrush,
+            KeyTone.Outside => OutsideLabelBrush,
+            _ => LabelBrush,
+        };
+
+    private IBrush KeyBrush(int note)
+    {
+        if (note == PlayingNote)
+            return PlayingBrush;
+        if (note == HighlightedNote)
+            return HighlightBrush;
+        var black = IsBlack(note);
+        var hover = note == _hoverNote;
+        return ToneOf(note) switch
+        {
+            KeyTone.Chord => black
+                ? hover ? BlackChordHoverBrush : BlackChordBrush
+                : hover ? WhiteChordHoverBrush : WhiteChordBrush,
+            KeyTone.Outside => black
+                ? hover ? BlackOutsideHoverBrush : BlackOutsideBrush
+                : hover ? WhiteOutsideHoverBrush : WhiteOutsideBrush,
+            _ => black
+                ? hover ? BlackHoverBrush : BlackBrush
+                : hover ? WhiteHoverBrush : WhiteBrush,
+        };
+    }
 
     protected override void OnPointerPressed(PointerPressedEventArgs e)
     {

@@ -151,6 +151,19 @@ public static class BassGenerator
         _ => throw new ArgumentOutOfRangeException(nameof(progression)),
     };
 
+    /// <summary>Pitch classes (0–11) of the scale in this key.</summary>
+    public static IReadOnlyList<int> ScaleClasses(int root, Scale scale) =>
+        Intervals(scale).Select(i => (root + i) % 12).ToList();
+
+    /// <summary>Bits 0–11 set for each pitch class, so a keyboard can test a note with one shift.</summary>
+    public static int PitchClassMask(IEnumerable<int> pitchClasses)
+    {
+        var mask = 0;
+        foreach (var pitch in pitchClasses)
+            mask |= 1 << (((pitch % 12) + 12) % 12);
+        return mask;
+    }
+
     /// <summary>Pitch classes (0–11) of the chord on a scale degree: root, third and fifth stacked from the scale.</summary>
     public static IReadOnlyList<int> ChordTones(int root, Scale scale, int degree)
     {
@@ -164,13 +177,124 @@ public static class BassGenerator
             .ToList();
     }
 
+    /// <summary>
+    /// Root, third and fifth of the chord sounding at a step (0-based), from the progression and how many
+    /// steps each chord lasts. This is the chord <see cref="Generate"/> writes against for that step.
+    /// </summary>
+    public static IReadOnlyList<int> ChordAt(int root, Scale scale, Progression progression, int stepsPerChord, int stepIndex)
+    {
+        var degrees = Degrees(progression);
+        var index = Math.Max(0, stepIndex) / Math.Max(1, stepsPerChord);
+        return ChordTones(root, scale, degrees[index % degrees.Count]);
+    }
+
+    /// <summary>A key and scale read off a bass line.</summary>
+    public readonly record struct DetectedKey(int Root, Scale Scale);
+
+    /// <summary>
+    /// Guesses the key and scale from the notes in the pattern. Notes on the beat, and any pitch played
+    /// more than once, have to fit; a single off-beat outlier does not. The tightest scale that holds
+    /// those notes wins, and the root is the pitch the line leans on, starting with the first note.
+    /// An empty line returns null.
+    /// </summary>
+    public static DetectedKey? DetectKey(BassPattern pattern)
+    {
+        var length = Math.Clamp(pattern.Length, 1, BassPattern.StepCount);
+        var counts = new int[12];
+        var onBeat = new bool[12];
+        int? first = null;
+        for (var i = 0; i < length; i++)
+        {
+            if (pattern.Steps[i].State != BassStepState.Note)
+                continue;
+            var pitch = ((pattern.Steps[i].Note % 12) + 12) % 12;
+            counts[pitch]++;
+            if (i % 4 == 0)
+                onBeat[pitch] = true;
+            first ??= pitch;
+        }
+        if (first is null)
+            return null;
+
+        var strong = new bool[12];
+        var anyStrong = false;
+        for (var pitch = 0; pitch < 12; pitch++)
+        {
+            // One passing note off the beat is not enough to drag the scale off.
+            strong[pitch] = counts[pitch] >= 2 || onBeat[pitch] || pitch == first;
+            anyStrong |= strong[pitch];
+        }
+        if (!anyStrong)
+            return null;
+
+        DetectedKey? best = null;
+        var bestScore = (Outside: int.MaxValue, Size: int.MaxValue, Root: int.MinValue, First: 1, Rank: int.MaxValue);
+        foreach (var scale in Enum.GetValues<Scale>())
+        {
+            var intervals = Intervals(scale);
+            var rank = ScaleRank(scale);
+            for (var root = 0; root < 12; root++)
+            {
+                var inScale = new bool[12];
+                foreach (var interval in intervals)
+                    inScale[(root + interval) % 12] = true;
+                var outside = 0;
+                for (var pitch = 0; pitch < 12; pitch++)
+                    if (strong[pitch] && !inScale[pitch])
+                        outside++;
+                var rootWeight = counts[root] * (onBeat[root] ? 2 : 1) + (root == first ? 2 : 0);
+                var score = (outside, intervals.Count, rootWeight, root == first ? 0 : 1, rank);
+                if (best is not null && CompareDetected(score, bestScore) >= 0)
+                    continue;
+                best = new DetectedKey(root, scale);
+                bestScore = score;
+            }
+        }
+        return best;
+    }
+
+    /// <summary>Lower is a closer, more usual name when two scales fit equally.</summary>
+    private static int ScaleRank(Scale scale) => scale switch
+    {
+        Scale.MinorPentatonic => 0,
+        Scale.MajorPentatonic => 1,
+        Scale.Blues => 2,
+        Scale.NaturalMinor => 3,
+        Scale.Major => 4,
+        Scale.Dorian => 5,
+        Scale.Mixolydian => 6,
+        Scale.HarmonicMinor => 7,
+        Scale.MelodicMinor => 8,
+        Scale.Phrygian => 9,
+        Scale.Lydian => 10,
+        Scale.PhrygianDominant => 11,
+        Scale.Locrian => 12,
+        _ => 13,
+    };
+
+    private static int CompareDetected(
+        (int Outside, int Size, int Root, int First, int Rank) score,
+        (int Outside, int Size, int Root, int First, int Rank) best)
+    {
+        var outside = score.Outside.CompareTo(best.Outside);
+        if (outside != 0)
+            return outside;
+        var size = score.Size.CompareTo(best.Size);
+        if (size != 0)
+            return size;
+        var root = best.Root.CompareTo(score.Root);
+        if (root != 0)
+            return root;
+        var first = score.First.CompareTo(best.First);
+        return first != 0 ? first : score.Rank.CompareTo(best.Rank);
+    }
+
     /// <summary>Fills steps 1 to <paramref name="length"/> with a new line and turns the rest off.</summary>
     public static void Generate(BassPattern pattern, BassGeneratorOptions options, int? length = null)
     {
         var steps = Math.Clamp(length ?? pattern.Length, 1, BassPattern.StepCount);
         var random = new Random(options.Seed);
-        var scaleClasses = Intervals(options.Scale).Select(i => (options.Root + i) % 12).ToHashSet();
-        var degrees = Degrees(options.Progression);
+        var scaleClasses = ScaleClasses(options.Root, options.Scale).ToHashSet();
         var stepsPerChord = Math.Max(1, options.StepsPerChord);
 
         var low = Math.Clamp((options.LowestOctave + 1) * 12, MinNote, MaxNote);
@@ -190,8 +314,7 @@ public static class BassGenerator
         for (var n = 0; n < steps; n++)
         {
             var step = pattern.Steps[n];
-            var chordIndex = n / stepsPerChord;
-            var chord = ChordTones(options.Root, options.Scale, degrees[chordIndex % degrees.Count]);
+            var chord = ChordAt(options.Root, options.Scale, options.Progression, stepsPerChord, n);
             var chordChange = n % stepsPerChord == 0;
             var onBeat = n % 4 == 0;
 
@@ -257,7 +380,6 @@ public static class BassGenerator
         var random = new Random(unchecked(options.Seed * 31 + 0x0C7A));
         var steps = Math.Clamp(pattern.Length, 1, BassPattern.StepCount);
         var jumpChance = (int)Math.Round(Math.Clamp(options.OctaveJumpChance, 0, 100) * amount);
-        var degrees = Degrees(options.Progression);
         var stepsPerChord = Math.Max(1, options.StepsPerChord);
         var low = Math.Clamp((options.LowestOctave + 1) * 12, MinNote, MaxNote);
         var high = Math.Clamp(low + Math.Clamp(options.Octaves, 1, 4) * 12, low, MaxNote);
@@ -274,7 +396,7 @@ public static class BassGenerator
             if (step.State != BassStepState.Note || jumpChance <= 0)
                 continue;
 
-            var chord = ChordTones(options.Root, options.Scale, degrees[(n / stepsPerChord) % degrees.Count]);
+            var chord = ChordAt(options.Root, options.Scale, options.Progression, stepsPerChord, n);
             if (options.LockRoots && n % 4 == 0 && step.Note % 12 == chord[0])
                 continue;
             if (random.Next(100) >= jumpChance)

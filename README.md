@@ -332,10 +332,14 @@ SHIFT + STEP 7 (FILL TRG) plays it once before going back to the main pattern.
 Each column is one step: its note, its state, semitone up/down, and Accent and Slide.
 
 - Click a step's note or its number to select it (outlined in white); its note lights up orange on the keyboard.
+- The **Step editor** sets the pattern's **Key**, **Scale** and **Chords**. Opening a pattern sets the key
+  and scale from the notes already in the line. **Colours** starts off, so the keyboard is plain. Turn it on
+  and bright keys are in the scale, pink keys are the selected step's chord (root, third and fifth, named
+  under **Tones**), and grey keys are outside the scale. A grey key still plays. Generate and Vary use this same key.
 - Click a key on the **keyboard** to give the selected step that note. The step is turned on, you hear the note
   on the T-8, and the selection moves to the next step, so you can play a line in key by key. Turn off
   **Next step after a note** (in the **Step editor** panel above the keyboard) to stay on the same step. The
-  chevrons there move the selection.
+  chevrons there move the selection. The pink keys move with the selection when a progression changes chord.
 - The state button cycles **Off → Note → Tie**. A tie holds the previous note through the step.
 - The **Pattern** panel above the steps holds **Last step** (1–32), **Triplet** (lit orange when on) and
   **Transpose** (−12, −1, +1, +12 semitones for the whole line).
@@ -347,7 +351,8 @@ Each column is one step: its note, its state, semitone up/down, and Accent and S
 
 ![The bass line generator](docs/screenshots/bass-generator.png)
 
-The bass line generator writes a new line into the current pattern, up to its last step, following a key and a scale.
+The bass line generator writes a new line into the current pattern, up to its last step. It follows the **Key**,
+**Scale** and **Chords** on the step editor, the same ones the keyboard lights.
 
 - **Key:** C to B.
 - **Scale:** major, natural minor, harmonic minor, melodic minor, major and minor pentatonic, blues, Dorian,

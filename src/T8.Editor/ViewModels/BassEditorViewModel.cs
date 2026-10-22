@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using T8.Core.Patterns;
@@ -11,6 +12,7 @@ public sealed partial class BassEditorViewModel : ObservableObject
     private readonly BassPattern _pattern;
     private readonly Action _changed;
     private readonly Action<int>? _audition;
+    private BassGeneratorViewModel? _harmony;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(SelectedNote), nameof(SelectionLabel))]
@@ -25,7 +27,12 @@ public sealed partial class BassEditorViewModel : ObservableObject
     [ObservableProperty]
     private bool _advanceAfterNote = true;
 
-    public BassEditorViewModel(BassPattern pattern, Action changed, Action<int>? audition = null)
+    /// <summary>Colour the scale and the chord on the keyboard. Off leaves the keys plain. Generate still uses the key.</summary>
+    [ObservableProperty]
+    private bool _showColours;
+
+    public BassEditorViewModel(
+        BassPattern pattern, Action changed, Action<int>? audition = null, BassGeneratorViewModel? harmony = null)
     {
         _pattern = pattern;
         _changed = changed;
@@ -34,6 +41,47 @@ public sealed partial class BassEditorViewModel : ObservableObject
             pattern.Steps.Select((step, i) => new BassStepViewModel(step, i + 1, OnStepChanged, audition, Select)));
         UpdateLength();
         SelectedStep = Steps[0];
+        if (harmony is not null)
+            Attach(harmony);
+    }
+
+    /// <summary>
+    /// The bass generator whose key, scale and chords light the keyboard. Generate and Vary use this
+    /// same key, so a line played by hand stays in the scale the keys show.
+    /// </summary>
+    public BassGeneratorViewModel? Harmony => _harmony;
+
+    /// <summary>True when <see cref="Harmony"/> is lighting the keyboard.</summary>
+    public bool ShowScale { get; private set; }
+
+    /// <summary>Pitch classes in the scale, as bits 0–11.</summary>
+    public int ScaleMask { get; private set; }
+
+    /// <summary>Root, third and fifth of the chord at the selected step, as bits 0–11.</summary>
+    public int ChordMask { get; private set; }
+
+    /// <summary>Root, third and fifth of the chord at the selected step, in that order. Empty when no key is set.</summary>
+    public string ChordLabel { get; private set; } = "";
+
+    /// <summary>Follows the generator's key. Drop the subscription when this editor is replaced.</summary>
+    public void Attach(BassGeneratorViewModel harmony)
+    {
+        Detach();
+        _harmony = harmony;
+        harmony.PropertyChanged += OnHarmonyChanged;
+        OnPropertyChanged(nameof(Harmony));
+        ShowColours = harmony.ShowColours;
+        RefreshScale();
+    }
+
+    public void Detach()
+    {
+        if (_harmony is null)
+            return;
+        _harmony.PropertyChanged -= OnHarmonyChanged;
+        _harmony = null;
+        OnPropertyChanged(nameof(Harmony));
+        RefreshScale();
     }
 
     /// <summary>Lowest and highest keys on the keyboard: the T-8's bass range.</summary>
@@ -88,6 +136,68 @@ public sealed partial class BassEditorViewModel : ObservableObject
             oldValue.IsSelected = false;
         if (newValue is not null)
             newValue.IsSelected = true;
+        RefreshScale();
+    }
+
+    partial void OnShowColoursChanged(bool value)
+    {
+        if (_harmony is not null && _harmony.ShowColours != value)
+            _harmony.ShowColours = value;
+        RefreshScale();
+    }
+
+    private void OnHarmonyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(BassGeneratorViewModel.ShowColours))
+        {
+            if (ShowColours != _harmony!.ShowColours)
+                ShowColours = _harmony.ShowColours;
+            return;
+        }
+        if (e.PropertyName is nameof(BassGeneratorViewModel.Key)
+            or nameof(BassGeneratorViewModel.Scale)
+            or nameof(BassGeneratorViewModel.Progression)
+            or nameof(BassGeneratorViewModel.StepsPerChord))
+            RefreshScale();
+    }
+
+    /// <summary>Lights the scale, and the chord that covers the selected step, while colours are on.</summary>
+    private void RefreshScale()
+    {
+        var show = _harmony is not null && ShowColours;
+        var scaleMask = 0;
+        var chordMask = 0;
+        var label = "";
+        if (_harmony is { } harmony)
+        {
+            var options = harmony.Options;
+            var step = Math.Max(0, (SelectedStep?.Number ?? 1) - 1);
+            var chord = BassGenerator.ChordAt(options.Root, options.Scale, options.Progression, options.StepsPerChord, step);
+            scaleMask = BassGenerator.PitchClassMask(BassGenerator.ScaleClasses(options.Root, options.Scale));
+            chordMask = BassGenerator.PitchClassMask(chord);
+            label = string.Join(" · ", chord.Select(pitch => BassGenerator.KeyNames[pitch]));
+        }
+
+        if (ShowScale != show)
+        {
+            ShowScale = show;
+            OnPropertyChanged(nameof(ShowScale));
+        }
+        if (ScaleMask != scaleMask)
+        {
+            ScaleMask = scaleMask;
+            OnPropertyChanged(nameof(ScaleMask));
+        }
+        if (ChordMask != chordMask)
+        {
+            ChordMask = chordMask;
+            OnPropertyChanged(nameof(ChordMask));
+        }
+        if (ChordLabel != label)
+        {
+            ChordLabel = label;
+            OnPropertyChanged(nameof(ChordLabel));
+        }
     }
 
     /// <summary>

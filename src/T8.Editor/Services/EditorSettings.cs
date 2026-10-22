@@ -35,6 +35,9 @@ public sealed class EditorSettings
     /// <summary>Highlight the step being played, and the bass note on the keyboard.</summary>
     public bool ShowPlayhead { get; set; } = true;
 
+    /// <summary>Colour the bass keyboard with the scale and the current chord. Off until turned on.</summary>
+    public bool ShowBassColours { get; set; }
+
     /// <summary>Last settings used in the bass line generator.</summary>
     public BassGeneratorOptions BassGenerator { get; set; } = new();
 
@@ -58,6 +61,7 @@ public sealed class EditorSettings
         FollowT8 = FollowT8,
         AuditionEnabled = AuditionEnabled,
         ShowPlayhead = ShowPlayhead,
+        ShowBassColours = ShowBassColours,
         BassGenerator = BassGenerator.Clone(),
         RhythmGenerator = RhythmGenerator.Clone(),
         Bpm = Bpm,

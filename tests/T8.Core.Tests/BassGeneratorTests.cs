@@ -113,6 +113,46 @@ public class BassGeneratorTests
     }
 
     [Fact]
+    public void Detects_the_key_and_the_tightest_scale_that_holds_the_line()
+    {
+        // E, G and A, with E first and on the beat.
+        var pentatonic = Line(40, 43, 45, 47, 40, 38, 43, 45);
+        Assert.Equal(new BassGenerator.DetectedKey(4, Scale.MinorPentatonic), BassGenerator.DetectKey(pentatonic));
+
+        // G, A and B, and the line sits on G: G major pentatonic.
+        var major = Line(43, 45, 47, 38, 43, 45, 47, 40);
+        Assert.Equal(new BassGenerator.DetectedKey(7, Scale.MajorPentatonic), BassGenerator.DetectKey(major));
+
+        // Every note of E natural minor, each one repeated or on the beat. F# and C rule out the pentatonic.
+        var minor = Line(40, 42, 42, 43, 43, 45, 45, 47, 47, 36, 36, 38, 38, 40);
+        Assert.Equal(new BassGenerator.DetectedKey(4, Scale.NaturalMinor), BassGenerator.DetectKey(minor));
+
+        // D# instead of D is the leading tone, so this is E harmonic minor rather than E major or the natural minor.
+        var harmonic = Line(40, 42, 42, 43, 43, 45, 45, 47, 47, 36, 36, 39, 39, 40);
+        Assert.Equal(new BassGenerator.DetectedKey(4, Scale.HarmonicMinor), BassGenerator.DetectKey(harmonic));
+
+        // Bb, repeated, makes it the blues scale rather than the pentatonic.
+        var blues = Line(40, 43, 45, 46, 40, 46, 38, 47);
+        Assert.Equal(new BassGenerator.DetectedKey(4, Scale.Blues), BassGenerator.DetectKey(blues));
+
+        // One F off the beat does not pull the line off E minor pentatonic.
+        var passing = Line(40, 43, 41, 45, 40, 38, 43, 47);
+        Assert.Equal(new BassGenerator.DetectedKey(4, Scale.MinorPentatonic), BassGenerator.DetectKey(passing));
+
+        Assert.Null(BassGenerator.DetectKey(new BassPattern()));
+    }
+
+    [Fact]
+    public void The_chord_at_a_step_follows_the_progression()
+    {
+        // E natural minor, i – VI – III – VII, four steps each. Step 5 (index 4) is VI: C E G.
+        Assert.Equal([4, 7, 11], BassGenerator.ChordAt(4, Scale.NaturalMinor, Progression.OneSixThreeSeven, 4, 0));
+        Assert.Equal([0, 4, 7], BassGenerator.ChordAt(4, Scale.NaturalMinor, Progression.OneSixThreeSeven, 4, 4));
+        Assert.Equal([4, 7, 9], BassGenerator.ScaleClasses(4, Scale.MinorPentatonic).Take(3));
+        Assert.Equal(BassGenerator.PitchClassMask([4, 7, 9]), BassGenerator.PitchClassMask(BassGenerator.ChordTones(4, Scale.MinorPentatonic, 1)));
+    }
+
+    [Fact]
     public void Options_clone_is_independent()
     {
         var options = new BassGeneratorOptions { Seed = 5 };
@@ -127,6 +167,17 @@ public class BassGeneratorTests
         Assert.All(Enum.GetValues<Scale>(), s => Assert.False(string.IsNullOrEmpty(BassGenerator.DisplayName(s))));
         Assert.All(Enum.GetValues<Progression>(), p => Assert.NotEmpty(BassGenerator.Degrees(p)));
         Assert.Equal("Minor pentatonic", BassGenerator.DisplayName(Scale.MinorPentatonic));
+    }
+
+    private static BassPattern Line(params int[] notes)
+    {
+        var pattern = new BassPattern { Length = notes.Length };
+        for (var i = 0; i < notes.Length; i++)
+        {
+            pattern.Steps[i].State = BassStepState.Note;
+            pattern.Steps[i].Note = notes[i];
+        }
+        return pattern;
     }
 
     private static string Describe(BassPattern pattern) =>

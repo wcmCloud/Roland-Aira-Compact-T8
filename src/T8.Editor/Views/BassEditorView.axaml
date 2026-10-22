@@ -112,11 +112,43 @@
                 <TextBlock Text="NEXT STEP AFTER A NOTE" />
               </StackPanel>
             </ToggleButton>
-            <StackPanel x:Name="StepEditorHint" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center" Margin="2,0,4,0">
-              <PathIcon Data="{StaticResource IconInfo}" Width="11" Height="11" Foreground="{StaticResource MutedText}" />
-              <TextBlock Text="Click a step, then a key here. Right-click a step for all notes." Foreground="{StaticResource MutedText}" FontSize="11"
-                         VerticalAlignment="Center" />
-            </StackPanel>
+            <Border DataContext="{Binding Harmony}" Background="Transparent" VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal" Spacing="8" x:DataType="vm:BassGeneratorViewModel">
+                <Border Classes="fieldBox" MinHeight="28">
+                  <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Classes="fieldLabel" Text="KEY" />
+                    <ComboBox x:Name="KeyPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.Keys}" SelectedItem="{Binding Key}" Width="72" Height="28" MinHeight="0"
+                              ToolTip.Tip="Key for this pattern. Generate and Vary use it too" />
+                  </StackPanel>
+                </Border>
+                <Border Classes="fieldBox" MinHeight="28">
+                  <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Classes="fieldLabel" Text="SCALE" />
+                    <ComboBox x:Name="ScalePicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.Scales}" SelectedItem="{Binding Scale}" Width="176" Height="28" MinHeight="0" />
+                  </StackPanel>
+                </Border>
+                <Border Classes="fieldBox" MinHeight="28">
+                  <StackPanel Orientation="Horizontal" Spacing="4">
+                    <TextBlock Classes="fieldLabel" Text="CHORDS" />
+                    <ComboBox x:Name="ProgressionPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.Progressions}" SelectedItem="{Binding Progression}" Width="148" Height="28" MinHeight="0" />
+                    <ComboBox x:Name="ChordLengthPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.ChordLengths}" SelectedItem="{Binding StepsPerChord}" Width="62" Height="28" MinHeight="0"
+                              ToolTip.Tip="Steps per chord" />
+                  </StackPanel>
+                </Border>
+              </StackPanel>
+            </Border>
+            <Border x:Name="ChordBox" Classes="fieldBox" IsVisible="{Binding ShowScale}" MinHeight="28" Padding="3,0"
+                    ToolTip.Tip="Root, third and fifth at the selected step. Pink keys are this chord, bright keys the rest of the scale, grey keys are outside it">
+              <StackPanel Orientation="Horizontal" Spacing="2">
+                <TextBlock Classes="fieldLabel" Text="TONES" />
+                <TextBlock x:Name="ChordReadout" Text="{Binding ChordLabel}" MinWidth="72" FontSize="11.5" FontWeight="SemiBold"
+                           Foreground="{StaticResource SectionPink}" VerticalAlignment="Center" Margin="2,0,8,0" />
+              </StackPanel>
+            </Border>
+            <ToggleButton x:Name="ColourCheck" Classes="chip small orange" IsChecked="{Binding ShowColours}" VerticalAlignment="Center"
+                          ToolTip.Tip="Colour the keyboard: pink is this chord, bright is the scale, grey is outside it. Off leaves every key plain. Generate still uses the key">
+              <TextBlock Text="COLOURS" />
+            </ToggleButton>
           </StackPanel>
         </Border>
         <views:PianoKeyboard x:Name="BassKeyboard" HorizontalAlignment="Left"
@@ -124,6 +156,9 @@
                              HighestNote="{x:Static vm:BassEditorViewModel.HighestNote}"
                              HighlightedNote="{Binding SelectedNote}"
                              PlayingNote="{Binding PlayingNote}"
+                             ShowScale="{Binding ShowScale}"
+                             ScaleMask="{Binding ScaleMask}"
+                             ChordMask="{Binding ChordMask}"
                              Command="{Binding EnterNoteCommand}" />
       </StackPanel>
     </ScrollViewer>

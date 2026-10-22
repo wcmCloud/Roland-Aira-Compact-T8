@@ -249,4 +249,82 @@ public class BassEditorViewModelTests
         vm.ShowPlayingStep(3);
         Assert.Null(vm.PlayingNote);
     }
+
+    [Fact]
+    public void The_keyboard_follows_the_generator_key_and_the_chord_at_the_selected_step()
+    {
+        var generator = new BassGeneratorViewModel(new BassGeneratorOptions
+        {
+            Root = 4,
+            Scale = Scale.NaturalMinor,
+            Progression = Progression.OneSixThreeSeven,
+            StepsPerChord = 4,
+        }, _ => { }, _ => { });
+        generator.ShowColours = true;
+        var vm = new BassEditorViewModel(_pattern, () => _changes++, null, generator);
+
+        Assert.True(vm.ShowScale);
+        Assert.Equal(BassGenerator.PitchClassMask(BassGenerator.ScaleClasses(4, Scale.NaturalMinor)), vm.ScaleMask);
+        Assert.Equal("E · G · B", vm.ChordLabel);
+        Assert.Equal(BassGenerator.PitchClassMask([4, 7, 11]), vm.ChordMask);
+
+        vm.SelectedStep = vm.Steps[4];
+        Assert.Equal("C · E · G", vm.ChordLabel);
+
+        generator.Key = BassGeneratorViewModel.Keys[0];
+        Assert.Equal(BassGenerator.PitchClassMask(BassGenerator.ScaleClasses(0, Scale.NaturalMinor)), vm.ScaleMask);
+        Assert.Equal("G# · C · D#", vm.ChordLabel); // C natural minor, degree 6 is Ab C Eb
+
+        vm.Detach();
+        Assert.False(vm.ShowScale);
+        Assert.Equal("", vm.ChordLabel);
+        generator.Key = BassGeneratorViewModel.Keys[4];
+        Assert.Equal(0, vm.ScaleMask);
+    }
+
+    [Fact]
+    public void Colours_can_be_turned_off_without_forgetting_the_key()
+    {
+        var generator = new BassGeneratorViewModel(new BassGeneratorOptions(), _ => { }, _ => { });
+        var vm = new BassEditorViewModel(_pattern, () => _changes++, null, generator);
+        Assert.False(vm.ShowScale);
+        Assert.False(generator.ShowColours);
+
+        vm.ShowColours = true;
+        Assert.True(vm.ShowScale);
+        Assert.True(generator.ShowColours);
+
+        vm.ShowColours = false;
+        Assert.False(vm.ShowScale);
+        Assert.Equal(BassGenerator.PitchClassMask(BassGenerator.ScaleClasses(4, Scale.MinorPentatonic)), vm.ScaleMask);
+    }
+
+    [Fact]
+    public void Matching_a_pattern_sets_the_key_and_leaves_an_empty_line_alone()
+    {
+        var generator = new BassGeneratorViewModel(new BassGeneratorOptions { Root = 4, Scale = Scale.MinorPentatonic }, _ => { }, _ => { });
+        var pattern = new BassPattern { Length = 8 };
+        foreach (var (step, note) in pattern.Steps.Take(8).Zip([43, 45, 47, 38, 43, 45, 47, 40]))
+        {
+            step.State = BassStepState.Note;
+            step.Note = note;
+        }
+
+        generator.MatchPattern(pattern);
+
+        Assert.Equal(7, generator.Options.Root);
+        Assert.Equal(Scale.MajorPentatonic, generator.Options.Scale);
+
+        generator.MatchPattern(new BassPattern());
+        Assert.Equal(7, generator.Options.Root);
+    }
+
+    [Fact]
+    public void Without_a_generator_the_keyboard_stays_plain()
+    {
+        var vm = Create();
+        Assert.False(vm.ShowScale);
+        Assert.Equal(0, vm.ScaleMask);
+        Assert.Equal("", vm.ChordLabel);
+    }
 }
