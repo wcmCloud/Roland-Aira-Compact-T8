@@ -16,6 +16,33 @@ namespace T8.Editor.Tests;
 
 public class MainWindowTests
 {
+    /// <summary>
+    /// Clicks a white key in the keyboard's own coordinates. The keys share a scroll viewer with the
+    /// steps, and on Linux and Windows the step editor is tall enough that the bottom of the keyboard
+    /// starts outside the window, so the point is scrolled into view first.
+    /// </summary>
+    private static void ClickPianoKey(MainWindow window, PianoKeyboard keyboard, double x)
+    {
+        const double y = 90; // below the black keys (they cover the top 66), on the white key
+        var local = new Point(x, y);
+        var scroll = keyboard.FindAncestorOfType<ScrollViewer>()!;
+        var inViewer = keyboard.TranslatePoint(local, scroll)!.Value;
+        var viewport = scroll.Viewport;
+        var offset = scroll.Offset;
+        if (inViewer.X < 4 || inViewer.X > viewport.Width - 4 || inViewer.Y < 4 || inViewer.Y > viewport.Height - 4)
+        {
+            scroll.Offset = new Vector(
+                Math.Max(0, offset.X + inViewer.X - viewport.Width / 2),
+                Math.Max(0, offset.Y + inViewer.Y - viewport.Height / 2));
+            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            window.UpdateLayout();
+        }
+
+        var point = keyboard.TranslatePoint(local, window)!.Value;
+        window.MouseDown(point, MouseButton.Left);
+        window.MouseUp(point, MouseButton.Left);
+    }
+
     private static (MainWindow Window, MainWindowViewModel Vm) Show(params string[] driveCandidates)
     {
         var vm = new MainWindowViewModel(FakePortProvider.WithT8(), new FakeDialogService(), driveCandidates: () => driveCandidates);
@@ -490,9 +517,7 @@ public class MainWindowTests
         vm.Bass.SelectedStep = vm.Bass.Steps[2];
 
         // The first white key is C0 (12); the second is D0 (14). Click low on the key, below the black keys.
-        var point = keyboard.TranslatePoint(new Point(PianoKeyboard.WhiteWidth * 1.5, 100), window)!.Value;
-        window.MouseDown(point, MouseButton.Left);
-        window.MouseUp(point, MouseButton.Left);
+        ClickPianoKey(window, keyboard, PianoKeyboard.WhiteWidth * 1.5);
 
         Assert.Equal(14, vm.Bass.Steps[2].Note);
         Assert.Equal(T8.Core.Patterns.BassStepState.Note, vm.Bass.Steps[2].State);
@@ -572,9 +597,7 @@ public class MainWindowTests
 
         // E0 is outside C natural minor. A grey key still sets the step.
         Assert.Equal(KeyTone.Outside, keyboard.ToneOf(16));
-        var point = keyboard.TranslatePoint(new Point(PianoKeyboard.WhiteWidth * 2.5, 100), window)!.Value;
-        window.MouseDown(point, MouseButton.Left);
-        window.MouseUp(point, MouseButton.Left);
+        ClickPianoKey(window, keyboard, PianoKeyboard.WhiteWidth * 2.5);
         Assert.Equal(16, vm.Bass.Steps[4].Note);
         Assert.Equal(BassStepState.Note, vm.Bass.Steps[4].State);
 
