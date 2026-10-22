@@ -264,4 +264,42 @@ public class MidiSettingsViewModelTests
         vm.RefreshPortsCommand.Execute(null);
         Assert.Equal("IAC Bus 1", vm.SelectedPort?.Name);
     }
+
+    [Fact]
+    public void A_fresh_settings_object_has_the_switches_on_that_the_app_turns_on_by_default()
+    {
+        var fresh = new EditorSettings();
+        Assert.True(fresh.FollowSelection);
+        Assert.True(fresh.FollowT8);
+        Assert.True(fresh.AuditionEnabled);
+        Assert.True(fresh.ShowPlayhead);
+        Assert.True(fresh.NotesFromT8);
+        Assert.True(fresh.CheckForUpdatesOnStartup);
+        Assert.Equal(PlayMode.PreviewNotes, fresh.PlayMode);
+
+        // First run (no settings file) and a file missing these keys give the same defaults.
+        var path = Path.Combine(Path.GetTempPath(), $"t8-settings-{Guid.NewGuid():N}.json");
+        Assert.True(new JsonSettingsStore(path).Load().FollowSelection);
+        File.WriteAllText(path, "{}");
+        try
+        {
+            var loaded = new JsonSettingsStore(path).Load();
+            Assert.True(loaded.FollowSelection);
+            Assert.True(loaded.NotesFromT8);
+            Assert.True(loaded.CheckForUpdatesOnStartup);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
+    public void The_readme_screenshots_start_from_the_real_default_switches()
+    {
+        var fresh = new EditorSettings();
+        var shots = DocsScreenshots.ScreenshotSettings();
+        foreach (var property in typeof(EditorSettings).GetProperties().Where(p => p.PropertyType == typeof(bool) || p.PropertyType == typeof(PlayMode)))
+            Assert.True(Equals(property.GetValue(fresh), property.GetValue(shots)), $"{property.Name} differs from its default in the screenshots");
+    }
 }

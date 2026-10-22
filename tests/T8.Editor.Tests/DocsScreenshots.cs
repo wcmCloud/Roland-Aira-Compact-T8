@@ -22,6 +22,19 @@ public class DocsScreenshots
     private const double RenderScale = 2;
     private static readonly string? Output = Environment.GetEnvironmentVariable("T8_DOCS_DIR");
 
+    /// <summary>
+    /// The settings the screenshots start from: a fresh <see cref="EditorSettings"/> (every switch at the app's real
+    /// first-run default), with only the T-8's port and the channels Detect would find on a T-8 set to 6 / 5 / 7.
+    /// </summary>
+    internal static EditorSettings ScreenshotSettings()
+    {
+        var settings = new EditorSettings { OutputPortName = "T-8 MIDI IN" };
+        settings.Midi.BassChannel = 6;
+        settings.Midi.RhythmChannel = 5;
+        settings.Midi.ProgramChangeChannel = 7;
+        return settings;
+    }
+
     [AvaloniaFact]
     public void Render_readme_screenshots()
     {
@@ -29,10 +42,7 @@ public class DocsScreenshots
             return;
         Directory.CreateDirectory(Output);
 
-        var settings = new EditorSettings { OutputPortName = "T-8 MIDI IN" };
-        settings.Midi.BassChannel = 6;
-        settings.Midi.RhythmChannel = 5;
-        settings.Midi.ProgramChangeChannel = 7;
+        var settings = ScreenshotSettings();
         var ports = new FakePortProvider(new T8.Midi.Ports.MidiPortInfo("T-8 MIDI IN", "T-8 MIDI IN"));
         // The test data folder holds a BACKUP folder like the T-8 drive, so the drive shows as connected.
         var vm = new MainWindowViewModel(ports, new FakeDialogService(), new MemorySettingsStore(settings),
