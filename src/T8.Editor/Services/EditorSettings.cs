@@ -43,9 +43,6 @@ public sealed class EditorSettings
     public double Bpm { get; set; } = 120;
     public string? LastFolder { get; set; }
 
-    /// <summary>On the Bass tab, enter the notes played on the T-8's own keyboard into the selected step.</summary>
-    public bool NotesFromT8 { get; set; } = true;
-
     /// <summary>Ask GitHub for a newer release when the editor starts (at most once a day).</summary>
     public bool CheckForUpdatesOnStartup { get; set; } = true;
 
@@ -66,7 +63,6 @@ public sealed class EditorSettings
         Bpm = Bpm,
         LastFolder = LastFolder,
         CheckForUpdatesOnStartup = CheckForUpdatesOnStartup,
-        NotesFromT8 = NotesFromT8,
         UpdateCheck = UpdateCheck.Clone(),
     };
 }

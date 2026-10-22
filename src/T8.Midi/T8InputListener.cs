@@ -8,8 +8,8 @@ namespace T8.Midi;
 
 /// <summary>
 /// Follows what the T-8 transmits (MIDI Implementation Chart): Start, Stop and Clock when its own
-/// sequencer plays, a program change on Pc.Ch when its pattern changes (needs tXPc on), and the bass
-/// notes played on its keyboard. Events are raised on the MIDI input thread.
+/// sequencer plays, and a program change on Pc.Ch when its pattern changes (needs tXPc on).
+/// Events are raised on the MIDI input thread.
 /// </summary>
 public sealed class T8InputListener : IDisposable
 {
@@ -48,19 +48,6 @@ public sealed class T8InputListener : IDisposable
     /// <summary>The T-8 changed pattern: bank 1–4 and pattern 1–16.</summary>
     public event EventHandler<(int Bank, int Pattern)>? PatternChanged;
 
-    /// <summary>The T-8's bass range: the notes it sends and plays.</summary>
-    public const int LowestBassNote = 12, HighestBassNote = 96;
-
-    /// <summary>How long after the T-8's last Start, Continue or clock its notes still count as its sequencer's.</summary>
-    public const double SequencerQuietMs = 1000;
-
-    /// <summary>
-    /// A bass key was pressed or released on the T-8: a note on (velocity 0 counts as off) or note off on the bass
-    /// channel (bACh), in the T-8's range. <c>FromSequencer</c> is true while the T-8's own sequencer is (or was
-    /// within the last second) playing, when the note is probably its pattern rather than a key.
-    /// </summary>
-    public event EventHandler<BassKeyEvent>? BassNote;
-
     /// <summary>The T-8's sequencer started or stopped.</summary>
     public event EventHandler<bool>? RunningChanged;
 
@@ -93,29 +80,17 @@ public sealed class T8InputListener : IDisposable
             case StartEvent:
                 Interlocked.Exchange(ref _clocks, 0);
                 SetRunning(true);
-                MarkActivity();
                 break;
             case ContinueEvent:
                 SetRunning(true);
-                MarkActivity();
                 break;
             case StopEvent:
                 SetRunning(false);
-                Volatile.Write(ref _lastActivityMs, double.NegativeInfinity);
                 break;
-            case TimingClockEvent:
-                MarkActivity();
-                if (_running)
-                {
-                    Interlocked.Increment(ref _clocks);
-                    MeasureClock();
-                }
-                break;
-            case NoteOnEvent note when IsBassKey(note.Channel, note.NoteNumber):
-                BassNote?.Invoke(this, new BassKeyEvent(note.NoteNumber, note.Velocity > 0, IsSequencerActive));
-                break;
-            case NoteOffEvent note when IsBassKey(note.Channel, note.NoteNumber):
-                BassNote?.Invoke(this, new BassKeyEvent(note.NoteNumber, false, IsSequencerActive));
+            case TimingClockEvent when _running:
+                // Clock while stopped is normal: the T-8 transmits it all the time, not only while playing.
+                Interlocked.Increment(ref _clocks);
+                MeasureClock();
                 break;
             case ProgramChangeEvent program when program.Channel + 1 == _map.ProgramChangeChannel && program.ProgramNumber < 64:
                 PatternChanged?.Invoke(this, (program.ProgramNumber / PatternLibrary.PatternsPerBank + 1,
@@ -124,20 +99,7 @@ public sealed class T8InputListener : IDisposable
         }
     }
 
-    private bool IsBassKey(Melanchall.DryWetMidi.Common.FourBitNumber channel, int note) =>
-        _map.BassChannel != 0 && channel + 1 == _map.BassChannel && note is >= LowestBassNote and <= HighestBassNote;
-
-    private double _lastActivityMs = double.NegativeInfinity;
-
-    /// <summary>
-    /// True while the T-8's sequencer is playing: from Start or Continue, and while its clock keeps coming, until
-    /// Stop or a second without clock.
-    /// </summary>
-    public bool IsSequencerActive => _nowMs() - Volatile.Read(ref _lastActivityMs) < SequencerQuietMs;
-
     private void OnEventReceived(object? sender, MidiEventReceivedEventArgs e) => Receive(e.Event);
-
-    private void MarkActivity() => Volatile.Write(ref _lastActivityMs, _nowMs());
 
     private void SetRunning(bool running)
     {
@@ -181,6 +143,3 @@ public sealed class T8InputListener : IDisposable
         (_input as IDisposable)?.Dispose();
     }
 }
-
-/// <summary>A bass key on the T-8: the note, pressed or released, and whether its sequencer was playing.</summary>
-public readonly record struct BassKeyEvent(int Note, bool Pressed, bool FromSequencer);

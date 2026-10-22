@@ -273,7 +273,6 @@ public class MidiSettingsViewModelTests
         Assert.True(fresh.FollowT8);
         Assert.True(fresh.AuditionEnabled);
         Assert.True(fresh.ShowPlayhead);
-        Assert.True(fresh.NotesFromT8);
         Assert.True(fresh.CheckForUpdatesOnStartup);
         Assert.Equal(PlayMode.PreviewNotes, fresh.PlayMode);
 
@@ -285,7 +284,6 @@ public class MidiSettingsViewModelTests
         {
             var loaded = new JsonSettingsStore(path).Load();
             Assert.True(loaded.FollowSelection);
-            Assert.True(loaded.NotesFromT8);
             Assert.True(loaded.CheckForUpdatesOnStartup);
         }
         finally

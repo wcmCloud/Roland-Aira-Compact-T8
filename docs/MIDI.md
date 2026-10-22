@@ -18,7 +18,7 @@ audition, connection test or all-notes-off. A `.mid` export leaves the part out 
 
 | Message | T-8 sends | T-8 recognizes | Editor |
 |---|:-:|:-:|---|
-| Note on/off, bass 12–96 | ✓ | ✓ | Sends: preview, audition, test. Receives: **Detect** finds the bass channel; keys played on the T-8 go into the selected bass step (**T-8 keys**; not while its sequencer runs) |
+| Note on/off, bass 12–96 | ✓ | ✓ | Sends: preview, audition, test. Receives: **Detect** finds the bass channel |
 | Note on/off, rhythm (drum notes) | ✓ | ✓ | Sends: preview, audition, test. Receives: **Detect** finds the rhythm channel |
 | Velocity 0–127 | ✓ | ✓ | Sends step velocity (v.0–v.10) and accents as note velocity |
 | Program change 0–63 | ✓ (`tXPc` on) | ✓ (`rXPc` on) | Sends: **Select on T-8**, switching with the editor, sync mode. Receives: **Follow the T-8** switches the editor to the pattern picked on the T-8; **Detect** finds `Pc.Ch` |

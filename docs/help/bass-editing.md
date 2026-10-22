@@ -13,7 +13,6 @@ Each column is one step: its note, its state, semitone up / down, **Accent** and
 - Click a key to give the selected step that note. The step is turned on and you hear the note on the T-8.
 - **Next step after a note** (lit orange when on): the selection then moves on, so you can play a line in key by key.
 - The chevrons in the **STEP EDITOR** panel move the selection to the previous or next step.
-- **T-8 keys** (on by default): play the keys on the T-8 itself (KYBD) and each note goes into the selected step, like clicking the keyboard here; the key you hold lights up green. While the T-8's own sequencer plays, its notes are shown but not recorded. It uses the bass channel (`bACh`) from the MIDI settings, and is greyed out when the T-8's MIDI input isn't open.
 
 ## Pattern panel
 

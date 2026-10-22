@@ -327,12 +327,6 @@ Each column is one step: its note, its state, semitone up/down, and Accent and S
   on the T-8, and the selection moves to the next step, so you can play a line in key by key. Turn off
   **Next step after a note** (in the **Step editor** panel above the keyboard) to stay on the same step. The
   chevrons there move the selection.
-- **Play the notes on the T-8 itself:** with **T-8 keys** on (the chip with the keyboard icon in the Step editor
-  panel, on by default), a key you play on the T-8's keyboard (KYBD) goes into the selected step, just like clicking
-  the on-screen keyboard, and the key you hold lights up green on the on-screen keyboard. The T-8 sounds the note
-  itself, so the editor doesn't play it again. Notes the T-8's own sequencer plays are shown but not recorded (from
-  Start or clock until Stop or a second without clock). It listens on the bass channel (`bACh`) from the MIDI
-  settings; the chip is greyed out when the T-8's MIDI input isn't open (not connected, or in drive mode).
 - The state button cycles **Off → Note → Tie**. A tie holds the previous note through the step.
 - The **Pattern** panel above the steps holds **Last step** (1–32), **Triplet** (lit orange when on) and
   **Transpose** (−12, −1, +1, +12 semitones for the whole line).

@@ -95,7 +95,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         _bpm = Settings.Bpm;
         _auditionEnabled = Settings.AuditionEnabled;
         _showPlayhead = Settings.ShowPlayhead;
-        _notesFromT8 = Settings.NotesFromT8;
         Library = PatternLibrary.CreateBlank();
         BassGenerator = new BassGeneratorViewModel(Settings.BassGenerator.Clone(), options =>
         {
@@ -406,7 +405,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     private void OpenListener()
     {
         CloseListener();
-        if (SelectedPort is null || (!Settings.FollowT8 && !Settings.NotesFromT8))
+        if (SelectedPort is null || !Settings.FollowT8)
             return;
         try
         {
@@ -416,21 +415,14 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         {
             _listener = null; // No input to follow; everything else still works.
         }
-        OnPropertyChanged(nameof(T8InputOpen));
-        OnPropertyChanged(nameof(NotesFromT8Tip));
         if (_listener is not null)
-        {
             _listener.PatternChanged += (_, slot) => OnUi(() => OnT8PatternChanged(slot.Bank, slot.Pattern));
-            _listener.BassNote += (_, key) => OnUi(() => OnT8BassNote(key.Note, key.Pressed, key.FromSequencer));
-        }
     }
 
     private void CloseListener()
     {
         _listener?.Dispose();
         _listener = null;
-        OnPropertyChanged(nameof(T8InputOpen));
-        OnPropertyChanged(nameof(NotesFromT8Tip));
         T8Status = "";
     }
 
@@ -449,47 +441,6 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             action();
         else
             _ui.Post(_ => action(), null);
-    }
-
-    /// <summary>On the Bass tab, the notes played on the T-8's keyboard go into the selected step (the chip in the step editor).</summary>
-    [ObservableProperty]
-    private bool _notesFromT8;
-
-    /// <summary>The T-8's MIDI input is open, so keys played on it can reach the editor.</summary>
-    public bool T8InputOpen => _listener is not null;
-
-    public string NotesFromT8Tip => T8InputOpen
-        ? "T-8 keys: play notes on the T-8's own keyboard (KYBD, sequencer stopped) to enter them into the selected step. The key you hold lights up green below."
-        : "T-8 keys need the T-8's MIDI input: connect the T-8 by USB and pick it under OUT (not in drive mode), then press refresh.";
-
-    partial void OnNotesFromT8Changed(bool value)
-    {
-        Settings.NotesFromT8 = value;
-        SaveSettings();
-        OpenListener();
-        Status = value
-            ? "T-8 keys on: notes played on the T-8's keyboard go into the selected bass step (Bass tab)."
-            : "T-8 keys off: notes played on the T-8 no longer change the bass line.";
-    }
-
-    /// <summary>
-    /// A key pressed or released on the T-8 (its sequencer stopped): shown on the keyboard and, on the Bass tab with
-    /// <see cref="NotesFromT8"/> on, entered into the selected step.
-    /// </summary>
-    internal void OnT8BassNote(int note, bool pressed, bool fromSequencer = false)
-    {
-        if (!pressed)
-        {
-            if (Bass.T8KeyNote == note)
-                Bass.T8KeyNote = null;
-            return;
-        }
-        Bass.T8KeyNote = note;
-        // The T-8's own sequencer sends its pattern's notes too: show them, but don't record them.
-        if (!NotesFromT8 || fromSequencer || SelectedTab != BassTab || IsPlaying)
-            return;
-        if (Bass.EnterNoteFromT8(note) is { } step)
-            Status = $"Step {step.Number}: {step.NoteName}, played on the T-8.";
     }
 
     partial void OnAuditionEnabledChanged(bool value)
