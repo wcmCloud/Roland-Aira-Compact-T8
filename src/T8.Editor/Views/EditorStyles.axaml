@@ -1050,7 +1050,7 @@
   </Style>
   <!-- Smaller chips where a row of controls must fit above the keyboard -->
   <Style Selector="ToggleButton.chip.compact, Button.chip.compact">
-    <Setter Property="FontSize" Value="10" />
+    <Setter Property="FontSize" Value="10.5" />
     <Setter Property="Padding" Value="8,0" />
     <Setter Property="Height" Value="26" />
   </Style>
