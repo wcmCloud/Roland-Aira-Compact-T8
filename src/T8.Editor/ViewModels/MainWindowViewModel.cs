@@ -350,9 +350,34 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     public string MidiSummary =>
         $"Bass {PartChannel(Settings.Midi.BassChannel)} · Rhythm {PartChannel(Settings.Midi.RhythmChannel)} · Pattern select ch {Settings.Midi.ProgramChangeChannel}" +
-        (Settings.PlayMode == PlayMode.SyncT8Sequencer ? " · Play runs the T-8's sequencer" : "");
+        (PlaysOnT8 ? " · Play runs the T-8's sequencer" : "");
+
+    /// <summary>Channel number, or OFF, for the status-bar pills.</summary>
+    public string BassChannelText => T8MidiMap.ChannelName(Settings.Midi.BassChannel);
+
+    public string RhythmChannelText => T8MidiMap.ChannelName(Settings.Midi.RhythmChannel);
+
+    public string PatternChannelText => T8MidiMap.ChannelName(Settings.Midi.ProgramChangeChannel);
+
+    public bool BassChannelOn => Settings.Midi.BassOn;
+
+    public bool RhythmChannelOn => Settings.Midi.RhythmOn;
+
+    /// <summary>Play is running the T-8's own sequencer, shown as its own pill.</summary>
+    public bool PlaysOnT8 => Settings.PlayMode == PlayMode.SyncT8Sequencer;
 
     private static string PartChannel(int channel) => channel == T8MidiMap.Off ? "OFF" : $"ch {channel}";
+
+    private void NotifyMidiSummary()
+    {
+        OnPropertyChanged(nameof(MidiSummary));
+        OnPropertyChanged(nameof(BassChannelText));
+        OnPropertyChanged(nameof(RhythmChannelText));
+        OnPropertyChanged(nameof(PatternChannelText));
+        OnPropertyChanged(nameof(BassChannelOn));
+        OnPropertyChanged(nameof(RhythmChannelOn));
+        OnPropertyChanged(nameof(PlaysOnT8));
+    }
 
     public PatternLibrary Library { get; private set; }
 
@@ -770,7 +795,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         Settings = settingsVm.ToSettings();
         SaveSettings();
         OnPropertyChanged(nameof(Settings));
-        OnPropertyChanged(nameof(MidiSummary));
+        NotifyMidiSummary();
         RefreshPorts();
         OpenListener();
         Status = $"MIDI settings saved. {MidiSummary}.";

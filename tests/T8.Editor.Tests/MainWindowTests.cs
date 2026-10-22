@@ -74,6 +74,22 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Midi_channels_are_pills_in_the_status_bar()
+    {
+        var (window, vm) = Show();
+
+        var bar = window.FindControl<StackPanel>("MidiSummaryText")!;
+        var labels = bar.GetVisualDescendants().OfType<TextBlock>()
+            .Where(t => t.IsEffectivelyVisible).Select(t => t.Text).ToList();
+        Assert.Equal(["BASS", "2", "RHYTHM", "10", "SELECT", "16"], labels);
+        Assert.False(vm.PlaysOnT8);
+        Assert.False(bar.Children.OfType<Border>().Last().IsVisible);
+
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Default_presets_status_is_highlighted()
     {
         var vm = new MainWindowViewModel(FakePortProvider.WithT8(), new FakeDialogService(),

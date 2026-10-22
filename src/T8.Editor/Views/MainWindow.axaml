@@ -233,8 +233,41 @@
     </Grid>
 
     <DockPanel DockPanel.Dock="Bottom" Margin="12,6,12,8">
-      <TextBlock DockPanel.Dock="Right" x:Name="MidiSummaryText" Text="{Binding MidiSummary}" Opacity="0.6" FontSize="12" Margin="16,0,0,0"
-                 VerticalAlignment="Center" />
+      <StackPanel DockPanel.Dock="Right" x:Name="MidiSummaryText" Orientation="Horizontal" Spacing="6" Margin="16,0,0,0"
+                  VerticalAlignment="Center" ToolTip.Tip="{Binding MidiSummary}">
+        <Border Classes="midiPill" Classes.off="{Binding !BassChannelOn}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Classes="midiLabel" Text="BASS" />
+            <Border Classes="midiBadge bass">
+              <TextBlock Classes="midiValue" Text="{Binding BassChannelText}" />
+            </Border>
+          </StackPanel>
+        </Border>
+        <Border Classes="midiPill" Classes.off="{Binding !RhythmChannelOn}">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Classes="midiLabel" Text="RHYTHM" />
+            <Border Classes="midiBadge rhythm">
+              <TextBlock Classes="midiValue" Text="{Binding RhythmChannelText}" />
+            </Border>
+          </StackPanel>
+        </Border>
+        <Border Classes="midiPill">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Classes="midiLabel" Text="SELECT" />
+            <Border Classes="midiBadge select">
+              <TextBlock Classes="midiValue" Text="{Binding PatternChannelText}" />
+            </Border>
+          </StackPanel>
+        </Border>
+        <Border Classes="midiPill" IsVisible="{Binding PlaysOnT8}" ToolTip.Tip="Play runs the T-8's own sequencer">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Classes="midiLabel" Text="T-8" />
+            <Border Classes="midiBadge sync">
+              <TextBlock Classes="midiValue" Text="SEQ" />
+            </Border>
+          </StackPanel>
+        </Border>
+      </StackPanel>
       <Button DockPanel.Dock="Right" x:Name="UpdateChip" Classes="chip small lit" Margin="12,-4,0,-4"
               IsVisible="{Binding HasUpdate}" Command="{Binding OpenUpdatePageCommand}" ToolTip.Tip="{Binding UpdateTip}">
         <StackPanel Orientation="Horizontal" Spacing="5">
