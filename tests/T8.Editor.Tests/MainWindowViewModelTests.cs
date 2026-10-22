@@ -21,7 +21,7 @@ public class MainWindowViewModelTests : IDisposable
     {
         Assert.Null(_vm.FolderPath);
         Assert.False(_vm.IsDirty);
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.10", _vm.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.11", _vm.Title);
         Assert.Equal("Untitled", _vm.LibraryLabel);
         _vm.FolderPath = "/Volumes/T-8/BACKUP/"; // a trailing slash still gives the folder's name
         Assert.Equal("BACKUP", _vm.LibraryLabel);
@@ -76,7 +76,7 @@ public class MainWindowViewModelTests : IDisposable
         Assert.Equal(12, _vm.Bass.Length);
         Assert.Equal(32, _vm.Rhythm.Length);
         Assert.Contains("Loaded 64 patterns", _vm.Status);
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.10", _vm.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.11", _vm.Title);
         Assert.Equal("BACKUP", _vm.LibraryLabel);
     }
 
@@ -140,7 +140,7 @@ public class MainWindowViewModelTests : IDisposable
     {
         _vm.Rhythm[RhythmTrack.BD].Cells[0].On = true;
         Assert.True(_vm.IsDirty);
-        Assert.EndsWith("v1.0.10", _vm.Title); // the title ends with the version; unsaved shows on the Patterns card
+        Assert.EndsWith("v1.0.11", _vm.Title); // the title ends with the version; unsaved shows on the Patterns card
         Assert.EndsWith("unsaved changes", _vm.LibraryLabel);
 
         _vm.Bass.Steps[0].Accent = true;
@@ -417,8 +417,8 @@ public class MainWindowViewModelTests : IDisposable
     [Fact]
     public void The_app_is_version_1_0_1_by_christos()
     {
-        Assert.Equal("v1.0.10", T8.Editor.AppInfo.DisplayVersion);
-        Assert.StartsWith("1.0.10", T8.Editor.AppInfo.FullVersion);
+        Assert.Equal("v1.0.11", T8.Editor.AppInfo.DisplayVersion);
+        Assert.StartsWith("1.0.11", T8.Editor.AppInfo.FullVersion);
         Assert.Equal("Christos Christodoulidis", T8.Editor.AppInfo.Author);
     }
 
