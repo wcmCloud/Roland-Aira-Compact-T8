@@ -113,19 +113,7 @@
                   <TextBlock Text="Check" />
                 </StackPanel>
               </Button>
-              <Button x:Name="T8DriveHelpButton" Classes="tool icon" ToolTip.Tip="How to connect the T-8 as a drive">
-                <PathIcon Data="{StaticResource IconHelp}" />
-                <Button.Flyout>
-                  <Flyout Placement="BottomEdgeAlignedLeft">
-                    <StackPanel Width="380" Spacing="8">
-                      <TextBlock Text="T-8 drive mode" FontWeight="Bold" FontSize="13" />
-                      <TextBlock Text="{Binding T8DriveStatus}" FontSize="12" TextWrapping="Wrap"
-                                 Foreground="{StaticResource SectionGreen}" IsVisible="{Binding IsT8DriveConnected}" />
-                      <TextBlock Text="{Binding T8DriveHelpText}" FontSize="12" TextWrapping="Wrap" LineHeight="18" />
-                    </StackPanel>
-                  </Flyout>
-                </Button.Flyout>
-              </Button>
+              <views:HelpTip x:Name="T8DriveHelp" Tip="{x:Static help:HelpTips.DriveMode}" Margin="2,0,4,0" />
             </StackPanel>
           </Border>
           <Border Classes="toolgroup">
@@ -161,7 +149,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionOrange}" />
             <TextBlock Classes="cardTitle" Text="PATTERNS" />
-            <views:HelpTip Topic="{x:Static help:HelpTopics.Patterns}" />
+            <views:HelpTip Tip="{x:Static help:HelpTips.Patterns}" />
             <TextBlock Text="{Binding PatternLabel}" FontSize="11" Foreground="{StaticResource MutedText}" Margin="8,0,0,0" VerticalAlignment="Center" />
             <Ellipse x:Name="UnsavedDot" Width="7" Height="7" Fill="{StaticResource T8Orange}" Margin="10,0,0,0" VerticalAlignment="Center"
                      IsVisible="{Binding IsDirty}" ToolTip.Tip="Unsaved changes" />
@@ -198,7 +186,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionGreen}" />
             <TextBlock Classes="cardTitle" Text="PLAYBACK" />
-            <views:HelpTip Topic="{x:Static help:HelpTopics.Playback}" />
+            <views:HelpTip Tip="{x:Static help:HelpTips.Playback}" />
           </StackPanel>
           <WrapPanel Orientation="Horizontal">
             <views:Knob x:Name="BpmKnob" Value="{Binding Bpm}" Minimum="20" Maximum="300" DefaultValue="120" Label="BPM"

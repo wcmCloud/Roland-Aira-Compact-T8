@@ -12,7 +12,7 @@
         <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
           <Ellipse Classes="dot" Fill="{StaticResource SectionPink}" />
           <TextBlock Classes="cardTitle" Text="PATTERN" />
-          <views:HelpTip Topic="{x:Static help:HelpTopics.Bass}" />
+          <views:HelpTip Tip="{x:Static help:HelpTips.BassPattern}" />
         </StackPanel>
         <Border Classes="fieldBox">
           <StackPanel Orientation="Horizontal" Spacing="2">
@@ -89,7 +89,7 @@
             <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
               <Ellipse Classes="dot" Fill="{StaticResource SectionPurple}" />
               <TextBlock Classes="cardTitle" Text="STEP EDITOR" />
-              <views:HelpTip Topic="{x:Static help:HelpTopics.StepEditor}" />
+              <views:HelpTip Tip="{x:Static help:HelpTips.BassStepEditor}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
               <Button x:Name="PreviousStepButton" Classes="chip" Command="{Binding SelectPreviousCommand}" Padding="7,0"

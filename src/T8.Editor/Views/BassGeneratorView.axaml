@@ -10,7 +10,7 @@
       <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="7" Margin="0,0,0,8">
         <Ellipse Classes="dot" Fill="{StaticResource SectionPink}" />
         <TextBlock Classes="cardTitle" Text="BASS LINE GENERATOR" />
-        <views:HelpTip Topic="{x:Static help:HelpTopics.BassGenerator}" />
+        <views:HelpTip Tip="{x:Static help:HelpTips.BassGenerator}" />
       </StackPanel>
 
       <!-- Generate, randomize, undo and seed in one outlined panel -->

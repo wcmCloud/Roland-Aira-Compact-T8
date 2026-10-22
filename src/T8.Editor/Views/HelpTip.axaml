@@ -1,25 +1,23 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:views="using:T8.Editor.Views"
              x:Class="T8.Editor.Views.HelpTip"
              VerticalAlignment="Center" Margin="0,-4,0,-4">
-  <!-- A small ? next to a panel: shows that panel's help topic, with a link to the full help. -->
+  <!-- A small (?) next to a panel: a short popup from docs/help/tips, and a link to the full topic. -->
   <Button x:Name="TipButton" Classes="helpTip" ToolTip.Tip="Help">
     <PathIcon Data="{StaticResource IconHelp}" />
     <Button.Flyout>
-      <Flyout Placement="BottomEdgeAlignedLeft">
-        <StackPanel Width="380" Spacing="8">
-          <TextBlock x:Name="TipTitle" FontWeight="Bold" FontSize="13" />
-          <ItemsControl x:Name="TipParagraphs">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="x:String">
-                <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="12" LineHeight="18" Margin="0,0,0,8" />
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
+      <Flyout Placement="BottomEdgeAlignedLeft" FlyoutPresenterClasses="helpFlyout">
+        <StackPanel Width="340" Spacing="8">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <Ellipse Classes="dot" Fill="{StaticResource T8Orange}" />
+            <TextBlock x:Name="TipTitle" Classes="cardTitle" />
+          </StackPanel>
+          <views:MarkdownView x:Name="TipText" TextSize="11.5" />
           <Button x:Name="MoreHelpButton" Classes="chip small" HorizontalAlignment="Left" Click="OnMoreHelp">
             <StackPanel Orientation="Horizontal" Spacing="5">
               <PathIcon Data="{StaticResource IconHelp}" Width="11" Height="11" />
-              <TextBlock Text="ALL HELP (F1)" />
+              <TextBlock Text="MORE IN THE HELP WINDOW" />
             </StackPanel>
           </Button>
         </StackPanel>

@@ -1022,4 +1022,21 @@
     <Setter Property="Background" Value="#33FF7A1A" />
     <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
   </Style>
+  <!-- Help popups and the Markdown help text -->
+  <Style Selector="FlyoutPresenter.helpFlyout">
+    <Setter Property="Background" Value="{StaticResource CardBg}" />
+    <Setter Property="BorderBrush" Value="#3A3A42" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Padding" Value="14,12" />
+  </Style>
+  <Style Selector="TextBlock.helpHeading">
+    <Setter Property="FontSize" Value="10.5" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="LetterSpacing" Value="1.1" />
+    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+  </Style>
+  <Style Selector="TextBlock.helpBullet">
+    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+  </Style>
 </Styles>

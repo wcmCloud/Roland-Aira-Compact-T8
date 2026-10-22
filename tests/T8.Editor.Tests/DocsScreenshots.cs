@@ -164,7 +164,7 @@ public class DocsScreenshots
         Save(about, "about.png");
 
         var help = new HelpWindow();
-        help.ShowTopic(T8.Editor.Help.HelpTopics.RhythmGenerator);
+        help.ShowTopic(T8.Editor.Help.HelpTopics.DriveMode);
         help.Show();
         Settle(help);
         Save(help, "help.png");

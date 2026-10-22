@@ -1,63 +1,68 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:help="using:T8.Editor.Help"
+        xmlns:views="using:T8.Editor.Views"
         x:Class="T8.Editor.Views.HelpWindow"
-        x:DataType="help:HelpTopic"
         Icon="avares://T8Editor/Assets/AppIcon.png"
         Title="Help"
-        Width="860" Height="580" MinWidth="620" MinHeight="400"
+        Width="880" Height="600" MinWidth="640" MinHeight="420"
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource WindowBg}">
   <DockPanel Margin="16">
     <!-- Header -->
     <DockPanel DockPanel.Dock="Top" Margin="2,0,0,12">
-      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
-        <Button x:Name="OnlineGuideButton" Classes="chip" Click="OnOnlineGuide" ToolTip.Tip="The full user guide with screenshots, on GitHub">
-          <StackPanel Orientation="Horizontal" Spacing="6">
-            <PathIcon Data="{StaticResource IconOpen}" />
-            <TextBlock Text="ONLINE USER GUIDE" />
-          </StackPanel>
-        </Button>
-        <Button x:Name="CloseHelpButton" Classes="chip" Click="OnClose" IsCancel="True">
-          <StackPanel Orientation="Horizontal" Spacing="6">
-            <PathIcon Data="{StaticResource IconClose}" />
-            <TextBlock Text="CLOSE" />
-          </StackPanel>
-        </Button>
-      </StackPanel>
+      <Button x:Name="CloseHelpButton" DockPanel.Dock="Right" Classes="chip" Click="OnClose" IsCancel="True">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <PathIcon Data="{StaticResource IconClose}" />
+          <TextBlock Text="CLOSE" />
+        </StackPanel>
+      </Button>
       <StackPanel Orientation="Horizontal" Spacing="10">
         <TextBlock Classes="logo" Text="T-8" />
         <TextBlock Text="Help" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" />
       </StackPanel>
     </DockPanel>
 
-    <Grid ColumnDefinitions="230,*" ColumnSpacing="12">
-      <!-- Topics -->
-      <Border Classes="card" Padding="6">
-        <ListBox x:Name="TopicList" Classes="helpTopics" SelectionMode="Single">
-          <ListBox.ItemTemplate>
-            <DataTemplate x:DataType="help:HelpTopic">
-              <TextBlock Text="{Binding Title}" FontSize="12" />
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
+    <Grid ColumnDefinitions="240,*" ColumnSpacing="12">
+      <!-- Search and topics -->
+      <Border Classes="card" Padding="8">
+        <DockPanel>
+          <Border DockPanel.Dock="Top" Classes="fieldBox" Margin="0,0,0,8">
+            <DockPanel>
+              <PathIcon DockPanel.Dock="Left" Data="{StaticResource IconSearch}" Width="12" Height="12"
+                        Foreground="{StaticResource MutedText}" Margin="8,0,2,0" />
+              <TextBox x:Name="SearchBox" Classes="field" Watermark="Search help" />
+            </DockPanel>
+          </Border>
+          <Button x:Name="OnlineGuideButton" DockPanel.Dock="Bottom" Classes="chip" HorizontalAlignment="Stretch"
+                  HorizontalContentAlignment="Center" Margin="0,8,0,0" Click="OnOnlineGuide"
+                  ToolTip.Tip="The full user guide with screenshots, on GitHub">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <PathIcon Data="{StaticResource IconOpen}" />
+              <TextBlock Text="ONLINE GUIDE" />
+            </StackPanel>
+          </Button>
+          <TextBlock x:Name="NoResultsText" DockPanel.Dock="Top" Text="Nothing found." FontSize="11.5"
+                     Foreground="{StaticResource MutedText}" Margin="6,4" IsVisible="False" />
+          <ListBox x:Name="TopicList" Classes="helpTopics" SelectionMode="Single">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="help:HelpTopic">
+                <TextBlock Text="{Binding Title}" FontSize="12" />
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </DockPanel>
       </Border>
 
       <!-- The topic -->
-      <Border Grid.Column="1" Classes="card" Padding="18,14">
+      <Border Grid.Column="1" Classes="card" Padding="20,16">
         <ScrollViewer x:Name="TopicScroller" HorizontalScrollBarVisibility="Disabled">
-          <StackPanel Spacing="10">
+          <StackPanel Spacing="12">
             <StackPanel Orientation="Horizontal" Spacing="8">
               <Ellipse Classes="dot" Fill="{StaticResource T8Orange}" />
-              <TextBlock x:Name="TopicTitle" Text="{Binding Title}" FontSize="15" FontWeight="Bold" />
+              <TextBlock x:Name="TopicTitle" Classes="cardTitle" FontSize="13" />
             </StackPanel>
-            <ItemsControl x:Name="TopicParagraphs" ItemsSource="{Binding Paragraphs}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="x:String">
-                  <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="12.5" LineHeight="19" Margin="0,0,0,10" />
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <views:MarkdownView x:Name="TopicText" TextSize="12.5" />
           </StackPanel>
         </ScrollViewer>
       </Border>

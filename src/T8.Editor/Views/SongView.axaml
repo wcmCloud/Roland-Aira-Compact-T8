@@ -12,7 +12,8 @@
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
           <Border Classes="fieldBox">
             <StackPanel Orientation="Horizontal" Spacing="4">
-              <TextBlock Classes="fieldLabel" Text="COPY TO BANK" />
+              <views:HelpTip Tip="{x:Static help:HelpTips.CopyToBank}" Margin="6,-4,0,-4" />
+              <TextBlock Classes="fieldLabel" Text="COPY TO BANK" Margin="2,0,4,0" />
               <ComboBox x:Name="CopyBankPicker" Classes="port" ItemsSource="{x:Static vm:SongViewModel.Banks}" SelectedItem="{Binding CopyTargetBank}" Width="62"
                         ToolTip.Tip="Bank to copy the song's patterns into" />
               <Button x:Name="CopyToBankButton" Classes="tool" Command="{Binding CopyToBankCommand}" ToolTip.Tip="Copy the song's patterns into this bank in song order (entry 1 to pattern 1…, then fills); the rest of the bank is left empty">
@@ -55,7 +56,7 @@
         <StackPanel Orientation="Horizontal" Spacing="10">
           <Ellipse Classes="dot" Fill="{StaticResource SectionPurple}" VerticalAlignment="Center" />
           <TextBlock Classes="cardTitle" Text="SONG" />
-          <views:HelpTip Topic="{x:Static help:HelpTopics.Song}" />
+          <views:HelpTip Tip="{x:Static help:HelpTips.SongHeader}" />
           <Border Classes="fieldBox" Margin="6,0,0,0">
             <StackPanel Orientation="Horizontal" Spacing="2">
               <TextBlock Classes="fieldLabel" Text="TITLE" />
@@ -105,7 +106,7 @@
                 <PathIcon Data="{StaticResource IconSkipNext}" />
               </StackPanel>
             </Button>
-            <views:HelpTip Topic="{x:Static help:HelpTopics.SongPlayback}" />
+            <views:HelpTip Tip="{x:Static help:HelpTips.SongPlayback}" />
           </StackPanel>
         </DockPanel>
 
@@ -169,7 +170,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionOrange}" />
             <TextBlock Classes="cardTitle" Text="ARRANGEMENT" />
-            <views:HelpTip Topic="{x:Static help:HelpTopics.Song}" />
+            <views:HelpTip Tip="{x:Static help:HelpTips.Arrangement}" />
             <TextBlock Text="Click a pattern in the grid above to add it to the song; set how often it repeats and whether a fill leads into the next."
                        Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" Margin="8,0,0,0" />
           </StackPanel>

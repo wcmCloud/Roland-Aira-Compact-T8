@@ -184,10 +184,13 @@ The screenshots at the top show the whole window on each tab. From top to bottom
 
 ### Help
 
-Press **F1**, the **?** button in the top bar (next to settings and About) or, on macOS, **Help** in the app menu
-to open the help: a short guide to every part of the editor, condensed from this page. The small **?** icons next
-to the panels (Patterns, Playback, the Rhythm and Bass editors, the generators, Fills, the Song tab and each MIDI
-settings card) show the help for that panel, with a link to the full help.
+Press **F1** (or the **?** button in the top bar, or **Help** in the macOS app menu) to open the help at the topic
+for the tab you're on; in the MIDI settings window F1 opens the MIDI settings topic. The help window has a search
+box, the topics (getting started, loading and sending patterns, rhythm and bass editing, the generators, fills,
+songs, MIDI settings, shortcuts, about) and an **Online guide** button for this page.
+
+The small **(?)** icons next to the panels show a short popup about that panel, with **More in the Help window**
+to open the full topic. The help is written as Markdown in [docs/help](docs/help) and built into the app.
 
 ![The help window](docs/screenshots/help.png)
 

@@ -17,7 +17,7 @@
     <StackPanel Width="240" Spacing="8" HorizontalAlignment="Left">
       <StackPanel Orientation="Horizontal" Spacing="6">
         <TextBlock Classes="header" Text="Pattern" VerticalAlignment="Center" />
-        <views:HelpTip Topic="{x:Static help:HelpTopics.Rhythm}" />
+        <views:HelpTip Tip="{x:Static help:HelpTips.PatternKnobs}" />
       </StackPanel>
       <StackPanel x:Name="PatternKnobs" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Left">
         <views:Knob x:Name="RhythmLength" Value="{Binding Length}" Minimum="1" Maximum="32" DefaultValue="16" Label="Last step"
@@ -33,7 +33,7 @@
               Width="{Binding #PatternKnobs.Bounds.Width}" IsVisible="{Binding HasMultiSelection}">
         <StackPanel Spacing="2">
           <DockPanel Margin="0,0,0,4" MinHeight="22">
-            <views:HelpTip DockPanel.Dock="Right" Topic="{x:Static help:HelpTopics.MultiSelect}" />
+            <views:HelpTip DockPanel.Dock="Right" Tip="{x:Static help:HelpTips.StepPanel}" />
             <TextBlock x:Name="MultiSelectionText" Text="{Binding MultiSelectionLabel}" FontSize="12" FontWeight="SemiBold"
                        Foreground="{StaticResource SectionBlue}" VerticalAlignment="Center" />
           </DockPanel>
@@ -83,6 +83,7 @@
                           IsChecked="{Binding SelectedCell.On, FallbackValue=False}" ToolTip.Tip="Turn this step on or off">
               <TextBlock Text="ON" />
             </ToggleButton>
+            <views:HelpTip DockPanel.Dock="Right" Tip="{x:Static help:HelpTips.StepPanel}" Margin="0,-4,4,-4" />
             <TextBlock x:Name="SelectedStepText" Text="{Binding SelectedCell.Description, FallbackValue=''}" FontSize="12" FontWeight="SemiBold"
                        Foreground="{StaticResource T8Orange}" VerticalAlignment="Center" />
           </DockPanel>
@@ -127,7 +128,10 @@
     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
       <StackPanel Spacing="4">
         <!-- Step numbers -->
-        <StackPanel Orientation="Horizontal" Margin="126,0,0,0">
+        <StackPanel Orientation="Horizontal">
+          <Panel Width="126">
+            <views:HelpTip Tip="{x:Static help:HelpTips.RhythmGrid}" HorizontalAlignment="Left" Margin="4,-4,0,-4" />
+          </Panel>
           <ItemsControl ItemsSource="{Binding Tracks[0].Cells}">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Spacing="3" /></ItemsPanelTemplate>

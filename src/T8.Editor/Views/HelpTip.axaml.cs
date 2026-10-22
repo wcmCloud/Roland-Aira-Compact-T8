@@ -5,42 +5,48 @@ using T8.Editor.Help;
 
 namespace T8.Editor.Views;
 
-/// <summary>A small ? button that shows one help topic (<see cref="HelpTopics"/>) in a flyout.</summary>
+/// <summary>A small (?) button showing one popup text from docs/help/tips (<see cref="HelpTips"/>).</summary>
 public partial class HelpTip : UserControl
 {
-    public static readonly StyledProperty<string?> TopicProperty =
-        AvaloniaProperty.Register<HelpTip, string?>(nameof(Topic));
+    public static readonly StyledProperty<string?> TipProperty =
+        AvaloniaProperty.Register<HelpTip, string?>(nameof(Tip));
 
     public HelpTip()
     {
         InitializeComponent();
     }
 
-    /// <summary>The topic id, one of the <see cref="HelpTopics"/> constants.</summary>
-    public string? Topic
+    /// <summary>The popup's id, one of the <see cref="HelpTips"/> constants.</summary>
+    public string? Tip
     {
-        get => GetValue(TopicProperty);
-        set => SetValue(TopicProperty, value);
+        get => GetValue(TipProperty);
+        set => SetValue(TipProperty, value);
     }
 
-    /// <summary>The flyout's button, for tests.</summary>
+    /// <summary>The help topic "More in the Help window" opens.</summary>
+    public string? TopicId => HelpContent.Tip(Tip)?.TopicId;
+
+    /// <summary>The (?) button, for tests.</summary>
     public Button Button => TipButton;
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
     {
         base.OnPropertyChanged(change);
-        if (change.Property == TopicProperty)
+        if (change.Property == TipProperty)
         {
-            var topic = HelpTopics.Get(Topic);
-            TipTitle.Text = topic.Title;
-            TipParagraphs.ItemsSource = topic.Paragraphs;
-            ToolTip.SetTip(TipButton, $"Help: {topic.Title}");
+            var tip = HelpContent.Tip(Tip);
+            TipTitle.Text = tip?.Title.ToUpperInvariant() ?? "HELP";
+            TipText.Markdown = tip?.Markdown;
+            ToolTip.SetTip(TipButton, tip is null ? "Help" : $"Help: {tip.Title}");
         }
     }
 
-    private void OnMoreHelp(object? sender, RoutedEventArgs e)
+    /// <summary>Opens the help window at this popup's topic.</summary>
+    public HelpWindow OpenMoreHelp()
     {
         TipButton.Flyout?.Hide();
-        HelpWindow.Open(TopLevel.GetTopLevel(this) as Window, Topic);
+        return HelpWindow.Open(TopLevel.GetTopLevel(this) as Window, TopicId);
     }
+
+    private void OnMoreHelp(object? sender, RoutedEventArgs e) => OpenMoreHelp();
 }

@@ -673,7 +673,7 @@ public class MidiSettingsWindowTests
         var write = window.FindControl<Button>("WriteToT8Button")!;
         Assert.False(load.IsEffectivelyEnabled);
         Assert.False(write.IsEffectivelyEnabled);
-        Assert.NotNull(window.FindControl<Button>("T8DriveHelpButton")!.Flyout);
+        Assert.Equal(T8.Editor.Help.HelpTips.DriveMode, window.FindControl<HelpTip>("T8DriveHelp")!.Tip);
 
         // The test data folder holds a BACKUP folder like the T-8 drive.
         drives.Add(Path.GetDirectoryName(TestPaths.Backup)!);

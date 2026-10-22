@@ -251,7 +251,7 @@ public class MainWindowMidiAndDriveTests : IDisposable
         Vm.CheckT8DriveCommand.Execute(null);
         Assert.Contains("T-8 drive not found", Vm.Status);
         Assert.Contains("holding PLAY", Vm.Status);
-        Assert.Contains("Hold PLAY", Vm.T8DriveHelpText);
+        Assert.Contains("hold PLAY", T8.Editor.Help.HelpContent.Tip(T8.Editor.Help.HelpTips.DriveMode)!.Markdown);
     }
 
     [Fact]

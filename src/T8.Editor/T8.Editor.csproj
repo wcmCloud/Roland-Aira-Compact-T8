@@ -35,6 +35,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- The in-app help, written as Markdown in docs/help (topics) and docs/help/tips (the (?) popups) -->
+    <EmbeddedResource Include="..\..\docs\help\*.md" Exclude="..\..\docs\help\README.md" LogicalName="help.topic.%(Filename).md" />
+    <EmbeddedResource Include="..\..\docs\help\tips\*.md" LogicalName="help.tip.%(Filename).md" />
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="T8.Editor.Tests" />
   </ItemGroup>
 
