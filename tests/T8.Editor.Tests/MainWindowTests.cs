@@ -57,18 +57,34 @@ public class MainWindowTests
     {
         var (window, vm) = Show();
 
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.11", window.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.12", window.Title);
         Assert.Equal("BACKUP", window.FindControl<TextBlock>("LibraryText")!.Text);
         Assert.False(window.FindControl<Avalonia.Controls.Shapes.Ellipse>("UnsavedDot")!.IsVisible);
         vm.Rhythm.Tracks[0].Cells[1].On = !vm.Rhythm.Tracks[0].Cells[1].On;
         Assert.True(vm.IsDirty);
         Assert.True(window.FindControl<Avalonia.Controls.Shapes.Ellipse>("UnsavedDot")!.IsVisible);
         Assert.Equal("BACKUP · unsaved changes", window.FindControl<TextBlock>("LibraryText")!.Text);
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.11", window.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.12", window.Title);
         Assert.Contains("Loaded 64 patterns", window.FindControl<TextBlock>("StatusText")!.Text);
         // CY has no sound on the T-8, so its row is hidden.
         Assert.Equal(7, window.GetVisualDescendants().OfType<RhythmEditorView>().Single()
             .FindControl<ItemsControl>("TrackRows")!.ItemCount);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
+    public void Midi_channels_are_pills_in_the_status_bar()
+    {
+        var (window, vm) = Show();
+
+        var bar = window.FindControl<StackPanel>("MidiSummaryText")!;
+        var labels = bar.GetVisualDescendants().OfType<TextBlock>()
+            .Where(t => t.IsEffectivelyVisible).Select(t => t.Text).ToList();
+        Assert.Equal(["BASS", "2", "RHYTHM", "10", "SELECT", "16"], labels);
+        Assert.False(vm.PlaysOnT8);
+        Assert.False(bar.Children.OfType<Border>().Last().IsVisible);
+
         window.Close();
         vm.Dispose();
     }
@@ -704,7 +720,7 @@ public class AboutWindowTests
         var texts = about.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text ?? "").ToList();
 
         Assert.Contains("Christos Christodoulidis", texts);
-        Assert.Contains(texts, t => t.StartsWith("Version 1.0.11"));
+        Assert.Contains(texts, t => t.StartsWith("Version 1.0.12"));
         Assert.DoesNotContain(texts, t => t.Contains("Avalonia", StringComparison.OrdinalIgnoreCase));
         about.Close();
     }
