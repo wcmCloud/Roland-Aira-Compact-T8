@@ -568,14 +568,28 @@ results: `app-icon.ico` (Windows, 16–256 px), `app-icon.icns` (macOS, 16–102
 
 ### Making a release
 
-Set `<Version>` in `src/T8.Editor/T8.Editor.csproj`, commit and push, then:
+Set `<Version>` in `src/T8.Editor/T8.Editor.csproj` (and add `scripts/release-notes-<version>.md`) in a pull request.
+Once CI is green and it's merged, update master and run:
 
 ```sh
-scripts/release.sh
+git checkout master && git pull origin master
+RELEASE_NOTES=scripts/release-notes-<version>.md scripts/release.sh
 ```
 
-It builds the six packages, tags `v<version>`, and creates the GitHub release with them, using
-`scripts/release-notes.md` as the description (needs the GitHub CLI, `gh`, signed in).
+It checks that master matches GitHub's, builds the six packages (signed and notarized on macOS when set up), tags
+`v<version>`, and creates the GitHub release with them, using the release notes as the description (needs the GitHub
+CLI, `gh`, signed in). Release tags (`v*`) are protected: they can be created but not moved or deleted.
+
+### Contributing
+
+`master` is protected. Every change goes in through a pull request:
+
+1. Work on a branch and open a pull request against `master`.
+2. Wait for CI to pass on macOS, Windows and Ubuntu, with the branch up to date with `master`, and resolve any review
+   comments.
+3. The maintainer (@wcmCloud, who is asked to review every pull request through `.github/CODEOWNERS`) merges it.
+
+Nobody pushes to `master` directly, and force pushes and deleting `master` are blocked.
 
 ## For developers
 
