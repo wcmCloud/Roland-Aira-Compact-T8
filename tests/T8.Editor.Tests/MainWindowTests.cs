@@ -57,18 +57,36 @@ public class MainWindowTests
     {
         var (window, vm) = Show();
 
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.10", window.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.11", window.Title);
         Assert.Equal("BACKUP", window.FindControl<TextBlock>("LibraryText")!.Text);
         Assert.False(window.FindControl<Avalonia.Controls.Shapes.Ellipse>("UnsavedDot")!.IsVisible);
         vm.Rhythm.Tracks[0].Cells[1].On = !vm.Rhythm.Tracks[0].Cells[1].On;
         Assert.True(vm.IsDirty);
         Assert.True(window.FindControl<Avalonia.Controls.Shapes.Ellipse>("UnsavedDot")!.IsVisible);
         Assert.Equal("BACKUP · unsaved changes", window.FindControl<TextBlock>("LibraryText")!.Text);
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.10", window.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.11", window.Title);
         Assert.Contains("Loaded 64 patterns", window.FindControl<TextBlock>("StatusText")!.Text);
         // CY has no sound on the T-8, so its row is hidden.
         Assert.Equal(7, window.GetVisualDescendants().OfType<RhythmEditorView>().Single()
             .FindControl<ItemsControl>("TrackRows")!.ItemCount);
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
+    public void Default_presets_status_is_highlighted()
+    {
+        var vm = new MainWindowViewModel(FakePortProvider.WithT8(), new FakeDialogService(),
+            presetFolder: Path.GetDirectoryName(TestPaths.Backup));
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+
+        var status = window.FindControl<TextBlock>("StatusText")!;
+        Assert.Equal(MainWindowViewModel.DefaultPresetsStatus, status.Text);
+        Assert.Contains("highlight", status.Classes);
+        Assert.Equal(Color.Parse("#FF7A1A"), ((ISolidColorBrush)status.Foreground!).Color);
+        Assert.Equal(FontWeight.SemiBold, status.FontWeight);
+
         window.Close();
         vm.Dispose();
     }
@@ -686,7 +704,7 @@ public class AboutWindowTests
         var texts = about.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text ?? "").ToList();
 
         Assert.Contains("Christos Christodoulidis", texts);
-        Assert.Contains(texts, t => t.StartsWith("Version 1.0.10"));
+        Assert.Contains(texts, t => t.StartsWith("Version 1.0.11"));
         Assert.DoesNotContain(texts, t => t.Contains("Avalonia", StringComparison.OrdinalIgnoreCase));
         about.Close();
     }

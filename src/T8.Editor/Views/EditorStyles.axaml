@@ -1058,4 +1058,13 @@
     <Setter Property="Width" Value="11" />
     <Setter Property="Height" Value="11" />
   </Style>
+  <!-- Status bar: the default-presets notice is orange so it stands out from later messages -->
+  <Style Selector="TextBlock.status">
+    <Setter Property="Opacity" Value="0.8" />
+  </Style>
+  <Style Selector="TextBlock.status.highlight">
+    <Setter Property="Foreground" Value="{StaticResource SectionOrange}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Opacity" Value="1" />
+  </Style>
 </Styles>

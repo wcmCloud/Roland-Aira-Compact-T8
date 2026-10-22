@@ -8,7 +8,7 @@
     <Nullable>enable</Nullable>
     <AssemblyName>T8Editor</AssemblyName>
     <Product>Roland Aira Compact T-8 Editor</Product>
-    <Version>1.0.10</Version>
+    <Version>1.0.11</Version>
     <Authors>Christos Christodoulidis</Authors>
     <Copyright>© 2026 Christos Christodoulidis</Copyright>
     <RootNamespace>T8.Editor</RootNamespace>
@@ -38,6 +38,15 @@
     <!-- The in-app help, written as Markdown in docs/help (topics) and docs/help/tips (the (?) popups) -->
     <EmbeddedResource Include="..\..\docs\help\*.md" Exclude="..\..\docs\help\README.md" LogicalName="help.topic.%(Filename).md" />
     <EmbeddedResource Include="..\..\docs\help\tips\*.md" LogicalName="help.tip.%(Filename).md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Factory patterns, loaded when the editor starts. Roland's; not covered by this project's license. -->
+    <Content Include="..\..\original presets\**\*.PRM">
+      <Link>original presets\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

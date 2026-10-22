@@ -13,4 +13,9 @@
     <ProjectReference Include="..\..\src\T8.Editor\T8.Editor.csproj" />
   </ItemGroup>
 
+  <!-- The editor ships "original presets" next to the app. Tests start from a blank library unless a test points at one. -->
+  <Target Name="RemoveShippedFactoryBackup" AfterTargets="Build">
+    <RemoveDir Directories="$(TargetDir)original presets" />
+  </Target>
+
 </Project>

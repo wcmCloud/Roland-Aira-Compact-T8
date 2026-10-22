@@ -6,7 +6,7 @@ Connect the T-8 with a USB cable and pick it under **OUT** in the top bar ("T-8 
 
 - Open the MIDI settings (gear button) and press **Detect from T-8**, or set the channels by hand to match the T-8's menu.
 - Press **Test** in the top bar: you should hear kick, snare, hats and a bass note.
-- Load the T-8's patterns from its drive (see *Loading and sending patterns*), or **Open…** a saved folder.
+- The editor opens with the default presets already loaded. The orange status line says you can find those files in the `original presets` folder, and **Open…** starts there. Load the T-8's own patterns from its drive (see *Loading and sending patterns*), or open a saved folder.
 - Edit on the **Rhythm**, **Bass** and **Song** tabs, **Save** on the computer, then **Write to T-8**. The generators can replace a pattern (**Generate**), keep what you lock and rewrite the rest (**Vary**), or write eight related patterns into the next empty slots (**Fill bank**).
 
 ## The window
@@ -22,4 +22,4 @@ Drag a knob up or down (hold Shift for fine steps), use the scroll wheel or the 
 
 ## Factory patterns
 
-The editor's source includes the T-8's factory patterns in its `BACKUP` folder: **Open…** that folder. Or do a factory reset on the T-8 (it erases every pattern on it) and load them from its drive.
+The editor opens with the T-8's factory patterns already loaded, from the `original presets` folder shipped with the app. **Open…** starts in that folder. Or do a factory reset on the T-8 (it erases every pattern on it) and load them from its drive.

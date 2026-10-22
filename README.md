@@ -102,12 +102,12 @@ The downloads are self-contained, so there is nothing else to install:
 
 | Computer | Download |
 |---|---|
-| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.10-osx-arm64.zip` |
-| Mac with Intel | `T8Editor-1.0.10-osx-x64.zip` |
-| Windows PC (x64) | `T8Editor-1.0.10-win-x64.zip` |
-| Windows on ARM | `T8Editor-1.0.10-win-arm64.zip` |
-| Linux x64 | `T8Editor-1.0.10-linux-x64.tar.gz` |
-| Linux ARM64 | `T8Editor-1.0.10-linux-arm64.tar.gz` |
+| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.11-osx-arm64.zip` |
+| Mac with Intel | `T8Editor-1.0.11-osx-x64.zip` |
+| Windows PC (x64) | `T8Editor-1.0.11-win-x64.zip` |
+| Windows on ARM | `T8Editor-1.0.11-win-arm64.zip` |
+| Linux x64 | `T8Editor-1.0.11-linux-x64.tar.gz` |
+| Linux ARM64 | `T8Editor-1.0.11-linux-arm64.tar.gz` |
 
 - **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications, then open it. The app is signed with
   a Developer ID and notarized by Apple, so it opens without warnings.
@@ -129,7 +129,8 @@ The version is shown in the title bar, and the ⓘ button in the top bar (or the
 
 <img src="docs/screenshots/about.png" alt="The About window" width="440">
 
-The editor starts with 64 blank patterns. To edit your own, get the T-8's patterns with
+The editor opens with the default presets already loaded. An orange line in the status bar says so: the files
+are the `original presets` folder shipped with the app, and **Open…** starts there. To edit your own, get the T-8's patterns with
 [Load from T-8](#loading-patterns-from-the-t-8), or **Open…** a `BACKUP` folder you copied earlier.
 
 ## Connecting the T-8
@@ -181,7 +182,7 @@ The screenshots at the top show the whole window on each tab. From top to bottom
 - **Rhythm**, **Bass** and **Song** tabs (a rounded selector with icons; the open tab is a raised orange pill): the editors,
   their generators, and songs.
 - **Status bar:** what just happened on the left, the MIDI channels in use on the right, and an orange chip such as
-  **v1.0.10 available** when a newer version is out (see [Updates](#updates)).
+  **v1.0.11 available** when a newer version is out (see [Updates](#updates)).
 
 ### Help
 
@@ -491,8 +492,7 @@ Windows) and switch the T-8 off.
 There are two ways to start from the patterns the T-8 came with:
 
 - **Without touching the T-8:** this repository includes a backup of the T-8's factory patterns in the
-  [`BACKUP`](BACKUP) folder. Download the repository (**Code → Download ZIP** on GitHub), then use **Open…** in the
-  editor and choose that `BACKUP` folder.
+  [`original presets`](<original presets>) folder. The editor loads that folder when it starts, and **Open…** starts there.
 - **From the T-8 itself, with a factory reset.** This puts the factory patterns back on the T-8, then you load
   them as above.
 
@@ -549,7 +549,7 @@ dotnet run --project src/T8.Cli -- export BACKUP 1 1 pattern.mid
 ```sh
 scripts/publish.sh                 # all six packages into artifacts/
 scripts/publish.sh osx-arm64       # just one: osx-arm64, osx-x64, win-arm64, win-x64, linux-arm64, linux-x64
-VERSION=1.0.10 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
+VERSION=1.0.11 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
 ```
 
 Packages are self-contained, so no .NET install is needed to run them. On macOS the app is signed ad hoc
@@ -637,5 +637,5 @@ The editor uses [Avalonia](https://avaloniaui.net), [DryWetMIDI](https://github.
 [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet), all MIT-licensed.
 
 Roland, AIRA and T-8 are trademarks of Roland Corporation. This is an independent project, not made or endorsed by
-Roland. The factory patterns in `BACKUP` and the owner's manual in `docs` are Roland's and are not covered by the
+Roland. The factory patterns in `original presets` and the owner's manual in `docs` are Roland's and are not covered by the
 licenses above.

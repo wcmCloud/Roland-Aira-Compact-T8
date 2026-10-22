@@ -8,12 +8,16 @@ namespace T8.Editor.Services;
 
 public sealed class AvaloniaDialogService(Window owner) : IDialogService
 {
-    public async Task<string?> PickFolderAsync(string title)
+    public async Task<string?> PickFolderAsync(string title, string? startFolder = null)
     {
+        var start = string.IsNullOrEmpty(startFolder)
+            ? null
+            : await owner.StorageProvider.TryGetFolderFromPathAsync(startFolder);
         var folders = await owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
             Title = title,
             AllowMultiple = false,
+            SuggestedStartLocation = start,
         });
         return folders.Count > 0 ? folders[0].TryGetLocalPath() : null;
     }

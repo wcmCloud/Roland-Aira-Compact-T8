@@ -9,7 +9,14 @@ internal sealed class FakeDialogService : IDialogService
     public bool ConfirmResult { get; set; } = true;
     public int ConfirmCount { get; private set; }
 
-    public Task<string?> PickFolderAsync(string title) => Task.FromResult(Folders.Count > 0 ? Folders.Dequeue() : null);
+    /// <summary>The folder the last picker was asked to open in.</summary>
+    public string? LastStartFolder { get; private set; }
+
+    public Task<string?> PickFolderAsync(string title, string? startFolder = null)
+    {
+        LastStartFolder = startFolder;
+        return Task.FromResult(Folders.Count > 0 ? Folders.Dequeue() : null);
+    }
 
     public Task<bool> ConfirmAsync(string title, string message, string confirmText = "OK")
     {
