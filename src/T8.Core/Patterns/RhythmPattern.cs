@@ -154,6 +154,28 @@ public sealed class RhythmPattern
 
     public RhythmPattern Clone() => FromPrm(ToPrm());
 
+    /// <summary>Copies length, shuffle, flam and every cell into this pattern.</summary>
+    public void CopyFrom(RhythmPattern other)
+    {
+        Length = other.Length;
+        Scale = other.Scale;
+        Shuffle = other.Shuffle;
+        Flam = other.Flam;
+        for (var s = 0; s < StepCount; s++)
+        {
+            for (var t = 0; t < TrackCount; t++)
+            {
+                var cell = Steps[s].Cells[t];
+                var from = other.Steps[s].Cells[t];
+                cell.On = from.On;
+                cell.Velocity = from.Velocity;
+                cell.SubStep = from.SubStep;
+                cell.Probability = from.Probability;
+                cell.SubStepProbability = from.SubStepProbability;
+            }
+        }
+    }
+
     /// <summary>Resets every step to the blank state the T-8 writes for an empty pattern.</summary>
     public void Clear()
     {

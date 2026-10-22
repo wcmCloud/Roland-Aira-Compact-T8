@@ -241,6 +241,12 @@ public class MainWindowTests
         Assert.Contains("port", generator.FindControl<ComboBox>("FillPatternPicker")!.Classes);
         Assert.Contains("port", generator.FindControl<NumericUpDown>("RhythmSeedInput")!.Classes);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateRhythmButton")!.Content);
+        Assert.NotNull(generator.FindControl<Button>("VaryRhythmButton")!.GetVisualDescendants().OfType<PathIcon>().Single().Data);
+        Assert.NotNull(generator.FindControl<Button>("FillBankRhythmButton")!.GetVisualDescendants().OfType<PathIcon>().Single().Data);
+        var lockKick = generator.FindControl<ToggleButton>("LockBassDrumChip")!;
+        Assert.True(lockKick.IsChecked);
+        lockKick.IsChecked = false;
+        Assert.False(vm.RhythmGenerator.LockBassDrum);
         AssertActionPanel(generator, "RhythmActionPanel", "GenerateRhythmButton", "RandomizeRhythmButton", "UndoRhythmButton", "RhythmSeedInput");
         window.Close();
         vm.Dispose();
@@ -260,6 +266,12 @@ public class MainWindowTests
         Assert.Contains("port", generator.FindControl<NumericUpDown>("SeedInput")!.Classes);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("GenerateButton")!.Content);
         Assert.IsType<StackPanel>(generator.FindControl<Button>("UndoGenerateButton")!.Content);
+        Assert.NotNull(generator.FindControl<Button>("VaryBassButton")!.GetVisualDescendants().OfType<PathIcon>().Single().Data);
+        Assert.NotNull(generator.FindControl<Button>("FillBankBassButton")!.GetVisualDescendants().OfType<PathIcon>().Single().Data);
+        var lockRoots = generator.FindControl<ToggleButton>("LockRootsChip")!;
+        Assert.True(lockRoots.IsChecked);
+        lockRoots.IsChecked = false;
+        Assert.False(vm.BassGenerator.LockRoots);
         AssertActionPanel(generator, "BassActionPanel", "GenerateButton", "RandomizeButton", "UndoGenerateButton", "SeedInput");
 
         // Last step, Triplet and Transpose sit in the PATTERN panel above the steps, in outlined boxes.

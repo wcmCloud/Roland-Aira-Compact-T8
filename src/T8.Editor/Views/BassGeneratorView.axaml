@@ -14,43 +14,61 @@
       </StackPanel>
 
       <!-- Generate, randomize, undo and seed in one outlined panel -->
-      <Border x:Name="BassActionPanel" DockPanel.Dock="Right" Classes="fieldBox" Padding="8" VerticalAlignment="Center" Margin="16,0,0,0" Width="250">
+      <Border x:Name="BassActionPanel" DockPanel.Dock="Right" Classes="fieldBox" Padding="8" VerticalAlignment="Center" Margin="16,0,0,0" Width="280">
         <StackPanel Spacing="7">
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionPink}" />
             <TextBlock Classes="cardTitle" Text="ACTIONS" FontSize="10" />
           </StackPanel>
-          <Button x:Name="GenerateButton" Classes="primary pill" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
-                  HorizontalContentAlignment="Center" ToolTip.Tip="Write a line with these settings and seed (same seed, same line)">
-            <StackPanel Orientation="Horizontal" Spacing="7">
-              <PathIcon Data="{StaticResource IconGenerate}" />
-              <TextBlock Text="Generate" />
-            </StackPanel>
-          </Button>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+            <Button x:Name="GenerateButton" Classes="primary pill" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" ToolTip.Tip="Replace the whole line. Same seed and settings, same line">
+              <StackPanel Orientation="Horizontal" Spacing="7">
+                <PathIcon Data="{StaticResource IconGenerate}" />
+                <TextBlock Text="Generate" />
+              </StackPanel>
+            </Button>
+            <Button x:Name="VaryBassButton" Grid.Column="1" Classes="chip" Command="{Binding VaryCommand}" MinWidth="88"
+                    HorizontalContentAlignment="Center" ToolTip.Tip="Keep the rhythm and the pitches. Roots on the beat stay in their octave; other notes can jump an octave">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconVary}" />
+                <TextBlock Text="VARY" />
+              </StackPanel>
+            </Button>
+          </Grid>
           <Grid ColumnDefinitions="*,*" ColumnSpacing="6">
             <Button x:Name="RandomizeButton" Classes="chip" Command="{Binding RandomizeCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    ToolTip.Tip="New seed: a different line that follows the same rules">
+                    ToolTip.Tip="New seed: a different line that follows the same rules. This replaces the whole line">
               <StackPanel Orientation="Horizontal" Spacing="6">
                 <PathIcon Data="{StaticResource IconDice}" />
                 <TextBlock Text="RANDOMIZE" />
               </StackPanel>
             </Button>
             <Button x:Name="UndoGenerateButton" Grid.Column="1" Classes="chip" Command="{Binding UndoCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    ToolTip.Tip="Undo the last generate">
+                    ToolTip.Tip="Undo the last generate, vary or fill bank">
               <StackPanel Orientation="Horizontal" Spacing="6">
                 <PathIcon Data="{StaticResource IconUndo}" />
                 <TextBlock Text="UNDO" />
               </StackPanel>
             </Button>
           </Grid>
-          <Border Classes="fieldBox" MinHeight="0" Padding="0">
-            <DockPanel>
-              <PathIcon DockPanel.Dock="Left" Data="{StaticResource IconSeed}" Width="11" Height="11" Foreground="{StaticResource MutedText}" Margin="10,0,0,0" />
-              <TextBlock DockPanel.Dock="Left" Classes="fieldLabel" Text="SEED" Margin="6,0,4,0" />
-              <NumericUpDown Classes="port" x:Name="SeedInput" Value="{Binding Seed}" Minimum="1" Maximum="99999" FormatString="0" ShowButtonSpinner="False"
-                             ToolTip.Tip="Same seed and settings, same result: type a number to get one back" />
-            </DockPanel>
-          </Border>
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
+            <Button x:Name="FillBankBassButton" Classes="chip" Command="{Binding FillBankCommand}" VerticalAlignment="Center"
+                    ToolTip.Tip="Write eight related lines into the next empty slots, and copy the drums with them">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconFillBank}" />
+                <TextBlock Text="FILL BANK" />
+              </StackPanel>
+            </Button>
+            <Border Grid.Column="1" Classes="fieldBox" MinHeight="0" Padding="0">
+              <DockPanel>
+                <PathIcon DockPanel.Dock="Left" Data="{StaticResource IconSeed}" Width="11" Height="11" Foreground="{StaticResource MutedText}" Margin="10,0,0,0" />
+                <TextBlock DockPanel.Dock="Left" Classes="fieldLabel" Text="SEED" Margin="6,0,4,0" />
+                <NumericUpDown Classes="port" x:Name="SeedInput" Value="{Binding Seed}" Minimum="1" Maximum="99999" FormatString="0" ShowButtonSpinner="False"
+                               ToolTip.Tip="Same seed and settings, same result: type a number to get one back" />
+              </DockPanel>
+            </Border>
+          </Grid>
         </StackPanel>
       </Border>
 
@@ -74,6 +92,13 @@
             <ComboBox x:Name="ProgressionPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.Progressions}" SelectedItem="{Binding Progression}" Width="150" />
             <ComboBox x:Name="ChordLengthPicker" Classes="port" ItemsSource="{x:Static vm:BassGeneratorViewModel.ChordLengths}" SelectedItem="{Binding StepsPerChord}" Width="62"
                       ToolTip.Tip="Steps per chord" />
+            <ToggleButton x:Name="LockRootsChip" Classes="chip small orange" IsChecked="{Binding LockRoots}"
+                          ToolTip.Tip="Vary keeps the octave of a chord root that falls on the beat. Pitches and rhythm always stay">
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <PathIcon Data="{StaticResource IconLock}" />
+                <TextBlock Text="LOCK ROOTS" />
+              </StackPanel>
+            </ToggleButton>
           </StackPanel>
         </Border>
       </StackPanel>

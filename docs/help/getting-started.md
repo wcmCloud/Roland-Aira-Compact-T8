@@ -7,7 +7,7 @@ Connect the T-8 with a USB cable and pick it under **OUT** in the top bar ("T-8 
 - Open the MIDI settings (gear button) and press **Detect from T-8**, or set the channels by hand to match the T-8's menu.
 - Press **Test** in the top bar: you should hear kick, snare, hats and a bass note.
 - Load the T-8's patterns from its drive (see *Loading and sending patterns*), or **Open…** a saved folder.
-- Edit on the **Rhythm**, **Bass** and **Song** tabs, **Save** on the computer, then **Write to T-8**.
+- Edit on the **Rhythm**, **Bass** and **Song** tabs, **Save** on the computer, then **Write to T-8**. The generators can replace a pattern (**Generate**), keep what you lock and rewrite the rest (**Vary**), or write eight related patterns into the next empty slots (**Fill bank**).
 
 ## The window
 

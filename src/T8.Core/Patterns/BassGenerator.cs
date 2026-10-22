@@ -72,13 +72,21 @@ public sealed class BassGeneratorOptions
     /// <summary>Seed for the random choices; the same seed and options give the same line.</summary>
     public int Seed { get; set; } = 1;
 
+    /// <summary>
+    /// Vary keeps the octave of a chord root that falls on the beat. The rhythm and the pitches
+    /// always stay; this stops those roots changing octave.
+    /// </summary>
+    public bool LockRoots { get; set; } = true;
+
     public BassGeneratorOptions Clone() => (BassGeneratorOptions)MemberwiseClone();
 }
 
 /// <summary>
 /// Writes bass lines that follow a key, a scale and optionally a chord progression. Step 1 and each
 /// chord change start on the chord's root; other notes on the beat prefer chord tones; the line moves
-/// mostly by small intervals, with occasional octave jumps. Notes stay within the T-8's range.
+/// mostly by small intervals, with occasional octave jumps. <see cref="Generate"/> replaces the whole
+/// line. <see cref="Vary"/> keeps the rhythm and the pitches, and by default the octave of a root on
+/// the beat. Notes stay within the T-8's range.
 /// </summary>
 public static class BassGenerator
 {
@@ -232,6 +240,66 @@ public static class BassGenerator
             previous = note;
             lastWasSound = true;
         }
+    }
+
+    /// <summary>
+    /// Keeps the rhythm and the pitch of every note. Roots that fall on the beat keep their octave
+    /// when <see cref="BassGeneratorOptions.LockRoots"/> is set; other notes may jump an octave,
+    /// using <see cref="BassGeneratorOptions.OctaveJumpChance"/>. Ties follow the note they hold.
+    /// <paramref name="amount"/> is 1 for a full variation and lower for one that stays closer.
+    /// </summary>
+    public static void Vary(BassPattern pattern, BassGeneratorOptions options, double amount = 1)
+    {
+        amount = Math.Clamp(amount, 0, 1);
+        if (amount == 0)
+            return;
+
+        var random = new Random(unchecked(options.Seed * 31 + 0x0C7A));
+        var steps = Math.Clamp(pattern.Length, 1, BassPattern.StepCount);
+        var jumpChance = (int)Math.Round(Math.Clamp(options.OctaveJumpChance, 0, 100) * amount);
+        var degrees = Degrees(options.Progression);
+        var stepsPerChord = Math.Max(1, options.StepsPerChord);
+        var low = Math.Clamp((options.LowestOctave + 1) * 12, MinNote, MaxNote);
+        var high = Math.Clamp(low + Math.Clamp(options.Octaves, 1, 4) * 12, low, MaxNote);
+
+        for (var n = 0; n < steps; n++)
+        {
+            var step = pattern.Steps[n];
+            if (step.State == BassStepState.Tie)
+            {
+                if (n > 0)
+                    step.Note = pattern.Steps[n - 1].Note;
+                continue;
+            }
+            if (step.State != BassStepState.Note || jumpChance <= 0)
+                continue;
+
+            var chord = ChordTones(options.Root, options.Scale, degrees[(n / stepsPerChord) % degrees.Count]);
+            if (options.LockRoots && n % 4 == 0 && step.Note % 12 == chord[0])
+                continue;
+            if (random.Next(100) >= jumpChance)
+                continue;
+
+            var others = OctavesOf(step.Note, low, high).Where(note => note != step.Note).ToList();
+            if (others.Count == 0)
+                continue;
+            step.Note = others[random.Next(others.Count)];
+        }
+    }
+
+    /// <summary>Every octave of <paramref name="note"/> inside the range, plus the note itself when it sits outside.</summary>
+    private static List<int> OctavesOf(int note, int low, int high)
+    {
+        var notes = new List<int>();
+        var pitch = ((note % 12) + 12) % 12;
+        for (var candidate = pitch; candidate <= MaxNote; candidate += 12)
+        {
+            if (candidate >= MinNote && candidate >= low && candidate <= high)
+                notes.Add(candidate);
+        }
+        if (note >= MinNote && note <= MaxNote && !notes.Contains(note))
+            notes.Add(note);
+        return notes;
     }
 
     private static int Nearest(IReadOnlyList<int> candidates, int target) =>

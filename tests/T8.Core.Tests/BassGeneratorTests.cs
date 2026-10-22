@@ -132,3 +132,115 @@ public class BassGeneratorTests
     private static string Describe(BassPattern pattern) =>
         string.Join(",", pattern.Steps.Select(s => $"{s.State}{s.Note}{s.Accent}{s.Slide}"));
 }
+
+public class BassVariationTests
+{
+    private static BassPattern Line()
+    {
+        var pattern = new BassPattern { Length = 16 };
+        // E1 on the beat (the root), G1 off the beat, held for a step, accented and sliding.
+        pattern.Steps[0].State = BassStepState.Note;
+        pattern.Steps[0].Note = 28;
+        pattern.Steps[0].Accent = true;
+        pattern.Steps[1].State = BassStepState.Note;
+        pattern.Steps[1].Note = 31;
+        pattern.Steps[1].Slide = true;
+        pattern.Steps[2].State = BassStepState.Tie;
+        pattern.Steps[2].Note = 31;
+        pattern.Steps[4].State = BassStepState.Note;
+        pattern.Steps[4].Note = 31; // on the beat, but not the root
+        return pattern;
+    }
+
+    [Fact]
+    public void Vary_keeps_the_root_on_the_beat_and_jumps_other_notes()
+    {
+        var pattern = Line();
+        BassGenerator.Vary(pattern, new BassGeneratorOptions
+        {
+            Root = 4, Scale = Scale.MinorPentatonic, OctaveJumpChance = 100, LockRoots = true,
+            LowestOctave = 1, Octaves = 2, Seed = 1,
+        });
+
+        Assert.Equal(28, pattern.Steps[0].Note);
+        Assert.True(pattern.Steps[0].Accent);
+        Assert.Equal(43, pattern.Steps[1].Note); // G1 → G2, the only other octave in range
+        Assert.True(pattern.Steps[1].Slide);
+        Assert.Equal(BassStepState.Tie, pattern.Steps[2].State);
+        Assert.Equal(43, pattern.Steps[2].Note);
+        Assert.Equal(43, pattern.Steps[4].Note);
+        Assert.All(pattern.Steps.Where(s => s.State != BassStepState.Off), s => Assert.Contains(s.Note % 12, new[] { 4, 7 }));
+    }
+
+    [Fact]
+    public void Pitch_class_and_rhythm_stay_and_an_unlocked_root_can_jump()
+    {
+        var pattern = Line();
+        BassGenerator.Vary(pattern, new BassGeneratorOptions
+        {
+            Root = 4, OctaveJumpChance = 100, LockRoots = false, LowestOctave = 1, Octaves = 2,
+        });
+
+        Assert.Equal(40, pattern.Steps[0].Note); // E1 → E2
+        Assert.Equal(BassStepState.Note, pattern.Steps[0].State);
+        Assert.Equal(4, pattern.Steps[0].Note % 12);
+        Assert.Equal(7, pattern.Steps[1].Note % 12);
+    }
+
+    [Fact]
+    public void No_jump_when_the_chance_is_zero_or_there_is_no_other_octave()
+    {
+        var held = Line();
+        var before = held.Steps.Select(s => (s.State, s.Note, s.Accent, s.Slide)).ToList();
+        BassGenerator.Vary(held, new BassGeneratorOptions { OctaveJumpChance = 0, LockRoots = false });
+        Assert.Equal(before, held.Steps.Select(s => (s.State, s.Note, s.Accent, s.Slide)).ToList());
+
+        var narrow = Line();
+        BassGenerator.Vary(narrow, new BassGeneratorOptions
+        {
+            Root = 4, OctaveJumpChance = 100, LockRoots = true, LowestOctave = 1, Octaves = 1,
+        });
+        Assert.Equal(28, narrow.Steps[0].Note);
+        Assert.Equal(31, narrow.Steps[1].Note); // G2 is outside a one-octave span from C1
+    }
+
+    [Fact]
+    public void Same_seed_varies_the_same_way_and_leaves_steps_past_the_length()
+    {
+        var options = new BassGeneratorOptions { OctaveJumpChance = 40, LockRoots = true, Seed = 5, Octaves = 3 };
+        var a = Line();
+        a.Length = 8;
+        a.Steps[10].State = BassStepState.Note;
+        a.Steps[10].Note = 52;
+        var b = a.Clone();
+        BassGenerator.Vary(a, options);
+        BassGenerator.Vary(b, options);
+        Assert.Equal(Describe(a), Describe(b));
+        Assert.Equal((BassStepState.Note, 52), (a.Steps[10].State, a.Steps[10].Note));
+
+        var differed = false;
+        for (var seed = 1; seed <= 12 && !differed; seed++)
+        {
+            options.Seed = seed;
+            var other = Line();
+            other.Length = 8;
+            other.Steps[10].State = BassStepState.Note;
+            other.Steps[10].Note = 52;
+            BassGenerator.Vary(other, options);
+            differed = Describe(other) != Describe(a);
+        }
+        Assert.True(differed);
+    }
+
+    [Fact]
+    public void Zero_amount_changes_nothing()
+    {
+        var pattern = Line();
+        var before = Describe(pattern);
+        BassGenerator.Vary(pattern, new BassGeneratorOptions { OctaveJumpChance = 100, LockRoots = false }, amount: 0);
+        Assert.Equal(before, Describe(pattern));
+    }
+
+    private static string Describe(BassPattern pattern) =>
+        string.Join(",", pattern.Steps.Select(s => $"{s.State}{s.Note}{s.Accent}{s.Slide}"));
+}

@@ -53,8 +53,8 @@
     </td>
     <td width="33%" valign="top">
       <h3>🎲 Generators</h3>
-      Rhythms in 9 styles from techno to drum &amp; bass, and bass lines in 13 scales over chord progressions —
-      seeded, so you can tweak and regenerate.
+      Rhythms in 9 styles and bass lines in 13 scales, seeded so the same settings give the same pattern.
+      Vary keeps what you lock; Fill bank writes eight related patterns into empty slots.
     </td>
   </tr>
   <tr>
@@ -277,25 +277,34 @@ The rhythm generator writes a new drum pattern into the current pattern, up to i
   and hits that only play some of the time.
 - **Instruments:** the BD, SD, TOM, CLAP, CH and OH chips (each with its drum icon) switch drums on and off for the
   generator; the ones in use are lit blue.
+- **Lock:** the smaller orange chips under the instruments. A lit lock is kept by Vary. The kick starts locked.
+  Generate ignores the locks and replaces the whole pattern. Snare, tom and clap hits stay either way; locking
+  them also keeps their ghost notes and step probability.
 - **Build-up at end:** adds snare and tom hits in the last four steps.
 
 | Knob | What it does |
 |---|---|
 | Density | 50% follows the style; lower thins out the optional hits, higher adds more |
-| Variation | Adds hits the style wouldn't play and drops some optional ones |
+| Variation | Adds hits the style wouldn't play and drops some optional ones. Vary uses it for how far the hats move |
 | Accents | Accents on the T-8's accent track, mostly on the beat |
-| Ghost notes | Quiet extra snare and hat hits between the main ones |
+| Ghost notes | Quiet extra snare and hat hits between the main ones. Vary rewrites these unless that drum is locked |
 | Rolls | Hat rolls (sub steps) and snare flams |
-| Live variation | Gives some optional hits a step probability of 50–80%, so the T-8 itself plays the pattern a little differently every loop |
+| Live variation | Gives some optional hits a step probability of 50–80%, so the T-8 itself plays the pattern a little differently every loop. Vary rewrites that probability when this is above zero |
 
-Generate, Randomize, Undo and Seed sit together in the **Actions** panel on the right of each generator.
+Generate, Vary, Fill bank, Randomize, Undo and Seed sit together in the **Actions** panel on the right of each generator.
 
-- **Generate** writes a pattern with the current seed: the same settings and seed always give the same pattern,
-  so you can change one knob and press Generate again for a variation with the same feel.
-- **Randomize** picks a new seed and generates: a different pattern in the same style.
-- **Undo** puts back the pattern from before the last Generate, Randomize or Make fill (it is greyed out when
-  there is nothing to undo).
-- **Seed:** type a number to get a pattern back.
+- **Generate** replaces the whole pattern. The same settings and seed always give the same pattern, so you can
+  change one knob and press Generate again for a new pattern with the same feel.
+- **Vary** keeps what you lock and rewrites the movement around it: hats and ghost notes, and step probability
+  when Live variation is up. Press it again for another take. The seed stays put, so Generate can still bring
+  the original pattern back.
+- **Fill bank** writes eight related patterns into the next empty slots, close to this one first and further
+  away last, and copies the bass line into each so a song has somewhere to go. It skips slots that already
+  have notes, and wraps into the next bank when this one runs out.
+- **Randomize** picks a new seed and replaces the pattern: a different one in the same style.
+- **Undo** puts back the pattern from before the last Generate, Vary, Randomize, Fill bank or Make fill (it is
+  greyed out when there is nothing to undo).
+- **Seed:** type a number to get a generated pattern back.
 
 The generator never puts the closed and open hat on the same step, because the T-8's open hat cuts off the closed one.
 
@@ -346,6 +355,8 @@ The bass line generator writes a new line into the current pattern, up to its la
 - **Chords:** none (stays on the root), I – IV – V – I, I – V – vi – IV, i – VI – III – VII, i – VII – VI – VII,
   i – iv or ii – V – I, and how many steps each chord lasts (4, 8, 16 or 32). Chords are built from the scale, so
   in E harmonic minor the V chord is B major.
+- **Lock roots:** on by default. Vary keeps the octave of a chord root that falls on the beat. The rhythm and
+  the pitches always stay.
 
 | Knob | What it does |
 |---|---|
@@ -356,10 +367,15 @@ The bass line generator writes a new line into the current pattern, up to its la
 | Ties | How often a rest after a note holds the note instead |
 | Slides | How often a note slides into the next |
 | Accents | How often a note is accented |
-| Octave jumps | How often a note jumps an octave up or down |
+| Octave jumps | How often a note jumps an octave up or down. Vary uses this for notes that aren't a locked root on the beat |
 
 The line always starts on the root, each chord change starts on that chord's root, and it moves mostly in small
-steps. **Generate**, **Randomize**, **Undo** and **Seed** work as for rhythms.
+steps.
+
+**Generate** replaces the whole line, and **Randomize** does the same with a new seed. **Vary** keeps the rhythm
+and every pitch; other notes can jump an octave, and roots on the beat stay put while Lock roots is on. Press
+Vary again for another take; the seed stays put. **Fill bank** writes eight related lines into the next empty
+slots, close to this one first, and copies the drum pattern into each. **Undo** and **Seed** work as for rhythms.
 
 ## Songs
 
@@ -369,7 +385,8 @@ The **Song** tab chains patterns from the banks into a song.
 
 1. With the Song tab open, **click a pattern in the pattern grid** at the top: it's added to the end of the song,
    named "Bank n - Pattern y". Click the next one, and so on. (**Add selected pattern** does the same for the
-   pattern that's already open.)
+   pattern that's already open.) To get related patterns to chain, press **Fill bank** in the rhythm or bass
+   generator: it writes eight variations of the open pattern into the next empty slots.
 2. For each entry set the **bank** and **pattern**, how many times it **repeats**, a **name** and a **colour**
    (click the swatch to change it). **Steps** shows how long one pass of the pattern is (its last step).
 3. Turn on **FILL** to play a fill pattern once after the repeats, as a bridge into the next entry, and pick the

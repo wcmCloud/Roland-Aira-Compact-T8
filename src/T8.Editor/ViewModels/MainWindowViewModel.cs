@@ -100,14 +100,21 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         {
             Settings.BassGenerator = options;
             SaveSettings();
-        }, OnPatternGenerated);
+        }, OnPatternGenerated,
+            (bank, pattern) => Library.Bass[bank - 1, pattern - 1],
+            (bank, pattern) => Library.Rhythm[bank - 1, pattern - 1],
+            NextFreeSlots,
+            () => Library.Rhythm[SelectedBank - 1, SelectedPattern - 1]);
         RhythmGenerator = new RhythmGeneratorViewModel(Settings.RhythmGenerator.Clone(), options =>
         {
             Settings.RhythmGenerator = options;
             SaveSettings();
         }, OnPatternGenerated,
             () => (SelectedBank, SelectedPattern),
-            (bank, pattern) => Library.Rhythm[bank - 1, pattern - 1]);
+            (bank, pattern) => Library.Rhythm[bank - 1, pattern - 1],
+            (bank, pattern) => Library.Bass[bank - 1, pattern - 1],
+            NextFreeSlots,
+            () => Library.Bass[SelectedBank - 1, SelectedPattern - 1]);
         Song = new SongViewModel(this, dialogs);
         PatternBanks = Enumerable.Range(1, PatternLibrary.BankCount)
             .Select(bank => new PatternBankRow(bank, Enumerable.Range(1, PatternLibrary.PatternsPerBank)
@@ -283,6 +290,23 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         var bass = Library.Bass[bank - 1, pattern - 1];
         var rhythm = Library.Rhythm[bank - 1, pattern - 1];
         return bass.Steps.All(s => s.State == BassStepState.Off) && rhythm.Steps.All(s => s.Cells.All(c => !c.On));
+    }
+
+    /// <summary>The next empty slots after the one being edited, wrapping through the library.</summary>
+    private IReadOnlyList<(int Bank, int Pattern)> NextFreeSlots(int count)
+    {
+        var found = new List<(int Bank, int Pattern)>();
+        var total = PatternLibrary.BankCount * PatternLibrary.PatternsPerBank;
+        var start = (SelectedBank - 1) * PatternLibrary.PatternsPerBank + (SelectedPattern - 1);
+        for (var step = 1; step < total && found.Count < count; step++)
+        {
+            var index = (start + step) % total;
+            var bank = index / PatternLibrary.PatternsPerBank + 1;
+            var pattern = index % PatternLibrary.PatternsPerBank + 1;
+            if (IsEmpty(bank, pattern))
+                found.Add((bank, pattern));
+        }
+        return found;
     }
 
     public BassGeneratorViewModel BassGenerator { get; }

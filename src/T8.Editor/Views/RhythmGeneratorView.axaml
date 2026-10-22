@@ -14,43 +14,61 @@
       </StackPanel>
 
       <!-- Generate, randomize, undo and seed in one outlined panel -->
-      <Border x:Name="RhythmActionPanel" DockPanel.Dock="Right" Classes="fieldBox" Padding="8" VerticalAlignment="Center" Margin="16,0,0,0" Width="250">
+      <Border x:Name="RhythmActionPanel" DockPanel.Dock="Right" Classes="fieldBox" Padding="8" VerticalAlignment="Center" Margin="16,0,0,0" Width="280">
         <StackPanel Spacing="7">
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionBlue}" />
             <TextBlock Classes="cardTitle" Text="ACTIONS" FontSize="10" />
           </StackPanel>
-          <Button x:Name="GenerateRhythmButton" Classes="primary pill" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
-                  HorizontalContentAlignment="Center" ToolTip.Tip="Write a pattern with these settings and seed (same seed, same pattern)">
-            <StackPanel Orientation="Horizontal" Spacing="7">
-              <PathIcon Data="{StaticResource IconGenerate}" />
-              <TextBlock Text="Generate" />
-            </StackPanel>
-          </Button>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="6">
+            <Button x:Name="GenerateRhythmButton" Classes="primary pill" Command="{Binding GenerateCommand}" HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Center" ToolTip.Tip="Replace the whole pattern. Same seed and settings, same pattern">
+              <StackPanel Orientation="Horizontal" Spacing="7">
+                <PathIcon Data="{StaticResource IconGenerate}" />
+                <TextBlock Text="Generate" />
+              </StackPanel>
+            </Button>
+            <Button x:Name="VaryRhythmButton" Grid.Column="1" Classes="chip" Command="{Binding VaryCommand}" MinWidth="88"
+                    HorizontalContentAlignment="Center" ToolTip.Tip="Keep what you lock (the kick by default). Rewrites hats and ghost notes, and step probability when Live variation is up">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconVary}" />
+                <TextBlock Text="VARY" />
+              </StackPanel>
+            </Button>
+          </Grid>
           <Grid ColumnDefinitions="*,*" ColumnSpacing="6">
             <Button x:Name="RandomizeRhythmButton" Classes="chip" Command="{Binding RandomizeCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    ToolTip.Tip="New seed: a different pattern in the same style">
+                    ToolTip.Tip="New seed: a different pattern in the same style. This replaces the whole pattern">
               <StackPanel Orientation="Horizontal" Spacing="6">
                 <PathIcon Data="{StaticResource IconDice}" />
                 <TextBlock Text="RANDOMIZE" />
               </StackPanel>
             </Button>
             <Button x:Name="UndoRhythmButton" Grid.Column="1" Classes="chip" Command="{Binding UndoCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    ToolTip.Tip="Undo the last generate">
+                    ToolTip.Tip="Undo the last generate, vary, fill bank or make fill">
               <StackPanel Orientation="Horizontal" Spacing="6">
                 <PathIcon Data="{StaticResource IconUndo}" />
                 <TextBlock Text="UNDO" />
               </StackPanel>
             </Button>
           </Grid>
-          <Border Classes="fieldBox" MinHeight="0" Padding="0">
-            <DockPanel>
-              <PathIcon DockPanel.Dock="Left" Data="{StaticResource IconSeed}" Width="11" Height="11" Foreground="{StaticResource MutedText}" Margin="10,0,0,0" />
-              <TextBlock DockPanel.Dock="Left" Classes="fieldLabel" Text="SEED" Margin="6,0,4,0" />
-              <NumericUpDown Classes="port" x:Name="RhythmSeedInput" Value="{Binding Seed}" Minimum="1" Maximum="99999" FormatString="0" ShowButtonSpinner="False"
-                             ToolTip.Tip="Same seed and settings, same result: type a number to get one back" />
-            </DockPanel>
-          </Border>
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
+            <Button x:Name="FillBankRhythmButton" Classes="chip" Command="{Binding FillBankCommand}" VerticalAlignment="Center"
+                    ToolTip.Tip="Write eight related patterns into the next empty slots, and copy the bass line with them">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconFillBank}" />
+                <TextBlock Text="FILL BANK" />
+              </StackPanel>
+            </Button>
+            <Border Grid.Column="1" Classes="fieldBox" MinHeight="0" Padding="0">
+              <DockPanel>
+                <PathIcon DockPanel.Dock="Left" Data="{StaticResource IconSeed}" Width="11" Height="11" Foreground="{StaticResource MutedText}" Margin="10,0,0,0" />
+                <TextBlock DockPanel.Dock="Left" Classes="fieldLabel" Text="SEED" Margin="6,0,4,0" />
+                <NumericUpDown Classes="port" x:Name="RhythmSeedInput" Value="{Binding Seed}" Minimum="1" Maximum="99999" FormatString="0" ShowButtonSpinner="False"
+                               ToolTip.Tip="Same seed and settings, same result: type a number to get one back" />
+              </DockPanel>
+            </Border>
+          </Grid>
         </StackPanel>
       </Border>
 
@@ -99,6 +117,21 @@
               <TextBlock Text="OH" />
             </StackPanel>
           </ToggleButton>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Spacing="4">
+          <TextBlock Classes="fieldLabel" Text="LOCK" ToolTip.Tip="Lit locks are kept when you Vary. Generate still replaces the whole pattern" />
+          <ToggleButton x:Name="LockBassDrumChip" Classes="chip small orange" IsChecked="{Binding LockBassDrum}" Content="BD"
+                        ToolTip.Tip="Vary keeps the kick" />
+          <ToggleButton x:Name="LockSnareChip" Classes="chip small orange" IsChecked="{Binding LockSnare}" Content="SD"
+                        ToolTip.Tip="Vary keeps the snare's ghost notes and probability. The hits stay either way" />
+          <ToggleButton x:Name="LockTomChip" Classes="chip small orange" IsChecked="{Binding LockTom}" Content="TOM"
+                        ToolTip.Tip="Vary keeps the tom's step probability. The hits stay either way" />
+          <ToggleButton x:Name="LockClapChip" Classes="chip small orange" IsChecked="{Binding LockClap}" Content="CLAP"
+                        ToolTip.Tip="Vary keeps the clap's step probability. The hits stay either way" />
+          <ToggleButton x:Name="LockClosedHatChip" Classes="chip small orange" IsChecked="{Binding LockClosedHat}" Content="CH"
+                        ToolTip.Tip="Vary keeps the closed hat" />
+          <ToggleButton x:Name="LockOpenHatChip" Classes="chip small orange" IsChecked="{Binding LockOpenHat}" Content="OH"
+                        ToolTip.Tip="Vary keeps the open hat" />
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="6">
             <ToggleButton x:Name="FillCheck" Classes="chip" IsChecked="{Binding Fill}" ToolTip.Tip="Snare and tom hits in the last four steps">

@@ -75,6 +75,22 @@ public sealed class BassPattern
 
     public BassPattern Clone() => FromPrm(ToPrm());
 
+    /// <summary>Copies length, triplet and every step into this pattern.</summary>
+    public void CopyFrom(BassPattern other)
+    {
+        Length = other.Length;
+        Triplet = other.Triplet;
+        for (var i = 0; i < StepCount; i++)
+        {
+            var step = Steps[i];
+            var from = other.Steps[i];
+            step.State = from.State;
+            step.Note = from.Note;
+            step.Accent = from.Accent;
+            step.Slide = from.Slide;
+        }
+    }
+
     /// <summary>Resets every step to the blank state the T-8 writes for an empty pattern.</summary>
     public void Clear()
     {

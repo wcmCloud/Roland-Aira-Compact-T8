@@ -98,4 +98,59 @@ public class BassGeneratorViewModelTests
         generator.GenerateCommand.Execute(null);
         Assert.Equal(0, _generated);
     }
+
+    [Fact]
+    public void Vary_keeps_the_root_on_the_beat_and_can_be_undone()
+    {
+        var (generator, bass) = Create();
+        generator.OctaveJumpChance = 100;
+        generator.Octaves = 2;
+        generator.Seed = 4;
+        generator.GenerateCommand.Execute(null);
+        var root = _pattern.Steps[0].Note;
+        var beforeVary = _pattern.Steps.Select(s => (s.State, s.Note)).ToList();
+
+        generator.VaryCommand.Execute(null);
+
+        Assert.Equal(4, generator.Seed);
+        Assert.Equal(root, _pattern.Steps[0].Note);
+        Assert.Equal(root % 12, _pattern.Steps.Where(s => s.State == BassStepState.Note).First().Note % 12);
+        Assert.Contains("Kept roots on the beat", generator.Summary);
+        generator.UndoCommand.Execute(null);
+        Assert.Equal(beforeVary, _pattern.Steps.Select(s => (s.State, s.Note)).ToList());
+        Assert.False(string.IsNullOrEmpty(bass.Steps[0].NoteName));
+    }
+
+    [Fact]
+    public void Fill_bank_writes_lines_into_empty_slots_and_copies_the_drums()
+    {
+        var library = PatternLibrary.CreateBlank();
+        var options = new BassGeneratorOptions { OctaveJumpChance = 100, Octaves = 3, NoteChance = 100 };
+        BassGenerator.Generate(library.Bass[0, 0], options);
+        library.Rhythm[0, 0].Steps[0][RhythmTrack.BD].On = true;
+        var root = library.Bass[0, 0].Steps[0].Note;
+        var source = library.Bass[0, 0].Steps.Select(s => (s.State, s.Note)).ToList();
+        var bass = new BassEditorViewModel(library.Bass[0, 0], () => { });
+        var summaries = new List<string>();
+        var generator = new BassGeneratorViewModel(options, _ => { }, summaries.Add,
+            (bank, pattern) => library.Bass[bank - 1, pattern - 1],
+            (bank, pattern) => library.Rhythm[bank - 1, pattern - 1],
+            count => Enumerable.Range(2, count).Select(pattern => (1, pattern)).ToList(),
+            () => library.Rhythm[0, 0])
+        { Target = bass };
+
+        generator.FillBankCommand.Execute(null);
+
+        Assert.Equal(source, library.Bass[0, 0].Steps.Select(s => (s.State, s.Note)).ToList());
+        Assert.Equal(root, library.Bass[0, 1].Steps[0].Note);
+        Assert.True(library.Rhythm[0, 1].Steps[0][RhythmTrack.BD].On);
+        Assert.True(library.Rhythm[0, 8].Steps[0][RhythmTrack.BD].On);
+        Assert.False(library.Rhythm[0, 9].Steps[0][RhythmTrack.BD].On);
+        Assert.Contains("bank 1 patterns 2–9", summaries[^1]);
+        Assert.Contains("drums are copied", summaries[^1]);
+
+        generator.UndoCommand.Execute(null);
+        Assert.Equal(BassStepState.Off, library.Bass[0, 1].Steps[0].State);
+        Assert.False(library.Rhythm[0, 1].Steps[0][RhythmTrack.BD].On);
+    }
 }

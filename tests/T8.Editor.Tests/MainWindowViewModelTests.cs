@@ -292,6 +292,28 @@ public class MainWindowViewModelTests : IDisposable
     }
 
     [Fact]
+    public void Fill_bank_writes_the_next_empty_slots_across_banks()
+    {
+        for (var pattern = 0; pattern < 12; pattern++)
+            _vm.Library.Rhythm[0, pattern].Steps[0][RhythmTrack.BD].On = true;
+        _vm.SelectedPattern = 12;
+        _vm.RhythmGenerator.FillBankCommand.Execute(null);
+
+        Assert.Contains("bank 1 patterns 13–16 and bank 2 patterns 1–4", _vm.Status);
+        Assert.True(_vm.IsDirty);
+        Assert.True(_vm.Library.Rhythm[0, 12].Steps[0][RhythmTrack.BD].On);
+        Assert.True(_vm.Library.Rhythm[1, 3].Steps[0][RhythmTrack.BD].On);
+        Assert.False(_vm.PatternBanks[0].Slots[12].IsEmpty);
+        Assert.False(_vm.PatternBanks[1].Slots[3].IsEmpty);
+        Assert.True(_vm.PatternBanks[1].Slots[4].IsEmpty);
+
+        _vm.RhythmGenerator.UndoCommand.Execute(null);
+        Assert.False(_vm.Library.Rhythm[1, 3].Steps[0][RhythmTrack.BD].On);
+        Assert.True(_vm.PatternBanks[1].Slots[3].IsEmpty);
+        Assert.True(_vm.Library.Rhythm[0, 11].Steps[0][RhythmTrack.BD].On);
+    }
+
+    [Fact]
     public void Generated_rhythm_marks_the_library_dirty_and_follows_the_pattern()
     {
         _vm.OpenFolder(TestPaths.Backup);

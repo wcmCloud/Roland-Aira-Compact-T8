@@ -51,6 +51,18 @@ public sealed class RhythmGeneratorOptions
 
     public int Seed { get; set; } = 1;
 
+    /// <summary>
+    /// Vary leaves this track alone. Generate ignores the locks and replaces the whole pattern.
+    /// The kick starts locked.
+    /// </summary>
+    public bool LockBassDrum { get; set; } = true;
+
+    public bool LockSnare { get; set; }
+    public bool LockTom { get; set; }
+    public bool LockClap { get; set; }
+    public bool LockClosedHat { get; set; }
+    public bool LockOpenHat { get; set; }
+
     /// <summary>Pattern number (1–16) in the current bank that Make fill writes to.</summary>
     public int FillPattern { get; set; } = 16;
 
@@ -61,7 +73,9 @@ public sealed class RhythmGeneratorOptions
 /// Writes drum patterns from a style template: each style gives every instrument a chance per 16th
 /// note, with the defining hits (like a four-on-the-floor kick) always on. Density scales the other
 /// chances, variation adds and drops hits, and accents, ghost notes, rolls, T-8 step probability and
-/// a fill add movement. Hits are written for the T-8's sounds: BD, SD, tom (LT), clap (HT), CH, OH.
+/// a fill add movement. <see cref="Generate"/> replaces the whole pattern. <see cref="Vary"/> keeps
+/// locked tracks and rewrites hats, ghost notes and probability. Hits are written for the T-8's
+/// sounds: BD, SD, tom (LT), clap (HT), CH, OH.
 /// </summary>
 public static class RhythmGenerator
 {
@@ -315,6 +329,139 @@ public static class RhythmGenerator
         }
         Hit(last[RhythmTrack.AC], 10);
     }
+
+    /// <summary>
+    /// Rewrites the movement of a pattern you already like. Locked tracks stay as they are.
+    /// Hats are thinned and filled back in, ghost notes (quiet snare and closed hat, velocity 3)
+    /// are replaced, and step probability is re-rolled when live variation is above zero.
+    /// Snare, tom and clap hits stay either way. <paramref name="amount"/> is 1 for a full
+    /// variation and lower for one that stays closer.
+    /// </summary>
+    public static void Vary(RhythmPattern pattern, RhythmGeneratorOptions options, double amount = 1)
+    {
+        amount = Math.Clamp(amount, 0, 1);
+        if (amount == 0)
+            return;
+
+        var random = new Random(unchecked(options.Seed * 31 + 0x5A21));
+        var steps = Math.Clamp(pattern.Length, 1, RhythmPattern.StepCount);
+        var variation = Math.Clamp(options.Variation, 0, 100) / 100.0;
+        // A floor so Vary still moves the hats when the Variation knob is low; the knob opens it up.
+        var wander = (0.22 + 0.70 * variation) * amount;
+        var ghostChance = (int)Math.Round(Math.Clamp(options.GhostChance, 0, 100) * amount);
+        var live = (int)Math.Round(Math.Clamp(options.LiveVariation, 0, 100) * amount);
+        var rollChance = (int)Math.Round(Math.Clamp(options.RollChance, 0, 100) * amount);
+
+        for (var n = 0; n < steps; n++)
+        {
+            var step = pattern.Steps[n];
+            var onBeat = n % 4 == 0;
+
+            if (ghostChance > 0)
+            {
+                foreach (var track in new[] { RhythmTrack.SD, RhythmTrack.CH })
+                {
+                    if (CanRewrite(options, track) && IsGhost(step[track]))
+                        Reset(step[track]);
+                }
+            }
+
+            VaryHat(step, RhythmTrack.CH, n, options, random, wander, rollChance);
+            VaryHat(step, RhythmTrack.OH, n, options, random, wander, rollChance);
+            ResolveHatChoke(step, options);
+
+            if (ghostChance > 0)
+            {
+                foreach (var track in new[] { RhythmTrack.SD, RhythmTrack.CH })
+                {
+                    if (!CanRewrite(options, track) || onBeat || step[track].On)
+                        continue;
+                    if (track == RhythmTrack.CH && step[RhythmTrack.OH].On)
+                        continue;
+                    if (random.Next(100) < ghostChance)
+                    {
+                        Reset(step[track]);
+                        Hit(step[track], velocity: 3);
+                    }
+                }
+            }
+
+            if (live > 0)
+            {
+                foreach (var track in TemplateTracks)
+                {
+                    if (!CanRewrite(options, track))
+                        continue;
+                    var cell = step[track];
+                    if (!cell.On || IsGhost(cell))
+                        continue;
+                    if (random.Next(100) < live)
+                        cell.Probability = 5 + random.Next(4);
+                }
+            }
+        }
+    }
+
+    private static void VaryHat(
+        RhythmStep step, RhythmTrack track, int n, RhythmGeneratorOptions options, Random random, double wander, int rollChance)
+    {
+        if (!CanRewrite(options, track))
+            return;
+        var cell = step[track];
+        if (IsGhost(cell))
+            return;
+
+        if (cell.On)
+        {
+            if (random.NextDouble() < wander * 0.75)
+                Reset(cell);
+            return;
+        }
+
+        var (chance, anchor) = TemplateChance(options.Style, track, n);
+        var add = anchor ? wander * 0.5 : chance / 100.0 * wander;
+        if (chance == 0)
+            add = wander * 0.10;
+        if (random.NextDouble() >= add)
+            return;
+
+        Reset(cell);
+        Hit(cell, n % 4 == 0 ? 8 : 7);
+        if (random.Next(100) < rollChance)
+            cell.SubStep = (SubStep)(1 + random.Next(3));
+    }
+
+    /// <summary>The T-8's open hat cuts off the closed one. A locked hat wins; otherwise the open hat stays.</summary>
+    private static void ResolveHatChoke(RhythmStep step, RhythmGeneratorOptions options)
+    {
+        if (!step[RhythmTrack.CH].On || !step[RhythmTrack.OH].On)
+            return;
+        var closedFixed = !CanRewrite(options, RhythmTrack.CH);
+        var openFixed = !CanRewrite(options, RhythmTrack.OH);
+        if (closedFixed && openFixed)
+            return;
+        if (closedFixed)
+            Reset(step[RhythmTrack.OH]);
+        else
+            Reset(step[RhythmTrack.CH]);
+    }
+
+    /// <summary>Generate writes ghost notes at velocity 3. Main hits are 4 or louder.</summary>
+    private static bool IsGhost(RhythmCell cell) => cell.On && cell.Velocity <= 3;
+
+    private static bool CanRewrite(RhythmGeneratorOptions options, RhythmTrack track) =>
+        Enabled(options, track) && !IsLocked(options, track);
+
+    private static bool IsLocked(RhythmGeneratorOptions options, RhythmTrack track) => track switch
+    {
+        RhythmTrack.BD => options.LockBassDrum,
+        RhythmTrack.SD => options.LockSnare,
+        RhythmTrack.LT => options.LockTom,
+        RhythmTrack.HT => options.LockClap,
+        RhythmTrack.CH => options.LockClosedHat,
+        RhythmTrack.OH => options.LockOpenHat,
+        _ => true,
+    };
 
     private static void Copy(RhythmCell from, RhythmCell to)
     {

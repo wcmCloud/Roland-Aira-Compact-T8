@@ -5,6 +5,7 @@ The Song tab chains patterns from the banks into a song.
 ## Arrangement
 
 - With the Song tab open, **click patterns in the pattern grid** to add them in order. **Add selected pattern** adds the open one.
+- **Fill bank**, in the rhythm or bass generator, writes eight variations of the open pattern into the next empty slots. Add those from the grid when a song needs somewhere to go.
 - For each entry set the **bank**, **pattern**, how many times it **repeats**, a **name** and a **colour** (click the swatch). **Steps** shows how long one pass is.
 - **FILL** plays a fill pattern once after the repeats, as a bridge into the next entry (same bank; 16 by default).
 - The row buttons play the song from that entry, move it up or down, duplicate it and remove it.
