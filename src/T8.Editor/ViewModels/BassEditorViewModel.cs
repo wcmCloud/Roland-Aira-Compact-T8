@@ -109,6 +109,24 @@ public sealed partial class BassEditorViewModel : ObservableObject
             SelectNext();
     }
 
+    /// <summary>The key held down on the T-8's keyboard, shown in green on the keyboard; null when none.</summary>
+    [ObservableProperty]
+    private int? _t8KeyNote;
+
+    /// <summary>
+    /// A key played on the T-8: like <see cref="EnterNote"/>, but not auditioned, since the T-8 already sounds it.
+    /// Returns the step that got the note, or null (no step selected, or a note outside the T-8's range).
+    /// </summary>
+    public BassStepViewModel? EnterNoteFromT8(int note)
+    {
+        if (note < LowestNote || note > HighestNote || SelectedStep is not { } step)
+            return null;
+        step.SetNote(note, audition: false);
+        if (AdvanceAfterNote)
+            SelectNext();
+        return step;
+    }
+
     [RelayCommand]
     private void SelectNext() => MoveSelection(1);
 
@@ -333,12 +351,13 @@ public sealed partial class BassStepViewModel : ObservableObject
     [RelayCommand]
     private void Select() => _select?.Invoke(this);
 
-    /// <summary>Sets the note and turns the step on (from off or tie), auditioning it.</summary>
-    public void SetNote(int note)
+    /// <summary>Sets the note and turns the step on (from off or tie), auditioning it unless told not to.</summary>
+    public void SetNote(int note, bool audition = true)
     {
         Note = note;
         State = BassStepState.Note;
-        _audition?.Invoke(Note);
+        if (audition)
+            _audition?.Invoke(Note);
     }
 
     [RelayCommand]

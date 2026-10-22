@@ -112,9 +112,17 @@
                 <TextBlock Text="NEXT STEP AFTER A NOTE" />
               </StackPanel>
             </ToggleButton>
+<ToggleButton x:Name="NotesFromT8Toggle" Classes="chip orange" VerticalAlignment="Center"
+              IsChecked="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).NotesFromT8, FallbackValue=False}"
+              ToolTip.Tip="Play notes on the T-8's own keyboard (KYBD) to enter them into the selected step; the key you hold lights up green below">
+  <StackPanel Orientation="Horizontal" Spacing="5">
+    <PathIcon Data="{StaticResource IconTabBass}" />
+    <TextBlock Text="NOTES FROM T-8" />
+  </StackPanel>
+</ToggleButton>
             <StackPanel x:Name="StepEditorHint" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center" Margin="2,0,4,0">
               <PathIcon Data="{StaticResource IconInfo}" Width="11" Height="11" Foreground="{StaticResource MutedText}" />
-              <TextBlock Text="Click a step, then a key. Right-click a step for all notes." Foreground="{StaticResource MutedText}" FontSize="11"
+              <TextBlock Text="Click a step, then a key here or on the T-8. Right-click a step for all notes." Foreground="{StaticResource MutedText}" FontSize="11"
                          VerticalAlignment="Center" />
             </StackPanel>
           </StackPanel>
@@ -124,6 +132,7 @@
                              HighestNote="{x:Static vm:BassEditorViewModel.HighestNote}"
                              HighlightedNote="{Binding SelectedNote}"
                              PlayingNote="{Binding PlayingNote}"
+                             T8KeyNote="{Binding T8KeyNote}"
                              Command="{Binding EnterNoteCommand}" />
       </StackPanel>
     </ScrollViewer>

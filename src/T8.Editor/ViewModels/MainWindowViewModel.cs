@@ -95,6 +95,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         _bpm = Settings.Bpm;
         _auditionEnabled = Settings.AuditionEnabled;
         _showPlayhead = Settings.ShowPlayhead;
+        _notesFromT8 = Settings.NotesFromT8;
         Library = PatternLibrary.CreateBlank();
         BassGenerator = new BassGeneratorViewModel(Settings.BassGenerator.Clone(), options =>
         {
@@ -230,6 +231,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     /// <summary>The 4 × 16 grid of patterns, one row per bank.</summary>
     public IReadOnlyList<PatternBankRow> PatternBanks { get; }
 
+    public const int BassTab = 1;
     public const int SongTab = 2;
 
     /// <summary>The tab shown: 0 Rhythm, 1 Bass, 2 Song.</summary>
@@ -389,7 +391,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     private void UpdateT8Status()
     {
-        var status = _listener is { IsRunning: true } t8 && !IsPlaying
+        var status = Settings.FollowT8 && _listener is { IsRunning: true } t8 && !IsPlaying
             ? t8.Bpm is { } bpm ? $"T-8 playing · {bpm:0} BPM" : "T-8 playing"
             : "";
         if (T8Status != status)
@@ -404,7 +406,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     private void OpenListener()
     {
         CloseListener();
-        if (SelectedPort is null || !Settings.FollowT8)
+        if (SelectedPort is null || (!Settings.FollowT8 && !Settings.NotesFromT8))
             return;
         try
         {
@@ -415,7 +417,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             _listener = null; // No input to follow; everything else still works.
         }
         if (_listener is not null)
+        {
             _listener.PatternChanged += (_, slot) => OnUi(() => OnT8PatternChanged(slot.Bank, slot.Pattern));
+            _listener.BassNote += (_, key) => OnUi(() => OnT8BassNote(key.Note, key.Pressed));
+        }
     }
 
     private void CloseListener()
@@ -440,6 +445,39 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             action();
         else
             _ui.Post(_ => action(), null);
+    }
+
+    /// <summary>On the Bass tab, the notes played on the T-8's keyboard go into the selected step (the chip in the step editor).</summary>
+    [ObservableProperty]
+    private bool _notesFromT8;
+
+    partial void OnNotesFromT8Changed(bool value)
+    {
+        Settings.NotesFromT8 = value;
+        SaveSettings();
+        OpenListener();
+        Status = value
+            ? "Notes played on the T-8's keyboard now go into the selected bass step (Bass tab)."
+            : "Notes played on the T-8 no longer change the bass line.";
+    }
+
+    /// <summary>
+    /// A key pressed or released on the T-8 (its sequencer stopped): shown on the keyboard and, on the Bass tab with
+    /// <see cref="NotesFromT8"/> on, entered into the selected step.
+    /// </summary>
+    internal void OnT8BassNote(int note, bool pressed)
+    {
+        if (!pressed)
+        {
+            if (Bass.T8KeyNote == note)
+                Bass.T8KeyNote = null;
+            return;
+        }
+        Bass.T8KeyNote = note;
+        if (!NotesFromT8 || SelectedTab != BassTab || IsPlaying)
+            return;
+        if (Bass.EnterNoteFromT8(note) is { } step)
+            Status = $"Step {step.Number}: {step.NoteName}, played on the T-8.";
     }
 
     partial void OnAuditionEnabledChanged(bool value)

@@ -25,6 +25,9 @@ public sealed class PianoKeyboard : Control
     public static readonly StyledProperty<int?> PlayingNoteProperty =
         AvaloniaProperty.Register<PianoKeyboard, int?>(nameof(PlayingNote));
 
+    public static readonly StyledProperty<int?> T8KeyNoteProperty =
+        AvaloniaProperty.Register<PianoKeyboard, int?>(nameof(T8KeyNote));
+
     public static readonly StyledProperty<ICommand?> CommandProperty =
         AvaloniaProperty.Register<PianoKeyboard, ICommand?>(nameof(Command));
 
@@ -39,6 +42,7 @@ public sealed class PianoKeyboard : Control
     private static readonly IBrush BlackHoverBrush = new SolidColorBrush(Color.Parse("#48484E"));
     private static readonly IBrush HighlightBrush = new SolidColorBrush(Color.Parse("#FF7A1A"));
     private static readonly IBrush PlayingBrush = new SolidColorBrush(Color.Parse("#FFD23F"));
+    private static readonly IBrush T8KeyBrush = new SolidColorBrush(Color.Parse("#4CD38A"));
     private static readonly IBrush LabelBrush = new SolidColorBrush(Color.Parse("#606066"));
     private static readonly IPen KeyPen = new Pen(new SolidColorBrush(Color.Parse("#0E0E10")), 1);
 
@@ -47,7 +51,7 @@ public sealed class PianoKeyboard : Control
     static PianoKeyboard()
     {
         AffectsMeasure<PianoKeyboard>(LowestNoteProperty, HighestNoteProperty);
-        AffectsRender<PianoKeyboard>(HighlightedNoteProperty, PlayingNoteProperty);
+        AffectsRender<PianoKeyboard>(HighlightedNoteProperty, PlayingNoteProperty, T8KeyNoteProperty);
     }
 
     public PianoKeyboard() => Cursor = new Cursor(StandardCursorType.Hand);
@@ -75,6 +79,13 @@ public sealed class PianoKeyboard : Control
     {
         get => GetValue(PlayingNoteProperty);
         set => SetValue(PlayingNoteProperty, value);
+    }
+
+    /// <summary>The key held down on the T-8 itself, drawn in green.</summary>
+    public int? T8KeyNote
+    {
+        get => GetValue(T8KeyNoteProperty);
+        set => SetValue(T8KeyNoteProperty, value);
     }
 
     public ICommand? Command
@@ -138,6 +149,7 @@ public sealed class PianoKeyboard : Control
 
     private IBrush KeyBrush(int note, IBrush hover, IBrush normal) =>
         note == PlayingNote ? PlayingBrush
+        : note == T8KeyNote ? T8KeyBrush
         : note == HighlightedNote ? HighlightBrush
         : note == _hoverNote ? hover
         : normal;

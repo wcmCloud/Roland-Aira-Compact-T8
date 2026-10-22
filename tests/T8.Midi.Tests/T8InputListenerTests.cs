@@ -94,4 +94,41 @@ public class T8InputListenerTests
         ports.Inputs = [];
         Assert.Null(T8InputListener.Open(ports, new MidiPortInfo("T-8", "T-8"), new T8MidiMap()));
     }
+
+    private static NoteOnEvent NoteOn(int note, int velocity, int channel) =>
+        new((SevenBitNumber)note, (SevenBitNumber)velocity) { Channel = (FourBitNumber)(channel - 1) };
+
+    [Fact]
+    public void Bass_keys_played_on_the_t8_are_reported_while_its_sequencer_is_stopped()
+    {
+        var input = new FakeInputDevice();
+        input.StartEventsListening();
+        using var listener = new T8InputListener(input, new T8MidiMap { BassChannel = 6, RhythmChannel = 5 });
+        var keys = new List<(int, bool)>();
+        listener.BassNote += (_, key) => keys.Add(key);
+
+        input.Receive(NoteOn(40, 100, 6));
+        input.Receive(new NoteOffEvent((SevenBitNumber)40, (SevenBitNumber)0) { Channel = (FourBitNumber)5 });
+        input.Receive(NoteOn(43, 90, 6));
+        input.Receive(NoteOn(43, 0, 6)); // note on with velocity 0 is a release
+        input.Receive(NoteOn(36, 100, 5)); // a drum on the rhythm channel
+
+        input.Receive(new StartEvent());
+        input.Receive(NoteOn(45, 100, 6)); // the T-8's own sequencer playing
+        input.Receive(new StopEvent());
+
+        Assert.Equal([(40, true), (40, false), (43, true), (43, false)], keys);
+    }
+
+    [Fact]
+    public void No_bass_keys_when_the_bass_channel_is_off()
+    {
+        var input = new FakeInputDevice();
+        input.StartEventsListening();
+        using var listener = new T8InputListener(input, new T8MidiMap { BassChannel = 0 });
+        var count = 0;
+        listener.BassNote += (_, _) => count++;
+        input.Receive(NoteOn(40, 100, 1));
+        Assert.Equal(0, count);
+    }
 }

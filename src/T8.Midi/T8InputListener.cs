@@ -8,8 +8,8 @@ namespace T8.Midi;
 
 /// <summary>
 /// Follows what the T-8 transmits (MIDI Implementation Chart): Start, Stop and Clock when its own
-/// sequencer plays, and a program change on Pc.Ch when its pattern changes (needs tXPc on). Events
-/// are raised on the MIDI input thread.
+/// sequencer plays, a program change on Pc.Ch when its pattern changes (needs tXPc on), and the bass
+/// notes played on its keyboard. Events are raised on the MIDI input thread.
 /// </summary>
 public sealed class T8InputListener : IDisposable
 {
@@ -46,6 +46,12 @@ public sealed class T8InputListener : IDisposable
 
     /// <summary>The T-8 changed pattern: bank 1–4 and pattern 1–16.</summary>
     public event EventHandler<(int Bank, int Pattern)>? PatternChanged;
+
+    /// <summary>
+    /// A bass key was pressed (true) or released (false) on the T-8 while its sequencer is stopped: a note on or
+    /// off on the bass channel (bACh). Notes its own sequencer plays are not reported.
+    /// </summary>
+    public event EventHandler<(int Note, bool Pressed)>? BassNote;
 
     /// <summary>The T-8's sequencer started or stopped.</summary>
     public event EventHandler<bool>? RunningChanged;
@@ -90,12 +96,21 @@ public sealed class T8InputListener : IDisposable
                 Interlocked.Increment(ref _clocks);
                 MeasureClock();
                 break;
+            case NoteOnEvent note when !_running && IsBassChannel(note.Channel):
+                BassNote?.Invoke(this, (note.NoteNumber, note.Velocity > 0));
+                break;
+            case NoteOffEvent note when !_running && IsBassChannel(note.Channel):
+                BassNote?.Invoke(this, (note.NoteNumber, false));
+                break;
             case ProgramChangeEvent program when program.Channel + 1 == _map.ProgramChangeChannel && program.ProgramNumber < 64:
                 PatternChanged?.Invoke(this, (program.ProgramNumber / PatternLibrary.PatternsPerBank + 1,
                     program.ProgramNumber % PatternLibrary.PatternsPerBank + 1));
                 break;
         }
     }
+
+    private bool IsBassChannel(Melanchall.DryWetMidi.Common.FourBitNumber channel) =>
+        _map.BassChannel != 0 && channel + 1 == _map.BassChannel;
 
     private void OnEventReceived(object? sender, MidiEventReceivedEventArgs e) => Receive(e.Event);
 
