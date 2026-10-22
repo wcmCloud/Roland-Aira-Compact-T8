@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds all packages and publishes them as a GitHub release (needs the GitHub CLI, gh, signed in).
-# Usage: scripts/release.sh [version]     e.g. scripts/release.sh 1.0.6
+# Usage: scripts/release.sh [version]     e.g. scripts/release.sh 1.0.7
 # Defaults to the <Version> in src/T8.Editor/T8.Editor.csproj. Run from a clean, pushed master.
 set -euo pipefail
 
