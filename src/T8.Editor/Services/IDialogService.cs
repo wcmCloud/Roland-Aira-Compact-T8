@@ -15,6 +15,9 @@ public interface IDialogService
     /// <summary>Shows the About window.</summary>
     Task ShowAboutAsync();
 
+    /// <summary>Opens the help window at a topic (see <see cref="Help.HelpTopics"/>), or at the start.</summary>
+    void ShowHelp(string? topic = null);
+
     /// <summary>Asks for a .t8song file to open; null if cancelled.</summary>
     Task<string?> PickSongToOpenAsync();
 

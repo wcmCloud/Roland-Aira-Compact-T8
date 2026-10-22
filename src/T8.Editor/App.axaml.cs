@@ -31,4 +31,10 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow.DataContext: MainWindowViewModel vm })
             vm.ShowAboutCommand.Execute(null);
     }
+
+    private void OnHelpClicked(object? sender, EventArgs e)
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow.DataContext: MainWindowViewModel vm })
+            vm.ShowHelpCommand.Execute(null);
+    }
 }

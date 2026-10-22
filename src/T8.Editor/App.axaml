@@ -3,10 +3,11 @@
              x:Class="T8.Editor.App"
              Name="Roland Aira Compact T-8 Editor"
              RequestedThemeVariant="Dark">
-  <!-- The macOS app menu: our own About instead of Avalonia's. -->
+  <!-- The macOS app menu: our own About instead of Avalonia's, and the help. -->
   <NativeMenu.Menu>
     <NativeMenu>
       <NativeMenuItem Header="About Roland Aira Compact T-8 Editor" Click="OnAboutClicked" />
+      <NativeMenuItem Header="Roland Aira Compact T-8 Editor Help" Gesture="F1" Click="OnHelpClicked" />
     </NativeMenu>
   </NativeMenu.Menu>
   <Application.Styles>

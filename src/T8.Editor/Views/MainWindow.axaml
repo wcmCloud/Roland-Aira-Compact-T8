@@ -1,5 +1,6 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:help="using:T8.Editor.Help"
         xmlns:vm="using:T8.Editor.ViewModels"
         xmlns:views="using:T8.Editor.Views"
         xmlns:ports="using:T8.Midi.Ports"
@@ -9,6 +10,9 @@
         Title="{Binding Title}"
         Width="1480" Height="860" MinWidth="900" MinHeight="640"
         Background="{StaticResource WindowBg}">
+  <Window.KeyBindings>
+    <KeyBinding Gesture="F1" Command="{Binding ShowHelpCommand}" />
+  </Window.KeyBindings>
   <DockPanel>
     <!-- Top bar: files, T-8 drive, pattern clipboard, MIDI connection -->
     <Border DockPanel.Dock="Top" Classes="topbarAccent" />
@@ -19,7 +23,7 @@
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="OUT" Foreground="{StaticResource MutedText}" VerticalAlignment="Center" FontSize="10"
                          FontWeight="SemiBold" LetterSpacing="1" Margin="7,0,2,0" />
-              <ComboBox x:Name="PortPicker" Classes="port" MinWidth="170" ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}"
+              <ComboBox x:Name="PortPicker" Classes="port" MinWidth="140" ItemsSource="{Binding Ports}" SelectedItem="{Binding SelectedPort}"
                         PlaceholderText="No MIDI outputs">
                 <ComboBox.ItemTemplate>
                   <DataTemplate x:DataType="ports:MidiPortInfo">
@@ -43,6 +47,9 @@
               <Button x:Name="MidiSettingsButton" Classes="tool icon" Command="{Binding OpenMidiSettingsCommand}"
                       ToolTip.Tip="MIDI settings: channels, drum notes, what Play does">
                 <PathIcon Data="{StaticResource IconCog}" />
+              </Button>
+              <Button x:Name="HelpButton" Classes="tool icon" Command="{Binding ShowHelpCommand}" ToolTip.Tip="Help (F1)">
+                <PathIcon Data="{StaticResource IconHelp}" />
               </Button>
               <Button x:Name="AboutButton" Classes="tool icon" Command="{Binding ShowAboutCommand}" ToolTip.Tip="About this editor">
                 <PathIcon Data="{StaticResource IconInfo}" />
@@ -154,6 +161,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionOrange}" />
             <TextBlock Classes="cardTitle" Text="PATTERNS" />
+            <views:HelpTip Topic="{x:Static help:HelpTopics.Patterns}" />
             <TextBlock Text="{Binding PatternLabel}" FontSize="11" Foreground="{StaticResource MutedText}" Margin="8,0,0,0" VerticalAlignment="Center" />
             <Ellipse x:Name="UnsavedDot" Width="7" Height="7" Fill="{StaticResource T8Orange}" Margin="10,0,0,0" VerticalAlignment="Center"
                      IsVisible="{Binding IsDirty}" ToolTip.Tip="Unsaved changes" />
@@ -190,6 +198,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionGreen}" />
             <TextBlock Classes="cardTitle" Text="PLAYBACK" />
+            <views:HelpTip Topic="{x:Static help:HelpTopics.Playback}" />
           </StackPanel>
           <WrapPanel Orientation="Horizontal">
             <views:Knob x:Name="BpmKnob" Value="{Binding Bpm}" Minimum="20" Maximum="300" DefaultValue="120" Label="BPM"

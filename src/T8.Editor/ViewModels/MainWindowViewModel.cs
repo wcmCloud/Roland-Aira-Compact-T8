@@ -563,6 +563,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     [RelayCommand]
     private Task ShowAboutAsync() => _dialogs.ShowAboutAsync();
 
+    /// <summary>Opens the help window (F1, the ? button in the top bar, Help in the macOS app menu).</summary>
+    [RelayCommand]
+    private void ShowHelp(string? topic) => _dialogs.ShowHelp(topic);
+
     [RelayCommand]
     private void RefreshPorts()
     {

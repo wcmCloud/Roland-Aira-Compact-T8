@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="T8.Editor.Views.HelpTip"
+             VerticalAlignment="Center" Margin="0,-4,0,-4">
+  <!-- A small ? next to a panel: shows that panel's help topic, with a link to the full help. -->
+  <Button x:Name="TipButton" Classes="helpTip" ToolTip.Tip="Help">
+    <PathIcon Data="{StaticResource IconHelp}" />
+    <Button.Flyout>
+      <Flyout Placement="BottomEdgeAlignedLeft">
+        <StackPanel Width="380" Spacing="8">
+          <TextBlock x:Name="TipTitle" FontWeight="Bold" FontSize="13" />
+          <ItemsControl x:Name="TipParagraphs">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="x:String">
+                <TextBlock Text="{Binding}" TextWrapping="Wrap" FontSize="12" LineHeight="18" Margin="0,0,0,8" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Button x:Name="MoreHelpButton" Classes="chip small" HorizontalAlignment="Left" Click="OnMoreHelp">
+            <StackPanel Orientation="Horizontal" Spacing="5">
+              <PathIcon Data="{StaticResource IconHelp}" Width="11" Height="11" />
+              <TextBlock Text="ALL HELP (F1)" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </Flyout>
+    </Button.Flyout>
+  </Button>
+</UserControl>

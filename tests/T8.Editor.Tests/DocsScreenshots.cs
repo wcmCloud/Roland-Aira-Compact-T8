@@ -162,6 +162,12 @@ public class DocsScreenshots
         about.Show();
         Settle(about);
         Save(about, "about.png");
+
+        var help = new HelpWindow();
+        help.ShowTopic(T8.Editor.Help.HelpTopics.RhythmGenerator);
+        help.Show();
+        Settle(help);
+        Save(help, "help.png");
         Assert.Contains("Christos Christodoulidis", about.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text));
         about.Close();
 

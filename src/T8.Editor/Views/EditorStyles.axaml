@@ -988,4 +988,38 @@
     <Setter Property="Background" Value="#14FF7A1A" />
     <Setter Property="BorderBrush" Value="{StaticResource T8Orange}" />
   </Style>
+  <!-- Help: the small ? buttons next to panels, and the topic list in the help window -->
+  <Style Selector="Button.helpTip">
+    <Setter Property="Width" Value="20" />
+    <Setter Property="Height" Value="20" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Foreground" Value="{StaticResource MutedText}" />
+    <Setter Property="Cursor" Value="Hand" />
+  </Style>
+  <Style Selector="Button.helpTip PathIcon">
+    <Setter Property="Width" Value="13" />
+    <Setter Property="Height" Value="13" />
+  </Style>
+  <Style Selector="Button.helpTip:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#26FF7A1A" />
+    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+  </Style>
+  <Style Selector="ListBox.helpTopics">
+    <Setter Property="Background" Value="Transparent" />
+  </Style>
+  <Style Selector="ListBox.helpTopics ListBoxItem">
+    <Setter Property="Padding" Value="10,4" />
+    <Setter Property="CornerRadius" Value="6" />
+    <Setter Property="MinHeight" Value="0" />
+  </Style>
+  <Style Selector="ListBox.helpTopics ListBoxItem:selected /template/ ContentPresenter">
+    <Setter Property="Background" Value="#33FF7A1A" />
+    <Setter Property="Foreground" Value="{StaticResource T8Orange}" />
+  </Style>
 </Styles>

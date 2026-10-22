@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:help="using:T8.Editor.Help"
              xmlns:vm="using:T8.Editor.ViewModels"
              xmlns:views="using:T8.Editor.Views"
              x:Class="T8.Editor.Views.RhythmGeneratorView"
@@ -9,6 +10,7 @@
       <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="7" Margin="0,0,0,8">
         <Ellipse Classes="dot" Fill="{StaticResource SectionBlue}" />
         <TextBlock Classes="cardTitle" Text="RHYTHM GENERATOR" />
+        <views:HelpTip Topic="{x:Static help:HelpTopics.RhythmGenerator}" />
       </StackPanel>
 
       <!-- Generate, randomize, undo and seed in one outlined panel -->
@@ -108,6 +110,7 @@
           <Border Classes="fieldBox">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Classes="fieldLabel" Text="FILL" />
+              <views:HelpTip Topic="{x:Static help:HelpTopics.Fills}" />
               <ComboBox x:Name="FillPatternPicker" Classes="port" ItemsSource="{x:Static vm:RhythmGeneratorViewModel.PatternNumbers}" SelectedItem="{Binding FillPattern}" Width="66"
                         ToolTip.Tip="Fill pattern: the pattern in this bank that Make fill writes to and the Fill button plays" />
               <Button x:Name="MakeFillButton" Classes="tool" Command="{Binding MakeFillCommand}"

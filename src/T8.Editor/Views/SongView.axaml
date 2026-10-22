@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:help="using:T8.Editor.Help"
              xmlns:vm="using:T8.Editor.ViewModels"
              xmlns:views="using:T8.Editor.Views"
              x:Class="T8.Editor.Views.SongView"
@@ -54,6 +55,7 @@
         <StackPanel Orientation="Horizontal" Spacing="10">
           <Ellipse Classes="dot" Fill="{StaticResource SectionPurple}" VerticalAlignment="Center" />
           <TextBlock Classes="cardTitle" Text="SONG" />
+          <views:HelpTip Topic="{x:Static help:HelpTopics.Song}" />
           <Border Classes="fieldBox" Margin="6,0,0,0">
             <StackPanel Orientation="Horizontal" Spacing="2">
               <TextBlock Classes="fieldLabel" Text="TITLE" />
@@ -103,6 +105,7 @@
                 <PathIcon Data="{StaticResource IconSkipNext}" />
               </StackPanel>
             </Button>
+            <views:HelpTip Topic="{x:Static help:HelpTopics.SongPlayback}" />
           </StackPanel>
         </DockPanel>
 
@@ -166,6 +169,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionOrange}" />
             <TextBlock Classes="cardTitle" Text="ARRANGEMENT" />
+            <views:HelpTip Topic="{x:Static help:HelpTopics.Song}" />
             <TextBlock Text="Click a pattern in the grid above to add it to the song; set how often it repeats and whether a fill leads into the next."
                        Foreground="{StaticResource MutedText}" FontSize="12" VerticalAlignment="Center" Margin="8,0,0,0" />
           </StackPanel>

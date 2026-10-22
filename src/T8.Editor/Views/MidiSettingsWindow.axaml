@@ -1,5 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:views="using:T8.Editor.Views"
+        xmlns:help="using:T8.Editor.Help"
         xmlns:vm="using:T8.Editor.ViewModels"
         xmlns:ports="using:T8.Midi.Ports"
         x:Class="T8.Editor.Views.MidiSettingsWindow"
@@ -58,6 +60,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionGreen}" />
             <TextBlock Classes="cardTitle" Text="CONNECTION" />
+            <views:HelpTip Topic="{x:Static help:HelpTopics.Connection}" />
           </StackPanel>
           <StackPanel Orientation="Horizontal" Spacing="8">
             <Border Classes="fieldBox">
@@ -104,6 +107,7 @@
             <StackPanel Orientation="Horizontal" Spacing="7">
               <Ellipse Classes="dot" Fill="{StaticResource SectionOrange}" />
               <TextBlock Classes="cardTitle" Text="MIDI CHANNELS" />
+              <views:HelpTip Topic="{x:Static help:HelpTopics.MidiChannels}" />
             </StackPanel>
           </DockPanel>
           <Grid x:Name="ChannelBoxes" ColumnDefinitions="*,*,*" ColumnSpacing="6">
@@ -151,6 +155,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionBlue}" />
             <TextBlock Classes="cardTitle" Text="DRUM NOTES" />
+            <views:HelpTip Topic="{x:Static help:HelpTopics.DrumNotes}" />
           </StackPanel>
           <ItemsControl x:Name="DrumNoteList" ItemsSource="{Binding DrumNotes}">
             <ItemsControl.ItemsPanel>
@@ -179,6 +184,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionPink}" />
             <TextBlock Classes="cardTitle" Text="PLAY BUTTON" />
+            <views:HelpTip Topic="{x:Static help:HelpTopics.PlayModes}" />
           </StackPanel>
           <RadioButton x:Name="PreviewModeRadio" Classes="option" GroupName="PlayMode"
                        IsChecked="{Binding PlayMode, Converter={x:Static vm:Converters.IsPreviewMode}}">
@@ -214,6 +220,7 @@
           <StackPanel Orientation="Horizontal" Spacing="7">
             <Ellipse Classes="dot" Fill="{StaticResource SectionPurple}" />
             <TextBlock Classes="cardTitle" Text="ON THE T-8" />
+            <views:HelpTip Topic="{x:Static help:HelpTopics.OnTheT8}" />
           </StackPanel>
           <TextBlock Text="Hold SHIFT and press OCT+ (MENU), then set:" FontSize="11.5" Foreground="{StaticResource MutedText}" />
           <ItemsControl x:Name="T8MenuSettingsList" ItemsSource="{Binding T8MenuSettings}">

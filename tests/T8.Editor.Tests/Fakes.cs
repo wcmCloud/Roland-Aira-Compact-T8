@@ -38,6 +38,10 @@ internal sealed class FakeDialogService : IDialogService
         AboutCount++;
         return Task.CompletedTask;
     }
+
+    public List<string?> HelpTopicsShown { get; } = new();
+
+    public void ShowHelp(string? topic = null) => HelpTopicsShown.Add(topic);
 }
 
 internal sealed class MemorySettingsStore : ISettingsStore

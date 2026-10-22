@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:help="using:T8.Editor.Help"
              xmlns:vm="using:T8.Editor.ViewModels"
              xmlns:views="using:T8.Editor.Views"
              x:Class="T8.Editor.Views.BassEditorView"
@@ -11,6 +12,7 @@
         <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
           <Ellipse Classes="dot" Fill="{StaticResource SectionPink}" />
           <TextBlock Classes="cardTitle" Text="PATTERN" />
+          <views:HelpTip Topic="{x:Static help:HelpTopics.Bass}" />
         </StackPanel>
         <Border Classes="fieldBox">
           <StackPanel Orientation="Horizontal" Spacing="2">
@@ -87,6 +89,7 @@
             <StackPanel Orientation="Horizontal" Spacing="7" VerticalAlignment="Center">
               <Ellipse Classes="dot" Fill="{StaticResource SectionPurple}" />
               <TextBlock Classes="cardTitle" Text="STEP EDITOR" />
+              <views:HelpTip Topic="{x:Static help:HelpTopics.StepEditor}" />
             </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
               <Button x:Name="PreviousStepButton" Classes="chip" Command="{Binding SelectPreviousCommand}" Padding="7,0"

@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:help="using:T8.Editor.Help"
              xmlns:vm="using:T8.Editor.ViewModels"
              xmlns:views="using:T8.Editor.Views"
              x:Class="T8.Editor.Views.RhythmEditorView"
@@ -14,7 +15,10 @@
     <!-- Pattern settings and cell inspector -->
     <ScrollViewer DockPanel.Dock="Right" Width="256" Margin="16,0,0,0" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
     <StackPanel Width="240" Spacing="8" HorizontalAlignment="Left">
-      <TextBlock Classes="header" Text="Pattern" />
+      <StackPanel Orientation="Horizontal" Spacing="6">
+        <TextBlock Classes="header" Text="Pattern" VerticalAlignment="Center" />
+        <views:HelpTip Topic="{x:Static help:HelpTopics.Rhythm}" />
+      </StackPanel>
       <StackPanel x:Name="PatternKnobs" Orientation="Horizontal" Spacing="4" HorizontalAlignment="Left">
         <views:Knob x:Name="RhythmLength" Value="{Binding Length}" Minimum="1" Maximum="32" DefaultValue="16" Label="Last step"
                     ToolTip.Tip="Steps 1 to this one play; the rest are skipped" />
@@ -29,6 +33,7 @@
               Width="{Binding #PatternKnobs.Bounds.Width}" IsVisible="{Binding HasMultiSelection}">
         <StackPanel Spacing="2">
           <DockPanel Margin="0,0,0,4" MinHeight="22">
+            <views:HelpTip DockPanel.Dock="Right" Topic="{x:Static help:HelpTopics.MultiSelect}" />
             <TextBlock x:Name="MultiSelectionText" Text="{Binding MultiSelectionLabel}" FontSize="12" FontWeight="SemiBold"
                        Foreground="{StaticResource SectionBlue}" VerticalAlignment="Center" />
           </DockPanel>

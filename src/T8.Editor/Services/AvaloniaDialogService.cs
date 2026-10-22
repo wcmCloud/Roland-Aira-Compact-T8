@@ -56,6 +56,8 @@ public sealed class AvaloniaDialogService(Window owner) : IDialogService
 
     public Task ShowAboutAsync() => new AboutWindow().ShowDialog(owner);
 
+    public void ShowHelp(string? topic = null) => HelpWindow.Open(owner, topic);
+
     private static readonly FilePickerFileType SongFiles = new("T-8 song") { Patterns = ["*" + T8.Core.Songs.Song.FileExtension] };
 
     public async Task<string?> PickSongToOpenAsync()

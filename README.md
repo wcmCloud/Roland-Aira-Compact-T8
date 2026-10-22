@@ -175,12 +175,21 @@ they are remembered between runs.
 The screenshots at the top show the whole window on each tab. From top to bottom:
 
 - **Top bar:** New (64 blank patterns), Open…, Save, Save as…; Load from T-8, Write to T-8, Check and ? (T-8 drive); Copy, Paste and Clear
-  for the current pattern (bass and rhythm together); and on the right the MIDI output, refresh, Test, settings and About (ⓘ).
+  for the current pattern (bass and rhythm together); and on the right the MIDI output, refresh, Test, settings, Help (?) and About (ⓘ).
 - **Patterns** and **Playback** cards, described below. The Patterns card shows the open folder (e.g. BACKUP) and
   an orange dot and "unsaved changes" while there are unsaved edits; the title bar just shows the app name and version.
 - **Rhythm**, **Bass** and **Song** tabs (a rounded selector with icons; the open tab is a raised orange pill): the editors,
   their generators, and songs.
 - **Status bar:** what just happened on the left, the MIDI channels in use on the right.
+
+### Help
+
+Press **F1**, the **?** button in the top bar (next to settings and About) or, on macOS, **Help** in the app menu
+to open the help: a short guide to every part of the editor, condensed from this page. The small **?** icons next
+to the panels (Patterns, Playback, the Rhythm and Bass editors, the generators, Fills, the Song tab and each MIDI
+settings card) show the help for that panel, with a link to the full help.
+
+![The help window](docs/screenshots/help.png)
 
 ### Patterns
 
