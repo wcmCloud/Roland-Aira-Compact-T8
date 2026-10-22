@@ -158,7 +158,7 @@ public class DocsScreenshots
         Save(settingsWindow, "midi-settings.png");
         settingsWindow.Close();
 
-        var about = new AboutWindow();
+        var about = new AboutWindow { CheckForUpdates = () => Task.FromResult("") };
         about.Show();
         Settle(about);
         Save(about, "about.png");

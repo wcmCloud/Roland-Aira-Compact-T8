@@ -24,6 +24,10 @@ The MIDI note for each drum (0–127). The T-8's defaults: bass drum 36, snare 3
 - **Switch the T-8 to the pattern I pick in the editor** needs `rXPc` on.
 - **Follow the T-8:** the editor follows pattern changes made on the T-8 (needs `tXPc` on) and shows its playing step and tempo.
 
+## Updates
+
+**Check for updates on startup** (at the bottom of the window, on by default) lets the editor ask GitHub once a day whether there is a newer version; see *About and licences*.
+
 ## On the T-8
 
 Hold **SHIFT** and press **OCT+** (MENU) on the T-8, then set what the card lists: `bACh`, `rhCh`, `Pc.Ch`, `rXPc` (receive pattern changes), `tXPc` (send them) and `SYnC`. Hover over a setting to see what it's for.

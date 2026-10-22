@@ -17,7 +17,9 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var window = new MainWindow();
-            var viewModel = new MainWindowViewModel(MidiPorts.System, new AvaloniaDialogService(window), new JsonSettingsStore());
+            var updates = new UpdateChecker(new HttpClient(), ReleaseVersion.From(AppInfo.Version));
+            var viewModel = new MainWindowViewModel(MidiPorts.System, new AvaloniaDialogService(window), new JsonSettingsStore(),
+                updateChecker: updates);
             window.DataContext = viewModel;
             desktop.MainWindow = window;
             desktop.Exit += (_, _) => viewModel.Dispose();
@@ -30,6 +32,12 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow.DataContext: MainWindowViewModel vm })
             vm.ShowAboutCommand.Execute(null);
+    }
+
+    private void OnCheckForUpdatesClicked(object? sender, EventArgs e)
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime { MainWindow.DataContext: MainWindowViewModel vm })
+            vm.CheckForUpdatesCommand.Execute(null);
     }
 
     private void OnHelpClicked(object? sender, EventArgs e)

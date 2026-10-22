@@ -44,6 +44,18 @@
     <TextBlock TextWrapping="Wrap" TextAlignment="Center" FontSize="10.5" Foreground="{StaticResource MutedText}"
                Text="An independent project, not made or endorsed by Roland Corporation. Roland, AIRA and T-8 are trademarks of Roland Corporation." />
 
+    <StackPanel x:Name="UpdatePanel" Spacing="6" HorizontalAlignment="Center" IsVisible="False">
+      <Button x:Name="CheckUpdatesButton" Classes="chip" HorizontalAlignment="Center" Click="OnCheckForUpdates"
+              ToolTip.Tip="Ask GitHub whether there is a newer version (sends no personal data)">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <PathIcon Data="{StaticResource IconRefresh}" />
+          <TextBlock Text="CHECK FOR UPDATES" />
+        </StackPanel>
+      </Button>
+      <TextBlock x:Name="UpdateResultText" TextWrapping="Wrap" TextAlignment="Center" FontSize="11.5" MaxWidth="360"
+                 Foreground="{StaticResource T8Orange}" IsVisible="False" />
+    </StackPanel>
+
     <Button x:Name="CloseButton" Classes="primary" Content="Close" HorizontalAlignment="Center" MinWidth="100"
             HorizontalContentAlignment="Center" IsDefault="True" IsCancel="True" Click="OnClose" />
   </StackPanel>

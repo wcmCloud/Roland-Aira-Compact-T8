@@ -7,6 +7,7 @@
   <NativeMenu.Menu>
     <NativeMenu>
       <NativeMenuItem Header="About Roland Aira Compact T-8 Editor" Click="OnAboutClicked" />
+      <NativeMenuItem Header="Check for Updates…" Click="OnCheckForUpdatesClicked" />
       <NativeMenuItem Header="Roland Aira Compact T-8 Editor Help" Gesture="F1" Click="OnHelpClicked" />
     </NativeMenu>
   </NativeMenu.Menu>

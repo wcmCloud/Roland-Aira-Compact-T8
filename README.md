@@ -180,7 +180,8 @@ The screenshots at the top show the whole window on each tab. From top to bottom
   an orange dot and "unsaved changes" while there are unsaved edits; the title bar just shows the app name and version.
 - **Rhythm**, **Bass** and **Song** tabs (a rounded selector with icons; the open tab is a raised orange pill): the editors,
   their generators, and songs.
-- **Status bar:** what just happened on the left, the MIDI channels in use on the right.
+- **Status bar:** what just happened on the left, the MIDI channels in use on the right, and an orange chip such as
+  **v1.0.6 available** when a newer version is out (see [Updates](#updates)).
 
 ### Help
 
@@ -193,6 +194,19 @@ The small **(?)** icons next to the panels show a short popup about that panel, 
 to open the full topic. The help is written as Markdown in [docs/help](docs/help) and built into the app.
 
 ![The help window](docs/screenshots/help.png)
+
+### Updates
+
+When the editor starts it asks GitHub, at most once a day and in the background, whether a newer version has been
+released. If so, an orange chip appears in the status bar; click it to open the release page. **Check for updates**
+in the About window (or **Check for Updates…** in the macOS app menu) asks right away and says whether you're up to
+date.
+
+The check is a plain request to GitHub's public "latest release" address
+(`api.github.com/repos/wcmCloud/Roland-Aira-Compact-T8/releases/latest`). It sends no personal data and no
+identifiers, only the editor's name and version as the User-Agent; pre-releases and drafts are ignored, and when
+GitHub can't be reached the startup check stays silent. Turn it off with **Check for updates on startup** at the
+bottom of the MIDI settings window.
 
 ### Patterns
 

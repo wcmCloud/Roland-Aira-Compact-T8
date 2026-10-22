@@ -75,12 +75,18 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     /// <param name="settingsStore">Where settings are kept; null keeps them in memory only.</param>
     /// <param name="driveCandidates">Where to look for a mounted T-8; defaults to this OS's mount points.</param>
+    /// <param name="updateChecker">Checks GitHub for a newer release; null turns update checks off (tests).</param>
+    /// <param name="urlOpener">Opens web pages; defaults to the browser.</param>
     public MainWindowViewModel(
         IMidiPortProvider ports,
         IDialogService dialogs,
         ISettingsStore? settingsStore = null,
-        Func<IEnumerable<string>>? driveCandidates = null)
+        Func<IEnumerable<string>>? driveCandidates = null,
+        UpdateChecker? updateChecker = null,
+        IUrlOpener? urlOpener = null)
     {
+        _updateChecker = updateChecker;
+        _urlOpener = urlOpener ?? new BrowserUrlOpener();
         _ports = ports;
         _dialogs = dialogs;
         _settingsStore = settingsStore;
@@ -116,6 +122,94 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         LoadSelectedPattern();
         RefreshPorts();
         _t8DrivePath = T8Drive.Find(_driveCandidates());
+        StartupUpdateCheck = Settings.CheckForUpdatesOnStartup && _updateChecker is not null
+            ? CheckForUpdatesInBackgroundAsync()
+            : Task.CompletedTask;
+    }
+
+    // ---- New version on GitHub ----------------------------------------------------------
+
+    private readonly UpdateChecker? _updateChecker;
+    private readonly IUrlOpener _urlOpener;
+
+    /// <summary>A newer release on GitHub, shown as a chip in the status bar; null when there is none.</summary>
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasUpdate), nameof(UpdateLabel), nameof(UpdateTip))]
+    private ReleaseInfo? _availableUpdate;
+
+    public bool HasUpdate => AvailableUpdate is not null;
+
+    public string UpdateLabel => AvailableUpdate is { } u ? $"v{u.Version} available" : "";
+
+    public string UpdateTip => AvailableUpdate is { } u
+        ? $"Version {u.Version} of the editor is out (you have {AppInfo.DisplayVersion}). Click to open its release page."
+        : "";
+
+    /// <summary>The check that runs when the editor starts (completed at once when it's off), for tests.</summary>
+    public Task StartupUpdateCheck { get; }
+
+    /// <summary>The startup check: cached for a day, and silent when it fails.</summary>
+    private async Task CheckForUpdatesInBackgroundAsync()
+    {
+        try
+        {
+            var cache = Settings.UpdateCheck.Clone();
+            var result = await Task.Run(() => _updateChecker!.CheckAsync(cache, useCache: true)).ConfigureAwait(false);
+            // Back on the UI thread; the task finishes once the result is shown.
+            var applied = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            OnUi(() =>
+            {
+                ApplyUpdateResult(result, cache);
+                applied.SetResult();
+            });
+            await applied.Task.ConfigureAwait(false);
+        }
+        catch (Exception)
+        {
+            // The startup check never bothers the user.
+        }
+    }
+
+    /// <summary>
+    /// "Check for updates" (About window, macOS app menu): asks GitHub now, shows the chip when there is a newer
+    /// version, and returns a message for the user, which also goes to the status bar.
+    /// </summary>
+    public async Task<string> CheckForUpdatesNowAsync()
+    {
+        if (_updateChecker is null)
+            return Status = "Update checks aren't available in this build.";
+        var cache = Settings.UpdateCheck.Clone();
+        var result = await _updateChecker.CheckAsync(cache, useCache: false);
+        ApplyUpdateResult(result, cache);
+        return Status = result.Outcome switch
+        {
+            UpdateOutcome.UpdateAvailable => $"Version {result.Release!.Version} is available: click \"{UpdateLabel}\" in the status bar to download it.",
+            UpdateOutcome.UpToDate => $"You're up to date ({AppInfo.DisplayVersion} is the latest version).",
+            _ => $"Couldn't check for updates: {result.Error}.",
+        };
+    }
+
+    [RelayCommand]
+    private Task CheckForUpdatesAsync() => CheckForUpdatesNowAsync();
+
+    private void ApplyUpdateResult(UpdateCheckResult result, UpdateCheckCache cache)
+    {
+        if (result.Outcome == UpdateOutcome.Failed)
+            return;
+        AvailableUpdate = result.Outcome == UpdateOutcome.UpdateAvailable ? result.Release : null;
+        if (!result.FromCache)
+        {
+            Settings.UpdateCheck = cache;
+            SaveSettings();
+        }
+    }
+
+    /// <summary>The status bar chip: opens the new version's release page.</summary>
+    [RelayCommand]
+    private void OpenUpdatePage()
+    {
+        if (AvailableUpdate is { } update)
+            _urlOpener.Open(update.Url);
     }
 
     /// <summary>The Song tab.</summary>
@@ -551,7 +645,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     // ---- MIDI ----------------------------------------------------------------------------
 
     [RelayCommand]
-    private Task ShowAboutAsync() => _dialogs.ShowAboutAsync();
+    private Task ShowAboutAsync() => _dialogs.ShowAboutAsync(_updateChecker is null ? null : CheckForUpdatesNowAsync);
 
     /// <summary>
     /// Opens the help window (F1, the ? button in the top bar, Help in the macOS app menu): at the given topic, or

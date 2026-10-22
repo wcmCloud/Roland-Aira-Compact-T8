@@ -54,7 +54,8 @@ public sealed class AvaloniaDialogService(Window owner) : IDialogService
         return await dialog.ShowDialog<bool>(owner);
     }
 
-    public Task ShowAboutAsync() => new AboutWindow().ShowDialog(owner);
+    public Task ShowAboutAsync(Func<Task<string>>? checkForUpdates = null) =>
+        new AboutWindow { CheckForUpdates = checkForUpdates }.ShowDialog(owner);
 
     public void ShowHelp(string? topic = null) => HelpWindow.Open(owner, topic);
 

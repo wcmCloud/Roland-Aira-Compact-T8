@@ -14,7 +14,7 @@ Connect the T-8 with a USB cable and pick it under **OUT** in the top bar ("T-8 
 - **Top bar:** New, Open…, Save, Save as…; Load from T-8, Write to T-8, Check; Copy, Paste and Clear for the current pattern (bass and rhythm together); the MIDI output, Test, settings, Help and About.
 - **Patterns:** 4 banks of 16 patterns, as on the T-8. Click one to edit it. The current pattern is outlined in orange, empty ones are dimmed, the fill pattern is outlined in blue. The folder name and an orange dot for unsaved changes show next to the title.
 - **Playback:** the BPM knob, Play, Stop, Pause, Fill, Select on T-8 (switch the T-8 to this pattern), Audition (hear steps as you edit) and Show playing step.
-- **Status bar:** what just happened, and the MIDI channels in use.
+- **Status bar:** what just happened, the MIDI channels in use, and an orange chip when a newer version is out (click it for the release page).
 
 ## Knobs
 

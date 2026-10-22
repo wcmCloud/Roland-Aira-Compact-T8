@@ -29,6 +29,11 @@
           <TextBlock Text="RESET TO T-8 DEFAULTS" />
         </StackPanel>
       </Button>
+      <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="6" Margin="14,0,0,0" VerticalAlignment="Center"
+                  ToolTip.Tip="Ask GitHub once a day, when the editor starts, whether there is a newer version. Sends no personal data.">
+        <ToggleSwitch x:Name="CheckUpdatesSwitch" Classes="compact" IsChecked="{Binding CheckForUpdates}" OnContent="" OffContent="" />
+        <TextBlock Text="Check for updates on startup" FontSize="11.5" VerticalAlignment="Center" />
+      </StackPanel>
       <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
         <ItemsControl x:Name="ErrorList" ItemsSource="{Binding Errors}" VerticalAlignment="Center" Margin="0,0,10,0">
           <ItemsControl.ItemTemplate>

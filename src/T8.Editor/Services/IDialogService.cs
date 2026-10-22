@@ -12,8 +12,8 @@ public interface IDialogService
     /// <summary>Shows the MIDI settings window. True when the user pressed Save.</summary>
     Task<bool> ShowMidiSettingsAsync(MidiSettingsViewModel settings);
 
-    /// <summary>Shows the About window.</summary>
-    Task ShowAboutAsync();
+    /// <summary>Shows the About window; <paramref name="checkForUpdates"/> runs its "Check for updates" button.</summary>
+    Task ShowAboutAsync(Func<Task<string>>? checkForUpdates = null);
 
     /// <summary>Opens the help window at a topic (see <see cref="Help.HelpTopics"/>), or at the start.</summary>
     void ShowHelp(string? topic = null);

@@ -33,9 +33,12 @@ internal sealed class FakeDialogService : IDialogService
 
     public int AboutCount { get; private set; }
 
-    public Task ShowAboutAsync()
+    public Func<Task<string>>? AboutCheckForUpdates { get; private set; }
+
+    public Task ShowAboutAsync(Func<Task<string>>? checkForUpdates = null)
     {
         AboutCount++;
+        AboutCheckForUpdates = checkForUpdates;
         return Task.CompletedTask;
     }
 

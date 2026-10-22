@@ -52,6 +52,10 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
     [ObservableProperty]
     private string _detectResult = "";
 
+    /// <summary>Check GitHub for a newer release when the editor starts.</summary>
+    [ObservableProperty]
+    private bool _checkForUpdates;
+
     [ObservableProperty]
     private string _testResult = "";
 
@@ -68,6 +72,7 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
         _playMode = settings.PlayMode;
         _followSelection = settings.FollowSelection;
         _followT8 = settings.FollowT8;
+        _checkForUpdates = settings.CheckForUpdatesOnStartup;
         DrumNotes = new ObservableCollection<DrumNoteViewModel>(
             T8MidiMap.PlayableTracks.Select(track => new DrumNoteViewModel(track, settings.Midi.RhythmNotes.GetValueOrDefault(track), OnNoteChanged)));
         RefreshPorts();
@@ -223,6 +228,7 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
         settings.PlayMode = PlayMode;
         settings.FollowSelection = FollowSelection;
         settings.FollowT8 = FollowT8;
+        settings.CheckForUpdatesOnStartup = CheckForUpdates;
         return settings;
     }
 

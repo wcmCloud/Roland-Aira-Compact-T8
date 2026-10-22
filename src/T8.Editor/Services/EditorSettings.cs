@@ -43,6 +43,12 @@ public sealed class EditorSettings
     public double Bpm { get; set; } = 120;
     public string? LastFolder { get; set; }
 
+    /// <summary>Ask GitHub for a newer release when the editor starts (at most once a day).</summary>
+    public bool CheckForUpdatesOnStartup { get; set; } = true;
+
+    /// <summary>The last answer from the update check.</summary>
+    public UpdateCheckCache UpdateCheck { get; set; } = new();
+
     public EditorSettings Clone() => new()
     {
         OutputPortName = OutputPortName,
@@ -56,6 +62,8 @@ public sealed class EditorSettings
         RhythmGenerator = RhythmGenerator.Clone(),
         Bpm = Bpm,
         LastFolder = LastFolder,
+        CheckForUpdatesOnStartup = CheckForUpdatesOnStartup,
+        UpdateCheck = UpdateCheck.Clone(),
     };
 }
 

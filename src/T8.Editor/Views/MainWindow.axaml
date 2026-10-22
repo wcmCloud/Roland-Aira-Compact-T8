@@ -233,8 +233,16 @@
     </Grid>
 
     <DockPanel DockPanel.Dock="Bottom" Margin="12,6,12,8">
-      <TextBlock DockPanel.Dock="Right" x:Name="MidiSummaryText" Text="{Binding MidiSummary}" Opacity="0.6" FontSize="12" Margin="16,0,0,0" />
-      <TextBlock x:Name="StatusText" Text="{Binding Status}" Opacity="0.8" TextTrimming="CharacterEllipsis" />
+      <TextBlock DockPanel.Dock="Right" x:Name="MidiSummaryText" Text="{Binding MidiSummary}" Opacity="0.6" FontSize="12" Margin="16,0,0,0"
+                 VerticalAlignment="Center" />
+      <Button DockPanel.Dock="Right" x:Name="UpdateChip" Classes="chip small lit" Margin="12,-4,0,-4"
+              IsVisible="{Binding HasUpdate}" Command="{Binding OpenUpdatePageCommand}" ToolTip.Tip="{Binding UpdateTip}">
+        <StackPanel Orientation="Horizontal" Spacing="5">
+          <PathIcon Data="{StaticResource IconLoadFrom}" Width="11" Height="11" />
+          <TextBlock Text="{Binding UpdateLabel}" />
+        </StackPanel>
+      </Button>
+      <TextBlock x:Name="StatusText" Text="{Binding Status}" Opacity="0.8" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
     </DockPanel>
 
     <TabControl x:Name="Tabs" Margin="12,10,12,0" SelectedIndex="{Binding SelectedTab}">
