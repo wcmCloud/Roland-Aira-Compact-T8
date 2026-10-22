@@ -1048,4 +1048,14 @@
     <Setter Property="Foreground" Value="{StaticResource MutedText}" />
     <Setter Property="Opacity" Value="0.45" />
   </Style>
+  <!-- Smaller chips where a row of controls must fit above the keyboard -->
+  <Style Selector="ToggleButton.chip.compact, Button.chip.compact">
+    <Setter Property="FontSize" Value="10" />
+    <Setter Property="Padding" Value="8,0" />
+    <Setter Property="Height" Value="26" />
+  </Style>
+  <Style Selector="ToggleButton.chip.compact PathIcon, Button.chip.compact PathIcon">
+    <Setter Property="Width" Value="11" />
+    <Setter Property="Height" Value="11" />
+  </Style>
 </Styles>
