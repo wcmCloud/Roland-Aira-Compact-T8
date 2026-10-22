@@ -102,12 +102,12 @@ The downloads are self-contained, so there is nothing else to install:
 
 | Computer | Download |
 |---|---|
-| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.7-osx-arm64.zip` |
-| Mac with Intel | `T8Editor-1.0.7-osx-x64.zip` |
-| Windows PC (x64) | `T8Editor-1.0.7-win-x64.zip` |
-| Windows on ARM | `T8Editor-1.0.7-win-arm64.zip` |
-| Linux x64 | `T8Editor-1.0.7-linux-x64.tar.gz` |
-| Linux ARM64 | `T8Editor-1.0.7-linux-arm64.tar.gz` |
+| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.8-osx-arm64.zip` |
+| Mac with Intel | `T8Editor-1.0.8-osx-x64.zip` |
+| Windows PC (x64) | `T8Editor-1.0.8-win-x64.zip` |
+| Windows on ARM | `T8Editor-1.0.8-win-arm64.zip` |
+| Linux x64 | `T8Editor-1.0.8-linux-x64.tar.gz` |
+| Linux ARM64 | `T8Editor-1.0.8-linux-arm64.tar.gz` |
 
 - **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications, then open it. The app is signed with
   a Developer ID and notarized by Apple, so it opens without warnings.
@@ -181,7 +181,7 @@ The screenshots at the top show the whole window on each tab. From top to bottom
 - **Rhythm**, **Bass** and **Song** tabs (a rounded selector with icons; the open tab is a raised orange pill): the editors,
   their generators, and songs.
 - **Status bar:** what just happened on the left, the MIDI channels in use on the right, and an orange chip such as
-  **v1.0.7 available** when a newer version is out (see [Updates](#updates)).
+  **v1.0.8 available** when a newer version is out (see [Updates](#updates)).
 
 ### Help
 
@@ -527,7 +527,7 @@ dotnet run --project src/T8.Cli -- export BACKUP 1 1 pattern.mid
 ```sh
 scripts/publish.sh                 # all six packages into artifacts/
 scripts/publish.sh osx-arm64       # just one: osx-arm64, osx-x64, win-arm64, win-x64, linux-arm64, linux-x64
-VERSION=1.0.7 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
+VERSION=1.0.8 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
 ```
 
 Packages are self-contained, so no .NET install is needed to run them. On macOS the app is signed ad hoc
