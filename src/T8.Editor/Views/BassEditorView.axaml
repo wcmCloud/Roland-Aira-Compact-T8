@@ -112,14 +112,16 @@
                 <TextBlock Text="NEXT STEP AFTER A NOTE" />
               </StackPanel>
             </ToggleButton>
-<ToggleButton x:Name="NotesFromT8Toggle" Classes="chip orange" VerticalAlignment="Center"
-              IsChecked="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).NotesFromT8, FallbackValue=False}"
-              ToolTip.Tip="Play notes on the T-8's own keyboard (KYBD) to enter them into the selected step; the key you hold lights up green below">
-  <StackPanel Orientation="Horizontal" Spacing="5">
-    <PathIcon Data="{StaticResource IconTabBass}" />
-    <TextBlock Text="NOTES FROM T-8" />
-  </StackPanel>
-</ToggleButton>
+            <ToggleButton x:Name="NotesFromT8Toggle" Classes="chip orange" VerticalAlignment="Center"
+                          IsChecked="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).NotesFromT8, FallbackValue=False}"
+                          IsEnabled="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).T8InputOpen, FallbackValue=False}"
+                          ToolTip.ShowOnDisabled="True"
+                          ToolTip.Tip="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).NotesFromT8Tip, FallbackValue=''}">
+              <StackPanel Orientation="Horizontal" Spacing="5">
+                <PathIcon Data="{StaticResource IconPiano}" />
+                <TextBlock Text="T-8 KEYS" />
+              </StackPanel>
+            </ToggleButton>
             <StackPanel x:Name="StepEditorHint" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center" Margin="2,0,4,0">
               <PathIcon Data="{StaticResource IconInfo}" Width="11" Height="11" Foreground="{StaticResource MutedText}" />
               <TextBlock Text="Click a step, then a key here or on the T-8. Right-click a step for all notes." Foreground="{StaticResource MutedText}" FontSize="11"

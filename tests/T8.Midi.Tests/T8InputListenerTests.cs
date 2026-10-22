@@ -98,37 +98,69 @@ public class T8InputListenerTests
     private static NoteOnEvent NoteOn(int note, int velocity, int channel) =>
         new((SevenBitNumber)note, (SevenBitNumber)velocity) { Channel = (FourBitNumber)(channel - 1) };
 
-    [Fact]
-    public void Bass_keys_played_on_the_t8_are_reported_while_its_sequencer_is_stopped()
+    private static (T8InputListener Listener, FakeInputDevice Input, List<BassKeyEvent> Keys) Keys(Func<double> now, int bassChannel = 6)
     {
         var input = new FakeInputDevice();
         input.StartEventsListening();
-        using var listener = new T8InputListener(input, new T8MidiMap { BassChannel = 6, RhythmChannel = 5 });
-        var keys = new List<(int, bool)>();
+        var listener = new T8InputListener(input, new T8MidiMap { BassChannel = bassChannel, RhythmChannel = 5 }, now);
+        var keys = new List<BassKeyEvent>();
         listener.BassNote += (_, key) => keys.Add(key);
+        return (listener, input, keys);
+    }
+
+    [Fact]
+    public void Bass_keys_on_the_bass_channel_and_in_range_are_reported()
+    {
+        var (listener, input, keys) = Keys(() => 0);
+        using var _ = listener;
 
         input.Receive(NoteOn(40, 100, 6));
         input.Receive(new NoteOffEvent((SevenBitNumber)40, (SevenBitNumber)0) { Channel = (FourBitNumber)5 });
         input.Receive(NoteOn(43, 90, 6));
-        input.Receive(NoteOn(43, 0, 6)); // note on with velocity 0 is a release
+        input.Receive(NoteOn(43, 0, 6)); // velocity 0 is a release
         input.Receive(NoteOn(36, 100, 5)); // a drum on the rhythm channel
+        input.Receive(NoteOn(11, 100, 6)); // below the T-8's range
+        input.Receive(NoteOn(97, 100, 6)); // above it
+
+        Assert.Equal([new BassKeyEvent(40, true, false), new BassKeyEvent(40, false, false),
+            new BassKeyEvent(43, true, false), new BassKeyEvent(43, false, false)], keys);
+    }
+
+    [Fact]
+    public void Notes_while_the_t8_sequencer_runs_are_marked_until_stop_or_a_quiet_second()
+    {
+        double now = 0;
+        var (listener, input, keys) = Keys(() => now);
+        using var _ = listener;
 
         input.Receive(new StartEvent());
-        input.Receive(NoteOn(45, 100, 6)); // the T-8's own sequencer playing
-        input.Receive(new StopEvent());
+        input.Receive(NoteOn(45, 100, 6));
+        Assert.True(keys[^1].FromSequencer);
 
-        Assert.Equal([(40, true), (40, false), (43, true), (43, false)], keys);
+        input.Receive(new StopEvent()); // Stop ends it at once
+        input.Receive(NoteOn(45, 100, 6));
+        Assert.False(keys[^1].FromSequencer);
+
+        input.Receive(new TimingClockEvent()); // clock without Start (e.g. a missed Start) counts too
+        now = 500;
+        input.Receive(NoteOn(47, 100, 6));
+        Assert.True(keys[^1].FromSequencer);
+
+        now = 1600; // a second without clock: it has stopped
+        input.Receive(NoteOn(48, 100, 6));
+        Assert.False(keys[^1].FromSequencer);
+
+        input.Receive(new ContinueEvent());
+        input.Receive(NoteOn(48, 100, 6));
+        Assert.True(keys[^1].FromSequencer);
     }
 
     [Fact]
     public void No_bass_keys_when_the_bass_channel_is_off()
     {
-        var input = new FakeInputDevice();
-        input.StartEventsListening();
-        using var listener = new T8InputListener(input, new T8MidiMap { BassChannel = 0 });
-        var count = 0;
-        listener.BassNote += (_, _) => count++;
+        var (listener, input, keys) = Keys(() => 0, bassChannel: 0);
+        using var _ = listener;
         input.Receive(NoteOn(40, 100, 1));
-        Assert.Equal(0, count);
+        Assert.Empty(keys);
     }
 }

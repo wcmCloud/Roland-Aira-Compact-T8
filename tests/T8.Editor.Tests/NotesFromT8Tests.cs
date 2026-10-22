@@ -100,6 +100,79 @@ public class NotesFromT8Tests
         Assert.Equal(43, keyboard.T8KeyNote);
         var chip = window.GetVisualDescendants().OfType<Avalonia.Controls.Primitives.ToggleButton>().Single(t => t.Name == "NotesFromT8Toggle");
         Assert.True(chip.IsChecked);
+        Assert.True(chip.IsEffectivelyEnabled);
+
+        input.Receive(new NoteOffEvent((SevenBitNumber)43, (SevenBitNumber)0) { Channel = (FourBitNumber)(vm.Settings.Midi.BassChannel - 1) });
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        Assert.Null(keyboard.T8KeyNote);
+
+        // Toggled off: keys still light up but don't change steps.
+        chip.IsChecked = false;
+        input = _ports.OpenedInputs.Last(); // the input is reopened with the new setting
+        var next = vm.Bass.SelectedStep!;
+        var noteBefore = next.Note;
+        input.Receive(new NoteOnEvent((SevenBitNumber)52, (SevenBitNumber)100) { Channel = (FourBitNumber)(vm.Settings.Midi.BassChannel - 1) });
+        Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+        Assert.Equal(noteBefore, next.Note);
+        Assert.Equal(52, keyboard.T8KeyNote);
+        window.Close();
+    }
+
+    [Fact]
+    public void Notes_from_the_t8_sequencer_light_up_but_are_not_recorded()
+    {
+        using var vm = Create();
+        vm.Bass.SelectedStep = vm.Bass.Steps[0];
+        var before = vm.Bass.Steps[0].Note;
+
+        vm.OnT8BassNote(50, pressed: true, fromSequencer: true);
+
+        Assert.Equal(before, vm.Bass.Steps[0].Note);
+        Assert.Same(vm.Bass.Steps[0], vm.Bass.SelectedStep);
+        Assert.Equal(50, vm.Bass.T8KeyNote);
+    }
+
+    [Fact]
+    public void A_velocity_0_note_only_releases_the_key()
+    {
+        using var vm = Create();
+        vm.Bass.SelectedStep = vm.Bass.Steps[0];
+        var input = _ports.OpenedInputs.Last();
+        var bass = (FourBitNumber)(vm.Settings.Midi.BassChannel - 1);
+
+        input.Receive(new NoteOnEvent((SevenBitNumber)40, (SevenBitNumber)0) { Channel = bass });
+        vm.OnT8BassNote(40, pressed: false);
+        Assert.Same(vm.Bass.Steps[0], vm.Bass.SelectedStep); // nothing entered
+        Assert.Null(vm.Bass.T8KeyNote);
+    }
+
+    [Fact]
+    public void The_on_screen_keyboard_still_works_with_t8_keys_on()
+    {
+        using var vm = Create();
+        vm.Bass.SelectedStep = vm.Bass.Steps[4];
+        vm.Bass.EnterNoteCommand.Execute(48);
+        Assert.Equal(48, vm.Bass.Steps[4].Note);
+        Assert.Same(vm.Bass.Steps[5], vm.Bass.SelectedStep);
+        Assert.Null(vm.Bass.T8KeyNote);
+    }
+
+    [AvaloniaFact]
+    public void The_t8_keys_chip_is_greyed_out_without_a_t8_input()
+    {
+        var ports = FakePortProvider.WithT8();
+        ports.Inputs = []; // the T-8 has no MIDI input here
+        using var vm = new MainWindowViewModel(ports, new FakeDialogService(), new MemorySettingsStore(), () => []);
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+        window.FindControl<TabControl>("Tabs")!.SelectedIndex = MainWindowViewModel.BassTab;
+        window.UpdateLayout();
+
+        Assert.False(vm.T8InputOpen);
+        var chip = window.GetVisualDescendants().OfType<Avalonia.Controls.Primitives.ToggleButton>().Single(t => t.Name == "NotesFromT8Toggle");
+        Assert.False(chip.IsEffectivelyEnabled);
+        Assert.Contains("need the T-8's MIDI input", (string)ToolTip.GetTip(chip)!);
+        Assert.Contains("T-8 KEYS", chip.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text));
         window.Close();
     }
 }
