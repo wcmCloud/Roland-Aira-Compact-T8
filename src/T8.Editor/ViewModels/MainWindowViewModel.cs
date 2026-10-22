@@ -41,8 +41,21 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     [ObservableProperty]
     private RhythmEditorViewModel _rhythm = null!;
 
+    /// <summary>The folder of factory patterns shipped next to the app. The T-8's own folder is still named BACKUP.</summary>
+    public const string OriginalPresetsFolderName = "original presets";
+
+    /// <summary>Shown in orange when the editor opened the patterns that ship in the original presets folder.</summary>
+    public const string DefaultPresetsStatus =
+        "Default presets were loaded. You can find them in the original presets folder.";
+
     [ObservableProperty]
     private string _status = "New library. Open a T-8 backup folder to load your patterns.";
+
+    /// <summary>True while <see cref="Status"/> is the default-presets notice, so the status bar draws it in orange.</summary>
+    [ObservableProperty]
+    private bool _statusHighlighted;
+
+    partial void OnStatusChanged(string value) => StatusHighlighted = value == DefaultPresetsStatus;
 
     [ObservableProperty]
     private MidiPortInfo? _selectedPort;
@@ -77,13 +90,15 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     /// <param name="driveCandidates">Where to look for a mounted T-8; defaults to this OS's mount points.</param>
     /// <param name="updateChecker">Checks GitHub for a newer release; null turns update checks off (tests).</param>
     /// <param name="urlOpener">Opens web pages; defaults to the browser.</param>
+    /// <param name="presetFolder">Folder to search for the shipped original presets; defaults to the app directory.</param>
     public MainWindowViewModel(
         IMidiPortProvider ports,
         IDialogService dialogs,
         ISettingsStore? settingsStore = null,
         Func<IEnumerable<string>>? driveCandidates = null,
         UpdateChecker? updateChecker = null,
-        IUrlOpener? urlOpener = null)
+        IUrlOpener? urlOpener = null,
+        string? presetFolder = null)
     {
         _updateChecker = updateChecker;
         _urlOpener = urlOpener ?? new BrowserUrlOpener();
@@ -95,7 +110,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         _bpm = Settings.Bpm;
         _auditionEnabled = Settings.AuditionEnabled;
         _showPlayhead = Settings.ShowPlayhead;
-        Library = PatternLibrary.CreateBlank();
+        Library = LoadDefaultPresets(presetFolder);
         BassGenerator = new BassGeneratorViewModel(Settings.BassGenerator.Clone(), options =>
         {
             Settings.BassGenerator = options;
@@ -135,6 +150,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             SaveSettings();
         };
         LoadSelectedPattern();
+        if (_announceDefaultPresets)
+            Status = DefaultPresetsStatus;
         RefreshPorts();
         _t8DrivePath = T8Drive.Find(_driveCandidates());
         StartupUpdateCheck = Settings.CheckForUpdatesOnStartup && _updateChecker is not null
@@ -481,6 +498,35 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         SaveSettings();
     }
 
+    private bool _announceDefaultPresets;
+
+    /// <summary>The original presets folder, when it was found. Open starts there.</summary>
+    private string? _originalPresetsPath;
+
+    /// <summary>
+    /// The patterns in the original presets folder next to the app, or a blank library when that folder isn't there.
+    /// The folder is not opened as the user's file, so Save asks where to keep a copy.
+    /// </summary>
+    private PatternLibrary LoadDefaultPresets(string? presetFolder)
+    {
+        var root = presetFolder is null
+            ? PatternLibrary.ResolveRoot(Path.Combine(AppContext.BaseDirectory, OriginalPresetsFolderName))
+            : PatternLibrary.ResolveRoot(presetFolder);
+        if (root is null)
+            return PatternLibrary.CreateBlank();
+        _originalPresetsPath = root;
+        try
+        {
+            var library = PatternLibrary.Load(root);
+            _announceDefaultPresets = true;
+            return library;
+        }
+        catch (Exception ex) when (ex is IOException or FormatException or KeyNotFoundException or UnauthorizedAccessException)
+        {
+            return PatternLibrary.CreateBlank();
+        }
+    }
+
     // ---- Library -------------------------------------------------------------------------
 
     [RelayCommand]
@@ -501,7 +547,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     {
         if (!await ConfirmDiscardAsync())
             return;
-        var folder = await _dialogs.PickFolderAsync("Open a T-8 BACKUP folder (or the T-8 drive)");
+        var folder = await _dialogs.PickFolderAsync("Open a T-8 BACKUP folder (or the T-8 drive)", _originalPresetsPath);
         if (folder is not null)
             OpenFolder(folder);
     }

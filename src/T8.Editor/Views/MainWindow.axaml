@@ -72,7 +72,7 @@
                   <TextBlock Text="New" />
                 </StackPanel>
               </Button>
-              <Button x:Name="OpenButton" Classes="tool" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open a BACKUP folder or the T-8 drive">
+              <Button x:Name="OpenButton" Classes="tool" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open a pattern folder. Starts in original presets">
                 <StackPanel Orientation="Horizontal" Spacing="6">
                   <PathIcon Data="{StaticResource IconOpen}" />
                   <TextBlock Text="Open…" />
@@ -242,7 +242,8 @@
           <TextBlock Text="{Binding UpdateLabel}" />
         </StackPanel>
       </Button>
-      <TextBlock x:Name="StatusText" Text="{Binding Status}" Opacity="0.8" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+      <TextBlock x:Name="StatusText" Classes="status" Classes.highlight="{Binding StatusHighlighted}" Text="{Binding Status}"
+                 TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
     </DockPanel>
 
     <TabControl x:Name="Tabs" Margin="12,10,12,0" SelectedIndex="{Binding SelectedTab}">

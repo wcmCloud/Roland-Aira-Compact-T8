@@ -41,6 +41,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Factory patterns, loaded when the editor starts. Roland's; not covered by this project's license. -->
+    <Content Include="..\..\original presets\**\*.PRM">
+      <Link>original presets\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <InternalsVisibleTo Include="T8.Editor.Tests" />
   </ItemGroup>
 

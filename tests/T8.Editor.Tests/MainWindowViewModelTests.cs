@@ -27,8 +27,37 @@ public class MainWindowViewModelTests : IDisposable
         Assert.Equal("BACKUP", _vm.LibraryLabel);
         _vm.FolderPath = null;
         Assert.Equal(16, _vm.Rhythm.Length);
+        Assert.False(_vm.StatusHighlighted);
         Assert.Equal([1, 2, 3, 4], _vm.BankNumbers);
         Assert.Equal(16, _vm.PatternNumbers.Count);
+    }
+
+    [Fact]
+    public void Starts_from_the_backup_folder_beside_the_app()
+    {
+        using var vm = new MainWindowViewModel(_ports, _dialogs, presetFolder: Path.GetDirectoryName(TestPaths.Backup));
+
+        Assert.Null(vm.FolderPath);
+        Assert.False(vm.IsDirty);
+        Assert.Equal("Untitled", vm.LibraryLabel);
+        Assert.Equal(MainWindowViewModel.DefaultPresetsStatus, vm.Status);
+        Assert.True(vm.StatusHighlighted);
+        Assert.Equal(12, vm.Bass.Length);
+        Assert.Equal(32, vm.Rhythm.Length);
+
+        vm.Status = "Saved 64 patterns.";
+        Assert.False(vm.StatusHighlighted);
+    }
+
+    [Fact]
+    public async Task Open_starts_in_the_original_presets_folder()
+    {
+        using var vm = new MainWindowViewModel(_ports, _dialogs, presetFolder: Path.GetDirectoryName(TestPaths.Backup));
+
+        await vm.OpenFolderCommand.ExecuteAsync(null);
+
+        Assert.Equal(TestPaths.Backup, _dialogs.LastStartFolder);
+        Assert.Null(vm.FolderPath);
     }
 
     [Fact]

@@ -74,6 +74,24 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Default_presets_status_is_highlighted()
+    {
+        var vm = new MainWindowViewModel(FakePortProvider.WithT8(), new FakeDialogService(),
+            presetFolder: Path.GetDirectoryName(TestPaths.Backup));
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+
+        var status = window.FindControl<TextBlock>("StatusText")!;
+        Assert.Equal(MainWindowViewModel.DefaultPresetsStatus, status.Text);
+        Assert.Contains("highlight", status.Classes);
+        Assert.Equal(Color.Parse("#FF7A1A"), ((ISolidColorBrush)status.Foreground!).Color);
+        Assert.Equal(FontWeight.SemiBold, status.FontWeight);
+
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Rhythm_grid_has_a_toggle_per_step_bound_to_the_pattern()
     {
         var (window, vm) = Show();

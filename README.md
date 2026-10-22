@@ -129,7 +129,8 @@ The version is shown in the title bar, and the ⓘ button in the top bar (or the
 
 <img src="docs/screenshots/about.png" alt="The About window" width="440">
 
-The editor starts with 64 blank patterns. To edit your own, get the T-8's patterns with
+The editor opens with the default presets already loaded. An orange line in the status bar says so: the files
+are the `original presets` folder shipped with the app, and **Open…** starts there. To edit your own, get the T-8's patterns with
 [Load from T-8](#loading-patterns-from-the-t-8), or **Open…** a `BACKUP` folder you copied earlier.
 
 ## Connecting the T-8
@@ -491,8 +492,7 @@ Windows) and switch the T-8 off.
 There are two ways to start from the patterns the T-8 came with:
 
 - **Without touching the T-8:** this repository includes a backup of the T-8's factory patterns in the
-  [`BACKUP`](BACKUP) folder. Download the repository (**Code → Download ZIP** on GitHub), then use **Open…** in the
-  editor and choose that `BACKUP` folder.
+  [`original presets`](<original presets>) folder. The editor loads that folder when it starts, and **Open…** starts there.
 - **From the T-8 itself, with a factory reset.** This puts the factory patterns back on the T-8, then you load
   them as above.
 
@@ -637,5 +637,5 @@ The editor uses [Avalonia](https://avaloniaui.net), [DryWetMIDI](https://github.
 [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet), all MIT-licensed.
 
 Roland, AIRA and T-8 are trademarks of Roland Corporation. This is an independent project, not made or endorsed by
-Roland. The factory patterns in `BACKUP` and the owner's manual in `docs` are Roland's and are not covered by the
+Roland. The factory patterns in `original presets` and the owner's manual in `docs` are Roland's and are not covered by the
 licenses above.
