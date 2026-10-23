@@ -96,7 +96,9 @@ public sealed class AudioRenderer
                 if (_tick + 1e-8 >= end)
                 {
                     if (!t.Loop) { Running = false; Finished = true; Silence(); }
-                    else { _tick -= end; _index = 0; _fill = false; Silence(); }
+                    // Let drum samples ring across the loop. Choking them here cuts every hat and kick
+                    // off at the bar line. Note-offs in the pattern already release the bass.
+                    else { _tick -= end; _index = 0; _fill = false; }
                 }
                 if (Running)
                 {
@@ -108,7 +110,7 @@ public sealed class AudioRenderer
             for (int i = 0; i < _voices.Length; i++)
             {
                 ref var v = ref _voices[i];
-                if (v.Data is null) continue;
+                if (v.Data is null || v.Position >= v.Data.Length) { v.Data = null; continue; }
                 v.Low += v.Tone * (v.Data[v.Position++] - v.Low);
                 value += v.Low * v.Gain;
                 v.Gain = Math.Max(0, v.Gain * v.Decay - v.Fade);

@@ -36,6 +36,20 @@ public sealed class AudioTests
         Assert.InRange(kick.Length / (double)rate, 1.49, 1.51);
     }
     [Fact]
+    public void A_drum_keeps_ringing_across_the_loop()
+    {
+        var preset = SoundPreset.Find("classic");
+        var r = new AudioRenderer(Bank);
+        r.SetSound(preset, Bank.Kit(preset), preset.Bass);
+        // Kick on the second step of a 2-step loop. It is still sounding when the loop restarts.
+        r.Start(new([new(24, AudioEventKind.Drum)], 48, 48, 120, true));
+        var output = new float[28000];
+        r.Render(output);
+        double tail = 0;
+        for (int i = 26000; i < output.Length; i++) tail += output[i] * output[i];
+        Assert.True(tail > .01);
+    }
+    [Fact]
     public void Invalid_wave_is_rejected() => Assert.Throws<InvalidDataException>(() => SampleBank.ReadWave(new MemoryStream(new byte[32]), 48000));
     [Fact]
     public void Native_context_and_device_use_the_loaded_library_size()
