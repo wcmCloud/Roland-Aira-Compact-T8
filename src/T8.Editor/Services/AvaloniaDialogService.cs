@@ -63,7 +63,17 @@ public sealed class AvaloniaDialogService(Window owner) : IDialogService
 
     public void ShowHelp(string? topic = null) => HelpWindow.Open(owner, topic);
 
-    private static readonly FilePickerFileType SongFiles = new("T-8 song") { Patterns = ["*" + T8.Core.Songs.Song.FileExtension] };
+    /// <summary>
+    /// On macOS the panel takes its type from the extension first. <c>.t8song</c> is not a system type,
+    /// so Documents, Downloads and Save are refused. <c>public.data</c> keeps the <c>.t8song</c> name and
+    /// allows any folder. Windows and Linux still filter on the extension.
+    /// </summary>
+    private static readonly FilePickerFileType SongFiles = new("T-8 song")
+    {
+        Patterns = OperatingSystem.IsMacOS() ? null : ["*" + T8.Core.Songs.Song.FileExtension],
+        MimeTypes = ["application/json"],
+        AppleUniformTypeIdentifiers = ["public.data"],
+    };
 
     public async Task<string?> PickSongToOpenAsync()
     {
@@ -78,9 +88,14 @@ public sealed class AvaloniaDialogService(Window owner) : IDialogService
 
     public async Task<string?> PickSongToSaveAsync(string suggestedName)
     {
+        var documents = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        var start = string.IsNullOrEmpty(documents)
+            ? null
+            : await owner.StorageProvider.TryGetFolderFromPathAsync(documents);
         var file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = "Save song",
+            SuggestedStartLocation = start,
             SuggestedFileName = suggestedName + T8.Core.Songs.Song.FileExtension,
             DefaultExtension = T8.Core.Songs.Song.FileExtension.TrimStart('.'),
             FileTypeChoices = [SongFiles],
