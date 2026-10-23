@@ -102,12 +102,12 @@ The downloads are self-contained, so there is nothing else to install:
 
 | Computer | Download |
 |---|---|
-| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.12-osx-arm64.zip` |
-| Mac with Intel | `T8Editor-1.0.12-osx-x64.zip` |
-| Windows PC (x64) | `T8Editor-1.0.12-win-x64.zip` |
-| Windows on ARM | `T8Editor-1.0.12-win-arm64.zip` |
-| Linux x64 | `T8Editor-1.0.12-linux-x64.tar.gz` |
-| Linux ARM64 | `T8Editor-1.0.12-linux-arm64.tar.gz` |
+| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.13-osx-arm64.zip` |
+| Mac with Intel | `T8Editor-1.0.13-osx-x64.zip` |
+| Windows PC (x64) | `T8Editor-1.0.13-win-x64.zip` |
+| Windows on ARM | `T8Editor-1.0.13-win-arm64.zip` |
+| Linux x64 | `T8Editor-1.0.13-linux-x64.tar.gz` |
+| Linux ARM64 | `T8Editor-1.0.13-linux-arm64.tar.gz` |
 
 - **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications, then open it. The app is signed with
   a Developer ID and notarized by Apple, so it opens without warnings.
@@ -182,7 +182,7 @@ The screenshots at the top show the whole window on each tab. From top to bottom
 - **Rhythm**, **Bass** and **Song** tabs (a rounded selector with icons; the open tab is a raised orange pill): the editors,
   their generators, and songs.
 - **Status bar:** what just happened on the left, the MIDI channels in use on the right, and an orange chip such as
-  **v1.0.12 available** when a newer version is out (see [Updates](#updates)).
+  **v1.0.13 available** when a newer version is out (see [Updates](#updates)).
 
 ### Help
 
@@ -448,6 +448,14 @@ What **Play** does is set in the MIDI settings:
   and sends MIDI clock, so the T-8 plays its stored pattern at the editor's tempo. Set the T-8's `SYnC` to AUTO or
   USB and turn `rXPc` on.
 
+**Output** on the Playback card is **Auto**, **T-8**, or **Offline**. Auto plays through the computer when no MIDI
+output is available or the T-8 is in drive mode. Offline always plays on the computer: pick a drum kit, the volume,
+and the bass sound. Those sounds are for writing. **Save** and **Write to T-8** still send the pattern data, and the
+T-8 plays its own sounds.
+
+**Follow clock** makes Play wait for an external MIDI clock. Choose an input that carries the clock from a DAW
+(IAC on Mac, loopMIDI on Windows), not the T-8's own output, then press Play and start that clock.
+
 With **Show playing step** on, the playing step is outlined in yellow on both tabs, and the bass note being played
 lights up yellow on the keyboard. Each part loops on its own length, as on the T-8.
 
@@ -550,7 +558,7 @@ dotnet run --project src/T8.Cli -- export BACKUP 1 1 pattern.mid
 ```sh
 scripts/publish.sh                 # all six packages into artifacts/
 scripts/publish.sh osx-arm64       # just one: osx-arm64, osx-x64, win-arm64, win-x64, linux-arm64, linux-x64
-VERSION=1.0.12 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
+VERSION=1.0.13 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
 ```
 
 Packages are self-contained, so no .NET install is needed to run them. On macOS the app is signed ad hoc
@@ -600,6 +608,7 @@ Nobody pushes to `master` directly, and force pushes and deleting `master` are b
 |---|---|
 | `src/T8.Core` | Reads and writes the T-8's `.PRM` pattern files ([format](docs/PRM-FORMAT.md)) |
 | `src/T8.Midi` | USB MIDI with [DryWetMIDI](https://github.com/melanchall/drywetmidi): pattern select, preview through the T-8's sounds, MIDI clock, `.mid` export ([notes](docs/MIDI.md)) |
+| `src/T8.Audio` | Laptop playback when Output is Offline: drum samples and a bass synth |
 | `src/T8.Editor` | The desktop editor (Avalonia): rhythm grid with a step inspector, bass lane, bank/pattern picker, copy/paste, preview and audition on the T-8 |
 | `src/T8.Cli` | Command-line tool (`t8`) for the MIDI side |
 | `tests/*.Tests` | One test project per project above, including headless UI tests of the editor |
@@ -607,8 +616,8 @@ Nobody pushes to `master` directly, and force pushes and deleting `master` are b
 ### Plans
 
 Next step: **Setlist T-8**, a VST3/AU plugin that plays the editor's songs in sync with a DAW (parked for now).
-Features planned for later are written up in [docs/plans](docs/plans): a Mac App Store version, and song mode
-in a DAW (a VST3/AU plugin first, then MIDI export and following the DAW's clock).
+A Mac App Store version is written up in [docs/plans](docs/plans). Song MIDI export and following a DAW clock
+are already in the editor.
 
 ### Tests and screenshots
 
