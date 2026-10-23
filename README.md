@@ -470,11 +470,15 @@ What **Play** does is set in the MIDI settings:
 
 You can hear a pattern or a song on the computer. On the Playback card, **Output** is **Auto**, **T-8**, or **Offline**.
 
+![Playback with Output set to Offline: a drum kit, volume and Sound settings](docs/screenshots/offline-playback.png)
+
 - **Auto** plays on the T-8 when one is connected, and on the computer when there is no MIDI output or the T-8 is in drive mode.
 - **Offline** always plays on the computer, including while the T-8 is plugged in.
 - **T-8** plays only on the instrument. If it isn't available, Play says so.
 
 When playback is on the computer, pick a drum kit and a **Volume**. **Sound settings** opens the rest:
+
+![Sound settings: audio output, bass voice and the instrument mix](docs/screenshots/offline-sound-settings.png)
 
 - **Audio output:** the computer's playback device. Refresh lists them again.
 - **Bass voice:** saw or square, with cutoff, resonance, decay and slide. The bass is a simple synth.
