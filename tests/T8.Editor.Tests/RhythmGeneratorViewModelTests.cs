@@ -8,11 +8,16 @@ public class RhythmGeneratorViewModelTests
     private readonly RhythmPattern _pattern = new() { Length = 16 };
     private readonly List<RhythmGeneratorOptions> _saved = new();
     private readonly List<string> _summaries = new();
+    private PatternLibrary _library = null!;
+    private PatternHistory _history = null!;
 
     private (RhythmGeneratorViewModel Generator, RhythmEditorViewModel Rhythm) Create()
     {
-        var rhythm = new RhythmEditorViewModel(_pattern, () => { });
-        var generator = new RhythmGeneratorViewModel(new RhythmGeneratorOptions(), _saved.Add, _summaries.Add) { Target = rhythm };
+        _library = PatternLibrary.CreateBlank();
+        _library.Rhythm[0, 0] = _pattern;
+        _history = new PatternHistory(() => _library);
+        var rhythm = new RhythmEditorViewModel(_pattern, () => { }, history: _history);
+        var generator = new RhythmGeneratorViewModel(new RhythmGeneratorOptions(), _saved.Add, _summaries.Add, history: _history) { Target = rhythm };
         return (generator, rhythm);
     }
 
@@ -64,12 +69,17 @@ public class RhythmGeneratorViewModelTests
     }
 
     [Fact]
-    public void Undo_is_dropped_when_the_pattern_changes()
+    public void Undo_keeps_the_earlier_pattern_when_the_target_changes()
     {
         var (generator, _) = Create();
+        var before = Describe(_pattern);
         generator.GenerateCommand.Execute(null);
         generator.Target = new RhythmEditorViewModel(new RhythmPattern(), () => { });
-        Assert.False(generator.UndoCommand.CanExecute(null));
+
+        Assert.True(generator.UndoCommand.CanExecute(null));
+        generator.UndoCommand.Execute(null);
+
+        Assert.Equal(before, Describe(_pattern));
     }
 
     [Fact]
@@ -78,10 +88,11 @@ public class RhythmGeneratorViewModelTests
         var library = PatternLibrary.CreateBlank();
         var current = library.Rhythm[1, 2]; // bank 2 pattern 3
         RhythmGenerator.Generate(current, new RhythmGeneratorOptions { Style = RhythmStyle.Techno });
-        var rhythm = new RhythmEditorViewModel(current, () => { });
+        var history = new PatternHistory(() => library);
+        var rhythm = new RhythmEditorViewModel(current, () => { }, history: history);
         var summaries = new List<string>();
         var generator = new RhythmGeneratorViewModel(new RhythmGeneratorOptions(), _ => { }, summaries.Add,
-            () => (2, 3), (bank, pattern) => library.Rhythm[bank - 1, pattern - 1]) { Target = rhythm, FillPattern = 12 };
+            () => (2, 3), (bank, pattern) => library.Rhythm[bank - 1, pattern - 1], history: history) { Target = rhythm, FillPattern = 12 };
 
         generator.MakeFillCommand.Execute(null);
 
@@ -98,9 +109,10 @@ public class RhythmGeneratorViewModelTests
     public void Make_fill_refuses_to_overwrite_the_pattern_being_edited()
     {
         var library = PatternLibrary.CreateBlank();
-        var rhythm = new RhythmEditorViewModel(library.Rhythm[0, 15], () => { });
+        var history = new PatternHistory(() => library);
+        var rhythm = new RhythmEditorViewModel(library.Rhythm[0, 15], () => { }, history: history);
         var generator = new RhythmGeneratorViewModel(new RhythmGeneratorOptions(), _ => { }, _ => { },
-            () => (1, 16), (bank, pattern) => library.Rhythm[bank - 1, pattern - 1]) { Target = rhythm };
+            () => (1, 16), (bank, pattern) => library.Rhythm[bank - 1, pattern - 1], history: history) { Target = rhythm };
 
         generator.MakeFillCommand.Execute(null);
 
@@ -150,13 +162,15 @@ public class RhythmGeneratorViewModelTests
         library.Bass[0, 0].Steps[0].State = BassStepState.Note;
         library.Bass[0, 0].Steps[0].Note = 40;
         var source = Describe(library.Rhythm[0, 0]);
-        var rhythm = new RhythmEditorViewModel(library.Rhythm[0, 0], () => { });
+        var history = new PatternHistory(() => library);
+        var rhythm = new RhythmEditorViewModel(library.Rhythm[0, 0], () => { }, history: history);
         var generator = new RhythmGeneratorViewModel(new RhythmGeneratorOptions { Variation = 100, GhostChance = 100 }, _ => { }, _summaries.Add,
             () => (1, 1),
             (bank, pattern) => library.Rhythm[bank - 1, pattern - 1],
             (bank, pattern) => library.Bass[bank - 1, pattern - 1],
             count => FreeSlots(library, count),
-            () => library.Bass[0, 0])
+            () => library.Bass[0, 0],
+            history)
         { Target = rhythm };
 
         generator.FillBankCommand.Execute(null);
@@ -182,12 +196,14 @@ public class RhythmGeneratorViewModelTests
         var library = PatternLibrary.CreateBlank();
         foreach (var pattern in Enumerable.Range(0, 16))
             library.Rhythm[0, pattern].Steps[0][RhythmTrack.BD].On = true;
-        var rhythm = new RhythmEditorViewModel(library.Rhythm[0, 0], () => { });
+        var history = new PatternHistory(() => library);
+        var rhythm = new RhythmEditorViewModel(library.Rhythm[0, 0], () => { }, history: history);
         var generator = new RhythmGeneratorViewModel(new RhythmGeneratorOptions(), _ => { }, _summaries.Add,
             patternAt: (bank, pattern) => library.Rhythm[bank - 1, pattern - 1],
             bassAt: (bank, pattern) => library.Bass[bank - 1, pattern - 1],
             freeSlots: _ => [],
-            currentBass: () => library.Bass[0, 0])
+            currentBass: () => library.Bass[0, 0],
+            history: history)
         { Target = rhythm };
 
         generator.FillBankCommand.Execute(null);

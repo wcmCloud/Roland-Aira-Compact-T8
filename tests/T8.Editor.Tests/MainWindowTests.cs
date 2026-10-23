@@ -74,6 +74,28 @@ public class MainWindowTests
     }
 
     [AvaloniaFact]
+    public void Ctrl_Z_undoes_the_last_edit_and_shift_ctrl_Z_redoes_it()
+    {
+        var (window, vm) = Show();
+        var cell = vm.Rhythm[RhythmTrack.BD].Cells[0];
+        var on = cell.On;
+        cell.On = !on;
+
+        window.KeyPressQwerty(PhysicalKey.Z, RawInputModifiers.Control);
+        Assert.Equal(on, vm.Rhythm[RhythmTrack.BD].Cells[0].On);
+        Assert.Equal("Undone.", window.FindControl<TextBlock>("StatusText")!.Text);
+
+        window.KeyPressQwerty(PhysicalKey.Z, RawInputModifiers.Shift | RawInputModifiers.Control);
+        Assert.Equal(!on, vm.Rhythm[RhythmTrack.BD].Cells[0].On);
+
+        window.KeyPressQwerty(PhysicalKey.Z, RawInputModifiers.Meta);
+        Assert.Equal(on, vm.Rhythm[RhythmTrack.BD].Cells[0].On);
+
+        window.Close();
+        vm.Dispose();
+    }
+
+    [AvaloniaFact]
     public void Midi_channels_are_pills_in_the_status_bar()
     {
         var (window, vm) = Show();

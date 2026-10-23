@@ -12,6 +12,7 @@ public sealed partial class BassEditorViewModel : ObservableObject
     private readonly BassPattern _pattern;
     private readonly Action _changed;
     private readonly Action<int>? _audition;
+    private readonly PatternHistory? _history;
     private BassGeneratorViewModel? _harmony;
 
     [ObservableProperty]
@@ -32,13 +33,15 @@ public sealed partial class BassEditorViewModel : ObservableObject
     private bool _showColours;
 
     public BassEditorViewModel(
-        BassPattern pattern, Action changed, Action<int>? audition = null, BassGeneratorViewModel? harmony = null)
+        BassPattern pattern, Action changed, Action<int>? audition = null, BassGeneratorViewModel? harmony = null,
+        PatternHistory? history = null)
     {
         _pattern = pattern;
         _changed = changed;
         _audition = audition;
+        _history = history;
         Steps = new ObservableCollection<BassStepViewModel>(
-            pattern.Steps.Select((step, i) => new BassStepViewModel(step, i + 1, OnStepChanged, audition, Select)));
+            pattern.Steps.Select((step, i) => new BassStepViewModel(step, i + 1, OnStepChanged, audition, Select, history)));
         UpdateLength();
         SelectedStep = Steps[0];
         if (harmony is not null)
@@ -259,10 +262,13 @@ public sealed partial class BassEditorViewModel : ObservableObject
             value = Math.Clamp(value, 1, BassPattern.StepCount);
             if (_pattern.Length == value)
                 return;
-            _pattern.Length = value;
-            OnPropertyChanged();
-            UpdateLength();
-            _changed();
+            PatternHistory.Apply(_history, () =>
+            {
+                _pattern.Length = value;
+                OnPropertyChanged(nameof(Length));
+                UpdateLength();
+                _changed();
+            });
         }
     }
 
@@ -273,19 +279,23 @@ public sealed partial class BassEditorViewModel : ObservableObject
         {
             if (Triplet == value)
                 return;
-            _pattern.Triplet = value ? 1 : 0;
-            OnPropertyChanged();
-            _changed();
+            PatternHistory.Apply(_history, () =>
+            {
+                _pattern.Triplet = value ? 1 : 0;
+                OnPropertyChanged(nameof(Triplet));
+                _changed();
+            });
         }
     }
 
     /// <summary>Moves every note up or down by semitones, keeping them in the T-8 range.</summary>
     [RelayCommand]
-    private void Transpose(int semitones)
-    {
-        foreach (var step in Steps)
-            step.Note += semitones;
-    }
+    private void Transpose(int semitones) =>
+        PatternHistory.Apply(_history, () =>
+        {
+            foreach (var step in Steps)
+                step.Note += semitones;
+        });
 
     private void UpdateLength()
     {
@@ -313,6 +323,7 @@ public sealed partial class BassStepViewModel : ObservableObject
     private readonly Action _changed;
     private readonly Action<int>? _audition;
     private readonly Action<BassStepViewModel>? _select;
+    private readonly PatternHistory? _history;
 
     [ObservableProperty]
     private bool _isInLength = true;
@@ -323,13 +334,15 @@ public sealed partial class BassStepViewModel : ObservableObject
     [ObservableProperty]
     private bool _isPlaying;
 
-    public BassStepViewModel(BassStep step, int number, Action changed, Action<int>? audition, Action<BassStepViewModel>? select = null)
+    public BassStepViewModel(BassStep step, int number, Action changed, Action<int>? audition, Action<BassStepViewModel>? select = null,
+        PatternHistory? history = null)
     {
         _step = step;
         Number = number;
         _changed = changed;
         _audition = audition;
         _select = select;
+        _history = history;
     }
 
     internal void Refresh()
@@ -362,11 +375,14 @@ public sealed partial class BassStepViewModel : ObservableObject
         {
             if (_step.State == value)
                 return;
-            _step.State = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(StateLabel));
-            OnPropertyChanged(nameof(HasNote));
-            _changed();
+            PatternHistory.Apply(_history, () =>
+            {
+                _step.State = value;
+                OnPropertyChanged(nameof(State));
+                OnPropertyChanged(nameof(StateLabel));
+                OnPropertyChanged(nameof(HasNote));
+                _changed();
+            });
         }
     }
 
@@ -387,10 +403,13 @@ public sealed partial class BassStepViewModel : ObservableObject
             value = Math.Clamp(value, MinNote, MaxNote);
             if (_step.Note == value)
                 return;
-            _step.Note = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(NoteName));
-            _changed();
+            PatternHistory.Apply(_history, () =>
+            {
+                _step.Note = value;
+                OnPropertyChanged(nameof(Note));
+                OnPropertyChanged(nameof(NoteName));
+                _changed();
+            });
         }
     }
 
@@ -403,9 +422,12 @@ public sealed partial class BassStepViewModel : ObservableObject
         {
             if (_step.Accent == value)
                 return;
-            _step.Accent = value;
-            OnPropertyChanged();
-            _changed();
+            PatternHistory.Apply(_history, () =>
+            {
+                _step.Accent = value;
+                OnPropertyChanged(nameof(Accent));
+                _changed();
+            });
         }
     }
 
@@ -416,9 +438,12 @@ public sealed partial class BassStepViewModel : ObservableObject
         {
             if (_step.Slide == value)
                 return;
-            _step.Slide = value;
-            OnPropertyChanged();
-            _changed();
+            PatternHistory.Apply(_history, () =>
+            {
+                _step.Slide = value;
+                OnPropertyChanged(nameof(Slide));
+                _changed();
+            });
         }
     }
 
@@ -444,13 +469,14 @@ public sealed partial class BassStepViewModel : ObservableObject
     private void Select() => _select?.Invoke(this);
 
     /// <summary>Sets the note and turns the step on (from off or tie), auditioning it unless told not to.</summary>
-    public void SetNote(int note, bool audition = true)
-    {
-        Note = note;
-        State = BassStepState.Note;
-        if (audition)
-            _audition?.Invoke(Note);
-    }
+    public void SetNote(int note, bool audition = true) =>
+        PatternHistory.Apply(_history, () =>
+        {
+            Note = note;
+            State = BassStepState.Note;
+            if (audition)
+                _audition?.Invoke(Note);
+        });
 
     [RelayCommand]
     private void SetState(BassStepState state)
@@ -472,11 +498,12 @@ public sealed partial class BassStepViewModel : ObservableObject
     [RelayCommand]
     private void OctaveDown() => ChangeNote(-12);
 
-    private void ChangeNote(int semitones)
-    {
-        Note += semitones;
-        if (State == BassStepState.Off)
-            State = BassStepState.Note;
-        _audition?.Invoke(Note);
-    }
+    private void ChangeNote(int semitones) =>
+        PatternHistory.Apply(_history, () =>
+        {
+            Note += semitones;
+            if (State == BassStepState.Off)
+                State = BassStepState.Note;
+            _audition?.Invoke(Note);
+        });
 }

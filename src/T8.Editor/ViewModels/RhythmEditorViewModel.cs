@@ -10,18 +10,21 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
 {
     private readonly RhythmPattern _pattern;
     private readonly Action _changed;
+    private readonly PatternHistory? _history;
 
     [ObservableProperty]
     private RhythmCellViewModel? _selectedCell;
 
     /// <param name="clipboard">Shared between patterns, so a row can be pasted into another pattern.</param>
-    public RhythmEditorViewModel(RhythmPattern pattern, Action changed, Action<RhythmTrack>? audition = null, RhythmTrackClipboard? clipboard = null)
+    public RhythmEditorViewModel(RhythmPattern pattern, Action changed, Action<RhythmTrack>? audition = null, RhythmTrackClipboard? clipboard = null,
+        PatternHistory? history = null)
     {
         _pattern = pattern;
         _changed = changed;
+        _history = history;
         Clipboard = clipboard ?? new RhythmTrackClipboard();
         _allTracks = Enum.GetValues<RhythmTrack>()
-            .Select(track => new RhythmTrackViewModel(track, pattern, this, changed, audition))
+            .Select(track => new RhythmTrackViewModel(track, pattern, this, changed, audition, history))
             .ToList();
         Tracks = new ObservableCollection<RhythmTrackViewModel>(_allTracks.Where(t => t.Track != RhythmTrack.CY));
         UpdateLength();
@@ -62,10 +65,13 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
             value = Math.Clamp(value, 1, RhythmPattern.StepCount);
             if (_pattern.Length == value)
                 return;
-            _pattern.Length = value;
-            OnPropertyChanged();
-            UpdateLength();
-            _changed();
+            PatternHistory.Apply(_history, () =>
+            {
+                _pattern.Length = value;
+                OnPropertyChanged(nameof(Length));
+                UpdateLength();
+                _changed();
+            });
         }
     }
 
@@ -117,18 +123,22 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
     {
         if (Clipboard.Cells is not { } cells)
             return;
-        SelectedTrack = track;
-        for (var i = 0; i < track.Cells.Count && i < cells.Count; i++)
-            track.Cells[i].SetFrom(cells[i]);
-        _changed();
+        PatternHistory.Apply(_history, () =>
+        {
+            SelectedTrack = track;
+            for (var i = 0; i < track.Cells.Count && i < cells.Count; i++)
+                track.Cells[i].SetFrom(cells[i]);
+            _changed();
+        });
     }
 
     [RelayCommand]
-    private void ClearTrack(RhythmTrackViewModel track)
-    {
-        foreach (var cell in track.Cells)
-            cell.On = false;
-    }
+    private void ClearTrack(RhythmTrackViewModel track) =>
+        PatternHistory.Apply(_history, () =>
+        {
+            foreach (var cell in track.Cells)
+                cell.On = false;
+        });
 
     /// <summary>Cmd/Ctrl+C: copies the selected row.</summary>
     [RelayCommand]
@@ -233,17 +243,18 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
 
     /// <summary>Sets velocity, probability and sub step on every selected step, then clears the selection.</summary>
     [RelayCommand]
-    private void ApplyToSelection()
-    {
-        foreach (var cell in MultiSelection)
+    private void ApplyToSelection() =>
+        PatternHistory.Apply(_history, () =>
         {
-            cell.Velocity = BatchVelocity;
-            cell.ProbabilityPercent = BatchProbabilityPercent;
-            cell.SubStep = BatchSubStep;
-            cell.SubStepProbabilityPercent = BatchSubStepProbabilityPercent;
-        }
-        ClearMultiSelection();
-    }
+            foreach (var cell in MultiSelection.ToList())
+            {
+                cell.Velocity = BatchVelocity;
+                cell.ProbabilityPercent = BatchProbabilityPercent;
+                cell.SubStep = BatchSubStep;
+                cell.SubStepProbabilityPercent = BatchSubStepProbabilityPercent;
+            }
+            ClearMultiSelection();
+        });
 
     [RelayCommand]
     private void ClearMultiSelection()
@@ -282,9 +293,12 @@ public sealed partial class RhythmEditorViewModel : ObservableObject
     {
         if (current == value)
             return;
-        set(value);
-        OnPropertyChanged(name);
-        _changed();
+        PatternHistory.Apply(_history, () =>
+        {
+            set(value);
+            OnPropertyChanged(name);
+            _changed();
+        });
     }
 
     private void UpdateLength()
@@ -303,11 +317,12 @@ public sealed partial class RhythmTrackViewModel : ObservableObject
     [ObservableProperty]
     private bool _isSelected;
 
-    public RhythmTrackViewModel(RhythmTrack track, RhythmPattern pattern, RhythmEditorViewModel editor, Action changed, Action<RhythmTrack>? audition)
+    public RhythmTrackViewModel(RhythmTrack track, RhythmPattern pattern, RhythmEditorViewModel editor, Action changed, Action<RhythmTrack>? audition,
+        PatternHistory? history)
     {
         Track = track;
         Cells = new ObservableCollection<RhythmCellViewModel>(
-            pattern.Steps.Select((step, i) => new RhythmCellViewModel(step[track], track, i + 1, editor, changed, audition)));
+            pattern.Steps.Select((step, i) => new RhythmCellViewModel(step[track], track, i + 1, editor, changed, audition, history)));
     }
 
     public RhythmTrack Track { get; }
@@ -334,6 +349,7 @@ public sealed partial class RhythmCellViewModel : ObservableObject
     private readonly RhythmEditorViewModel _editor;
     private readonly Action _changed;
     private readonly Action<RhythmTrack>? _audition;
+    private readonly PatternHistory? _history;
 
     [ObservableProperty]
     private bool _isSelected;
@@ -348,7 +364,8 @@ public sealed partial class RhythmCellViewModel : ObservableObject
     [ObservableProperty]
     private bool _isMultiSelected;
 
-    public RhythmCellViewModel(RhythmCell cell, RhythmTrack track, int stepNumber, RhythmEditorViewModel editor, Action changed, Action<RhythmTrack>? audition)
+    public RhythmCellViewModel(RhythmCell cell, RhythmTrack track, int stepNumber, RhythmEditorViewModel editor, Action changed, Action<RhythmTrack>? audition,
+        PatternHistory? history = null)
     {
         _cell = cell;
         Track = track;
@@ -356,6 +373,7 @@ public sealed partial class RhythmCellViewModel : ObservableObject
         _editor = editor;
         _changed = changed;
         _audition = audition;
+        _history = history;
     }
 
     public RhythmTrack Track { get; }
@@ -369,17 +387,20 @@ public sealed partial class RhythmCellViewModel : ObservableObject
         {
             if (_cell.On == value)
                 return;
-            _cell.On = value;
-            // Blank cells store velocity 0; a newly entered note gets the T-8's default.
-            if (value && _cell.Velocity == 0)
+            PatternHistory.Apply(_history, () =>
             {
-                _cell.Velocity = RhythmCell.DefaultNoteVelocity;
-                OnPropertyChanged(nameof(Velocity));
-            }
-            OnPropertyChanged();
-            if (!value)
-                _editor.OnCellTurnedOff(this);
-            _changed();
+                _cell.On = value;
+                // Blank cells store velocity 0; a newly entered note gets the T-8's default.
+                if (value && _cell.Velocity == 0)
+                {
+                    _cell.Velocity = RhythmCell.DefaultNoteVelocity;
+                    OnPropertyChanged(nameof(Velocity));
+                }
+                OnPropertyChanged(nameof(On));
+                if (!value)
+                    _editor.OnCellTurnedOff(this);
+                _changed();
+            });
         }
     }
 
@@ -396,10 +417,13 @@ public sealed partial class RhythmCellViewModel : ObservableObject
         {
             if (_cell.SubStep == value)
                 return;
-            _cell.SubStep = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(HasSubStep));
-            _changed();
+            PatternHistory.Apply(_history, () =>
+            {
+                _cell.SubStep = value;
+                OnPropertyChanged(nameof(SubStep));
+                OnPropertyChanged(nameof(HasSubStep));
+                _changed();
+            });
         }
     }
 
@@ -459,9 +483,12 @@ public sealed partial class RhythmCellViewModel : ObservableObject
     {
         if (current == value)
             return;
-        set(value);
-        OnPropertyChanged(name);
-        _changed();
+        PatternHistory.Apply(_history, () =>
+        {
+            set(value);
+            OnPropertyChanged(name);
+            _changed();
+        });
     }
 }
 

@@ -23,5 +23,5 @@ The line starts on the root and each chord change starts on that chord's root.
 - **Generate** replaces the whole line. The same settings and seed always give the same line. **Randomize** picks a new seed and replaces it.
 - **Vary** keeps the rhythm and every pitch. Other notes can jump an octave. Roots on the beat stay put while LOCK ROOTS is on. Press it again for another take; the seed stays put.
 - **Fill bank** writes eight related lines into the next empty slots, close to this one first, and copies the drum pattern into each.
-- **Undo** takes back the last Generate, Vary, Randomize or Fill bank.
+- **Undo** (also Cmd/Ctrl+Z) takes back the last change to the open patterns, including Generate, Vary, Randomize and Fill bank. Shift+Cmd/Ctrl+Z redoes. Switching pattern keeps the history.
 - **Seed:** type a number to get a generated line back.

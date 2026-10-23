@@ -21,4 +21,4 @@ Each column is one step: its note, its state, semitone up / down, **Accent** and
 
 - **Last step** (1–32): the line plays steps 1 to this one.
 - **Triplet:** triplet timing, three steps in the time of two.
-- **Transpose:** −12, −1, +1 or +12 semitones for the whole line.
+- **Transpose:** −12, −1, +1 or +12 semitones for the whole line. **Cmd/Ctrl+Z** undoes it, along with any other change to the patterns; **Shift+Cmd/Ctrl+Z** puts it back.
