@@ -8,7 +8,7 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="avares://T8Editor/Assets/AppIcon.png"
         Title="{Binding Title}"
-        Width="1480" Height="860" MinWidth="900" MinHeight="640"
+        Width="1440" Height="800" MinWidth="900" MinHeight="640"
         Background="{StaticResource WindowBg}">
   <Window.KeyBindings>
     <KeyBinding Gesture="F1" Command="{Binding ShowHelpCommand}" />
@@ -143,7 +143,7 @@
     </Border>
 
     <!-- Patterns and playback -->
-    <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" Margin="12,10,12,0">
+    <Grid DockPanel.Dock="Top" ColumnDefinitions="Auto,*" Margin="12,6,12,0">
       <Border x:Name="PatternsCard" Classes="card">
         <StackPanel Spacing="6">
           <StackPanel Orientation="Horizontal" Spacing="7">
@@ -188,34 +188,104 @@
             <TextBlock Classes="cardTitle" Text="PLAYBACK" />
             <views:HelpTip Tip="{x:Static help:HelpTips.Playback}" />
           </StackPanel>
-          <WrapPanel Orientation="Horizontal">
-            <TextBlock Text="Output" VerticalAlignment="Center" Margin="0,0,8,0" />
-            <ComboBox x:Name="OutputModePicker" ItemsSource="{Binding OutputModes}" SelectedItem="{Binding OutputMode}" MinWidth="100" Margin="0,0,8,4" />
-            <TextBlock Text="{Binding OutputSummary}" VerticalAlignment="Center" Foreground="{StaticResource SectionGreen}" Margin="0,0,8,4" />
-            <ComboBox x:Name="OfflinePresetPicker" ItemsSource="{Binding Presets}" SelectedItem="{Binding Preset}" IsVisible="{Binding IsOffline}" MinWidth="150" Margin="0,0,8,4" />
-            <Slider x:Name="OfflineVolumeSlider" Minimum="0" Maximum="1" Value="{Binding OfflineVolume}" Width="90" IsVisible="{Binding IsOffline}" ToolTip.Tip="Offline volume" />
-          </WrapPanel>
-          <Expander Header="Offline sound and audio output" IsVisible="{Binding IsOffline}" HorizontalAlignment="Stretch">
-            <StackPanel Spacing="5">
-              <WrapPanel>
-                <ComboBox ItemsSource="{Binding AudioOutputs}" SelectedItem="{Binding AudioOutput}" MinWidth="180" Margin="0,0,8,0" />
-                <Button Content="Refresh outputs" Command="{Binding RefreshAudioOutputsCommand}" />
-                <ComboBox ItemsSource="{Binding BassWaves}" SelectedItem="{Binding Wave}" MinWidth="100" Margin="8,0,0,0" />
-              </WrapPanel>
-              <WrapPanel>
-                <StackPanel Width="100" Margin="0,0,8,0"><TextBlock Text="Cutoff" /><Slider Minimum="80" Maximum="10000" Value="{Binding Cutoff}" /></StackPanel>
-                <StackPanel Width="100" Margin="0,0,8,0"><TextBlock Text="Resonance" /><Slider Minimum="0.5" Maximum="4" Value="{Binding Resonance}" /></StackPanel>
-                <StackPanel Width="100" Margin="0,0,8,0"><TextBlock Text="Decay" /><Slider Minimum="0.04" Maximum="2" Value="{Binding Decay}" /></StackPanel>
-                <StackPanel Width="100"><TextBlock Text="Slide" /><Slider Minimum="0.005" Maximum="0.5" Value="{Binding Slide}" /></StackPanel>
-              </WrapPanel>
-              <TextBlock Text="Writing preview. The T-8 plays its own sounds when you transfer the patterns." TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource MutedText}" />
+          <!-- Output and its local sound controls share one compact panel. -->
+          <Border x:Name="OutputPanel" Classes="toolgroup" Padding="8,5">
+            <Grid ColumnDefinitions="Auto,Auto,*">
+              <StackPanel Spacing="4" VerticalAlignment="Center">
+                <TextBlock Text="Output" FontSize="11" Foreground="{StaticResource MutedText}" />
+                <ComboBox x:Name="OutputModePicker" Classes="port" ItemsSource="{Binding OutputModes}" SelectedItem="{Binding OutputMode}" Width="110" ToolTip.Tip="{Binding OutputSummary}" />
+              </StackPanel>
+          <WrapPanel Grid.Column="1" Margin="12,0,0,0" x:Name="OfflineSoundControls" IsVisible="{Binding IsOffline}">
+            <StackPanel Margin="0,0,12,0" Spacing="4" VerticalAlignment="Center">
+              <TextBlock Text="Sound preset" FontSize="11" Foreground="{StaticResource MutedText}" />
+              <ComboBox x:Name="OfflinePresetPicker" Classes="port" ItemsSource="{Binding Presets}" SelectedItem="{Binding Preset}" Width="160" />
             </StackPanel>
-          </Expander>
-          <WrapPanel Orientation="Horizontal">
+            <views:Knob x:Name="OfflineVolumeKnob" Minimum="0" Maximum="1" Step="0.01"
+                        DefaultValue="0.45" Value="{Binding OfflineVolume}" Label="VOLUME" Format="{}{0:P0}"
+                        Accent="{StaticResource SectionGreen}" Margin="0,0,12,0"
+                        ToolTip.Tip="Computer playback volume" />
+            <Button x:Name="OfflineSoundSettingsButton" Classes="primary pill"
+                    Height="28" MinHeight="0" Padding="8,0" FontSize="11.5" VerticalAlignment="Center" Margin="0,18,0,0">
+              <StackPanel Orientation="Horizontal" Spacing="7">
+                <PathIcon Data="{StaticResource IconCog}" />
+                <TextBlock Text="Sound settings" />
+              </StackPanel>
+              <Button.Flyout>
+                <Flyout Placement="Bottom">
+                  <ScrollViewer MaxHeight="580" VerticalScrollBarVisibility="Auto">
+                  <StackPanel Width="360" Spacing="12">
+                    <Border CornerRadius="8" Padding="12" Background="#142D27" BorderBrush="#305848" BorderThickness="1">
+                      <StackPanel Spacing="5">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <PathIcon Data="{StaticResource IconCog}" Width="16" Height="16" Foreground="{StaticResource SectionGreen}" />
+                          <TextBlock Text="SOUND SETTINGS" Classes="cardTitle" />
+                        </StackPanel>
+                        <TextBlock Text="{Binding Preset.Name}" FontSize="12" Foreground="{StaticResource SectionGreen}" />
+                      </StackPanel>
+                    </Border>
+                    <Border Classes="toolgroup" Padding="12">
+                      <StackPanel Spacing="9">
+                        <TextBlock Text="AUDIO OUTPUT" Classes="cardTitle" FontSize="10" Foreground="{StaticResource MutedText}" />
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                          <ComboBox Classes="port" ItemsSource="{Binding AudioOutputs}" SelectedItem="{Binding AudioOutput}" HorizontalAlignment="Stretch" />
+                          <Button Grid.Column="1" Classes="tool" Command="{Binding RefreshAudioOutputsCommand}" ToolTip.Tip="Refresh audio outputs" Height="28" MinHeight="0" Padding="7,0">
+                            <PathIcon Data="{StaticResource IconRefresh}" />
+                          </Button>
+                        </Grid>
+                      </StackPanel>
+                    </Border>
+                    <Border Classes="toolgroup" Padding="12">
+                      <StackPanel Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                          <StackPanel Spacing="3" VerticalAlignment="Center">
+                            <TextBlock Text="BASS VOICE" Classes="cardTitle" FontSize="10" />
+                            <TextBlock Text="Shape your preview sound" FontSize="11" Foreground="{StaticResource MutedText}" />
+                          </StackPanel>
+                          <ComboBox Grid.Column="1" Classes="port" ItemsSource="{Binding BassWaves}" SelectedItem="{Binding Wave}" Width="110" ToolTip.Tip="Bass waveform" />
+                        </Grid>
+                        <Border Height="1" Background="#2C2C33" />
+                        <UniformGrid Columns="4">
+                          <views:Knob x:Name="OfflineCutoffKnob" Label="CUTOFF" Minimum="80" Maximum="10000" Step="10" Value="{Binding Cutoff}" Format="{}{0:0} Hz" Accent="{StaticResource SectionGreen}" ToolTip.Tip="Low-pass filter cutoff" />
+                          <views:Knob x:Name="OfflineResonanceKnob" Label="RESONANCE" Minimum="0.5" Maximum="4" Step="0.05" Value="{Binding Resonance}" Format="{}{0:0.00}" Accent="{StaticResource SectionGreen}" ToolTip.Tip="Filter resonance" />
+                          <views:Knob x:Name="OfflineDecayKnob" Label="DECAY" Minimum="0.04" Maximum="2" Step="0.01" Value="{Binding Decay}" Format="{}{0:0.00} s" Accent="{StaticResource SectionGreen}" ToolTip.Tip="Bass envelope decay" />
+                          <views:Knob x:Name="OfflineSlideKnob" Label="SLIDE" Minimum="0.005" Maximum="0.5" Step="0.005" Value="{Binding Slide}" Format="{}{0:0.00} s" Accent="{StaticResource SectionGreen}" ToolTip.Tip="Time to glide between notes" />
+                        </UniformGrid>
+                      </StackPanel>
+                    </Border>
+                    <Border Classes="toolgroup" Padding="12">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="INSTRUMENT MIX" Classes="cardTitle" FontSize="10" />
+                        <TextBlock Text="Individual levels · 0% mutes the instrument" FontSize="11" Foreground="{StaticResource MutedText}" />
+                        <UniformGrid Columns="4">
+                          <views:Knob Label="KICK" Minimum="0" Maximum="1" Step="0.01" DefaultValue="1" Value="{Binding KickVolume}" Format="{}{0:P0}" Accent="{StaticResource SectionGreen}" />
+                          <views:Knob Label="SNARE" Minimum="0" Maximum="1" Step="0.01" DefaultValue="1" Value="{Binding SnareVolume}" Format="{}{0:P0}" Accent="{StaticResource SectionGreen}" />
+                          <views:Knob Label="TOM" Minimum="0" Maximum="1" Step="0.01" DefaultValue="1" Value="{Binding TomVolume}" Format="{}{0:P0}" Accent="{StaticResource SectionGreen}" />
+                          <views:Knob Label="CLAP" Minimum="0" Maximum="1" Step="0.01" DefaultValue="1" Value="{Binding ClapVolume}" Format="{}{0:P0}" Accent="{StaticResource SectionGreen}" />
+                          <views:Knob Label="CLOSED HAT" Minimum="0" Maximum="1" Step="0.01" DefaultValue="1" Value="{Binding ClosedHatVolume}" Format="{}{0:P0}" Accent="{StaticResource SectionGreen}" />
+                          <views:Knob Label="OPEN HAT" Minimum="0" Maximum="1" Step="0.01" DefaultValue="1" Value="{Binding OpenHatVolume}" Format="{}{0:P0}" Accent="{StaticResource SectionGreen}" />
+                          <views:Knob Label="BASS" Minimum="0" Maximum="1" Step="0.01" DefaultValue="1" Value="{Binding BassVolume}" Format="{}{0:P0}" Accent="{StaticResource SectionGreen}" />
+                        </UniformGrid>
+                      </StackPanel>
+                    </Border>
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8" Margin="4,0">
+                      <PathIcon Data="{StaticResource IconInfo}" Width="13" Height="13" VerticalAlignment="Top" Margin="0,2,0,0" Foreground="{StaticResource MutedText}" />
+                      <TextBlock Grid.Column="1" Text="Preview sounds only. Transferred patterns use the T-8’s own sounds." TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource MutedText}" />
+                    </Grid>
+                  </StackPanel>
+                  </ScrollViewer>
+                </Flyout>
+              </Button.Flyout>
+            </Button>
+          </WrapPanel>
+              <TextBlock x:Name="OutputStatusText" Grid.Column="2" Text="{Binding OutputSummary}" IsVisible="{Binding !IsOffline}" VerticalAlignment="Center" Foreground="{StaticResource SectionGreen}" Margin="12,18,0,0" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding OutputSummary}" />
+            </Grid>
+          </Border>
+          <Border Classes="toolgroup" Padding="8,5">
+          <Grid ColumnDefinitions="Auto,*">
             <views:Knob x:Name="BpmKnob" Value="{Binding Bpm}" Minimum="20" Maximum="300" DefaultValue="120" Label="BPM"
                         Accent="{StaticResource SectionGreen}" Margin="0,0,12,0" />
-            <StackPanel Spacing="6" VerticalAlignment="Center">
-              <StackPanel Orientation="Horizontal" Spacing="4">
+            <StackPanel Grid.Column="1" Spacing="6" VerticalAlignment="Center">
+              <WrapPanel Orientation="Horizontal">
                 <Button x:Name="PlayButton" Classes="seg green" Classes.active="{Binding IsPlaying}" Command="{Binding PlayCommand}" ToolTip.Tip="Play this pattern through the selected output">
                   <StackPanel Orientation="Horizontal" Spacing="5">
                     <PathIcon Data="{StaticResource IconPlay}" Width="11" Height="11" />
@@ -237,21 +307,24 @@
                 </Button>
                 <Button x:Name="FillButton" Classes="seg" Content="FILL" Command="{Binding PlayFillCommand}"
                         ToolTip.Tip="Play the fill pattern once after this loop, like FILL TRG on the T-8 (set the fill pattern on the Rhythm tab)" />
-                <Button x:Name="SelectOnT8Button" IsEnabled="{Binding !IsOffline}" Classes="seg" Content="SELECT ON T-8" Command="{Binding SelectOnT8Command}" Margin="8,0,0,0"
+                <Button x:Name="SelectOnT8Button" IsVisible="{Binding !IsOffline}" IsEnabled="{Binding !IsOffline}" Classes="seg" Content="SELECT ON T-8" Command="{Binding SelectOnT8Command}" Margin="8,0,0,0"
                         ToolTip.Tip="Switch the T-8 to this bank and pattern (needs RX Program Change on)" />
-              </StackPanel>
-              <StackPanel Orientation="Horizontal" Spacing="4">
+              </WrapPanel>
+              <Border Classes="toolgroup">
+              <WrapPanel Orientation="Horizontal">
                 <TextBlock x:Name="T8StatusText" Text="{Binding T8Status}" Foreground="{StaticResource SectionGreen}" FontSize="12"
                            FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
                            IsVisible="{Binding T8Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
-                <ToggleButton x:Name="AuditionCheck" Classes="seg" Content="AUDITION" IsChecked="{Binding AuditionEnabled}"
+                <ToggleButton x:Name="AuditionCheck" Margin="0,0,8,0" Classes="seg" Content="AUDITION" IsChecked="{Binding AuditionEnabled}"
                               ToolTip.Tip="Hear steps through the selected output as you edit them" />
-                <ToggleButton x:Name="PlayheadCheck" Classes="seg" Content="SHOW PLAYING STEP" IsChecked="{Binding ShowPlayhead}"
+                <ToggleButton x:Name="PlayheadCheck" Margin="0,0,8,0" Classes="seg" Content="SHOW PLAYING STEP" IsChecked="{Binding ShowPlayhead}"
                               ToolTip.Tip="Highlight the step being played, and the bass note on the keyboard" />
                 <ToggleButton x:Name="FollowClockCheck" Classes="seg" Content="FOLLOW CLOCK" IsChecked="{Binding FollowExternalClock}"
                               ToolTip.Tip="Pattern Play follows an external MIDI clock instead of the BPM knob. Press Play to arm, then start that clock." />
-              </StackPanel>
-              <StackPanel Orientation="Horizontal" Spacing="4">
+              </WrapPanel>
+              </Border>
+              <Border Classes="toolgroup" IsVisible="{Binding FollowExternalClock}">
+              <WrapPanel x:Name="ClockInputRow" Orientation="Horizontal" IsVisible="{Binding FollowExternalClock}">
                 <ComboBox x:Name="ClockInputBox" Classes="port" MinWidth="160" ItemsSource="{Binding ClockInputs}" SelectedItem="{Binding ClockInput}"
                           PlaceholderText="Clock input" ToolTip.Tip="The port that sends MIDI clock, such as IAC or loopMIDI. Not the T-8's own output.">
                   <ComboBox.ItemTemplate>
@@ -261,9 +334,12 @@
                   </ComboBox.ItemTemplate>
                 </ComboBox>
                 <Button x:Name="RefreshClockInputsButton" Classes="seg" Content="REFRESH INPUTS" Command="{Binding RefreshClockInputsCommand}" />
-              </StackPanel>
+              </WrapPanel>
+              </Border>
             </StackPanel>
-          </WrapPanel>
+          </Grid>
+          </Border>
+
         </StackPanel>
       </Border>
     </Grid>
@@ -315,7 +391,7 @@
                  TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
     </DockPanel>
 
-    <TabControl x:Name="Tabs" Margin="12,10,12,0" SelectedIndex="{Binding SelectedTab}">
+    <TabControl x:Name="Tabs" Margin="12,6,12,0" SelectedIndex="{Binding SelectedTab}">
       <TabItem x:Name="RhythmTab" ToolTip.Tip="Drum pattern: the step grid and the rhythm generator">
         <TabItem.Header>
           <StackPanel Orientation="Horizontal" Spacing="7">
@@ -324,7 +400,11 @@
           </StackPanel>
         </TabItem.Header>
         <DockPanel>
-          <views:RhythmGeneratorView DockPanel.Dock="Bottom" DataContext="{Binding RhythmGenerator}" Margin="0,10,0,0" />
+          <Expander x:Name="RhythmGeneratorExpander" DockPanel.Dock="Bottom" Header="Rhythm generator" IsExpanded="False" HorizontalAlignment="Stretch" Margin="0,4,0,0">
+            <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+              <views:RhythmGeneratorView DataContext="{Binding RhythmGenerator}" />
+            </ScrollViewer>
+          </Expander>
           <views:RhythmEditorView DataContext="{Binding Rhythm}" />
         </DockPanel>
       </TabItem>
@@ -336,7 +416,11 @@
           </StackPanel>
         </TabItem.Header>
         <DockPanel>
-          <views:BassGeneratorView DockPanel.Dock="Bottom" DataContext="{Binding BassGenerator}" Margin="0,10,0,0" />
+          <Expander x:Name="BassGeneratorExpander" DockPanel.Dock="Bottom" Header="Bass generator" IsExpanded="False" HorizontalAlignment="Stretch" Margin="0,4,0,0">
+            <ScrollViewer MaxHeight="220" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+              <views:BassGeneratorView DataContext="{Binding BassGenerator}" />
+            </ScrollViewer>
+          </Expander>
           <views:BassEditorView DataContext="{Binding Bass}" />
         </DockPanel>
       </TabItem>

@@ -13,6 +13,9 @@ public sealed class AudioRenderer
 {
     private struct Voice { public float[]? Data; public int Position, Drum; public double Gain, Target, Attack, Fade, Tone, Decay, Low; }
     private readonly Voice[] _voices = new Voice[6];
+    private InstrumentLevels _levels = new();
+    private readonly double[] _gains = [1, 1, 1, 1, 1, 1, 1];
+    public void SetLevels(InstrumentLevels levels) => _levels = levels.Sanitize();
     private readonly int[] _held = new int[128];
     private float[][] _kit;
     private SoundPreset _preset;
@@ -116,6 +119,8 @@ public sealed class AudioRenderer
                     _tick += t.Bpm * 96 / (60 * SampleRate);
                 }
             }
+            for (int i = 0; i < _gains.Length; i++)
+                _gains[i] += .002 * (_levels[i] - _gains[i]);
             double value = 0;
             for (int i = 0; i < _voices.Length; i++)
             {
@@ -123,11 +128,11 @@ public sealed class AudioRenderer
                 if (v.Data is null || v.Position >= v.Data.Length) { v.Data = null; continue; }
                 v.Low += v.Tone * (v.Data[v.Position++] - v.Low);
                 if (v.Gain < v.Target) v.Gain = Math.Min(v.Target, v.Gain + v.Attack);
-                value += v.Low * v.Gain;
+                value += v.Low * v.Gain * _gains[i];
                 v.Gain = Math.Max(0, v.Gain * v.Decay - v.Fade);
                 if (v.Position >= v.Data.Length || v.Gain < .00001) v.Data = null;
             }
-            value += BassSample();
+            value += BassSample() * _gains[6];
             _volume += .002 * (Math.Clamp(Volume, 0, 1) - _volume);
             value = Math.Tanh(value * _preset.Drive) / Math.Max(1, Math.Sqrt(_preset.Drive)) * _volume;
             stereo[frame * 2] = stereo[frame * 2 + 1] = (float)value;

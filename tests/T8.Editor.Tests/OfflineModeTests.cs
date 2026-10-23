@@ -1,3 +1,5 @@
+using Avalonia;
+using Avalonia.LogicalTree;
 using Avalonia.Controls;
 using Avalonia.Headless.XUnit;
 using T8.Audio;
@@ -110,6 +112,162 @@ public sealed class OfflineModeTests : IDisposable
         Assert.Equal(3,window.FindControl<ComboBox>("OutputModePicker")!.ItemCount);
         Assert.Equal(6,window.FindControl<ComboBox>("OfflinePresetPicker")!.ItemCount);window.Close();
     }
+    [AvaloniaFact]
+    public void Sound_controls_follow_output_and_hardware_action_is_hidden_offline()
+    {
+        var vm = Create();
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+        try
+        {
+            foreach (var mode in new[] { OutputMode.Offline, OutputMode.T8, OutputMode.Offline })
+            {
+                vm.OutputMode = mode;
+                Assert.Equal(mode == OutputMode.Offline, window.FindControl<WrapPanel>("OfflineSoundControls")!.IsVisible);
+                Assert.Equal(mode == OutputMode.T8, window.FindControl<Button>("SelectOnT8Button")!.IsVisible);
+                Assert.True(window.FindControl<Button>("PlayButton")!.IsVisible);
+            }
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public void Clock_input_is_shown_only_when_follow_clock_is_enabled()
+    {
+        var vm = Create();
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+        try
+        {
+            foreach (var enabled in new[] { false, true, false })
+            {
+                vm.FollowExternalClock = enabled;
+                Assert.Equal(enabled, window.FindControl<WrapPanel>("ClockInputRow")!.IsVisible);
+            }
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public void Sound_settings_open_without_expanding_playback_card()
+    {
+        var vm = Create(new FakePortProvider());
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+        try
+        {
+            window.UpdateLayout();
+            var card = window.FindControl<Border>("PlaybackCard")!;
+            var height = card.Bounds.Height;
+            var button = window.FindControl<Button>("OfflineSoundSettingsButton")!;
+            var flyout = Assert.IsType<Flyout>(button.Flyout);
+            flyout.ShowAt(button);
+            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            window.UpdateLayout();
+            Assert.True(flyout.IsOpen);
+            Assert.Same(vm, ((StackPanel)((ScrollViewer)flyout.Content!).Content!).DataContext);
+            var knobs = ((StackPanel)((ScrollViewer)flyout.Content!).Content!).GetLogicalDescendants().OfType<Knob>().Where(k => k.Name is not null).ToDictionary(k => k.Name!);
+            knobs["OfflineCutoffKnob"].Value = 1800;
+            knobs["OfflineResonanceKnob"].Value = 1.5;
+            knobs["OfflineDecayKnob"].Value = .4;
+            knobs["OfflineSlideKnob"].Value = .12;
+            Assert.Equal(1800, vm.Cutoff);
+            Assert.Equal(1.5, vm.Resonance);
+            Assert.Equal(.4, vm.Decay);
+            Assert.Equal(.12, vm.Slide);
+            Assert.False(vm.IsDirty);
+            Assert.Equal(height, card.Bounds.Height);
+            flyout.Hide();
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public void Volume_knob_updates_saved_volume_and_displays_percentage()
+    {
+        var vm = Create(new FakePortProvider());
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+        try
+        {
+            var knob = window.FindControl<Knob>("OfflineVolumeKnob")!;
+            Assert.Equal("{0:P0}", knob.Format);
+            Assert.Equal(.45, knob.Value);
+            knob.Nudge(5);
+            Assert.Equal(.5, vm.OfflineVolume, 6);
+            Assert.Equal(.5, _store.Stored.Offline.Volume, 6);
+            vm.OfflineVolume = .25;
+            Assert.Equal(.25, knob.Value, 6);
+            knob.Nudge(-100);
+            Assert.Equal(0, vm.OfflineVolume);
+            knob.Nudge(200);
+            Assert.Equal(1, vm.OfflineVolume);
+            Assert.False(vm.IsDirty);
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public void Offline_sound_shares_output_row_with_aligned_settings()
+    {
+        var vm = Create(new FakePortProvider());
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+        try
+        {
+            window.UpdateLayout();
+            var panel = window.FindControl<Border>("OutputPanel")!;
+            var output = window.FindControl<ComboBox>("OutputModePicker")!;
+            var preset = window.FindControl<ComboBox>("OfflinePresetPicker")!;
+            var settings = window.FindControl<Button>("OfflineSoundSettingsButton")!;
+            double Center(Avalonia.Visual control) =>
+                control.TranslatePoint(new Avalonia.Point(0, control.Bounds.Height / 2), panel)!.Value.Y;
+            Assert.InRange(Math.Abs(Center(output) - Center(preset)), 0, 1);
+            Assert.InRange(Math.Abs(Center(settings) - Center(preset)), 0, 2);
+            Assert.InRange(Center(settings), 0, panel.Bounds.Height);
+        }
+        finally { window.Close(); }
+    }
+
+    [AvaloniaFact]
+    public void Hardware_output_status_aligns_with_output_picker()
+    {
+        var vm = Create();
+        vm.OutputMode = OutputMode.T8;
+        var window = new MainWindow { DataContext = vm };
+        window.Show();
+        try
+        {
+            window.UpdateLayout();
+            var picker = window.FindControl<ComboBox>("OutputModePicker")!;
+            var status = window.FindControl<TextBlock>("OutputStatusText")!;
+            var pickerCenter = picker.TranslatePoint(new Point(0, picker.Bounds.Height / 2), window)!.Value.Y;
+            var statusCenter = status.TranslatePoint(new Point(0, status.Bounds.Height / 2), window)!.Value.Y;
+            Assert.True(status.IsVisible);
+            Assert.InRange(Math.Abs(pickerCenter - statusCenter), 0, 2);
+        }
+        finally { window.Close(); }
+    }
+
+    [Fact]
+    public void Instrument_mix_persists_across_presets_without_changing_pattern_data()
+    {
+        var vm = Create();
+        vm.KickVolume = .1; vm.SnareVolume = .2; vm.TomVolume = .3;
+        vm.ClapVolume = .4; vm.ClosedHatVolume = .5; vm.OpenHatVolume = .6; vm.BassVolume = 0;
+        vm.Preset = SoundPreset.Find("deep");
+        Assert.Equal(new InstrumentLevels(.1, .2, .3, .4, .5, .6, 0), _store.Stored.Offline.Levels);
+        Assert.False(vm.IsDirty);
+        Assert.Equal(.45, vm.OfflineVolume);
+        vm.OutputMode = OutputMode.Offline;
+        vm.PlayCommand.Execute(null);
+        _devices.Single().Pump();
+        vm.BassVolume = .7;
+        _devices.Single().Pump();
+        Assert.True(vm.IsPlaying);
+        Assert.Equal(.7, _store.Stored.Offline.Levels.Bass);
+    }
+
     private sealed class FakeAudio : IAudioDevice
     {
         private RenderAudio? _render;public bool Disposed {get;private set;}public bool IsRunning=>!Disposed;public string? Error {get;set;}

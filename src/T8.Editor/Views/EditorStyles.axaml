@@ -774,6 +774,16 @@
     <Setter Property="Background" Value="{StaticResource T8Orange}" />
   </Style>
 
+  <!-- Compact step cells retain readable note names and full editing actions. -->
+  <Style Selector="Border.bassStep Button, Border.bassStep ToggleButton">
+    <Setter Property="Height" Value="21" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+  <Style Selector="Border.bassStep Button.note">
+    <Setter Property="Height" Value="25" />
+    <Setter Property="Padding" Value="0" />
+  </Style>
+
   <!-- Bass generator -->
   <Style Selector="Border.card TextBlock.label">
     <Setter Property="VerticalAlignment" Value="Center" />

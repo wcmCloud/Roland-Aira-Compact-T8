@@ -18,15 +18,30 @@ public sealed record SoundPreset(string Id, string Name, string Kick, string Sna
     public static SoundPreset Find(string? id) => All.FirstOrDefault(p => p.Id == id) ?? All[0];
 }
 
+/// <summary>Independent offline mix levels; immutable so settings clones are isolated.</summary>
+public sealed record InstrumentLevels(double Kick = 1, double Snare = 1, double Tom = 1,
+    double Clap = 1, double ClosedHat = 1, double OpenHat = 1, double Bass = 1)
+{
+    public double this[int index] => index switch
+    {
+        0 => Kick, 1 => Snare, 2 => Tom, 3 => Clap, 4 => ClosedHat, 5 => OpenHat, 6 => Bass,
+        _ => throw new ArgumentOutOfRangeException(nameof(index))
+    };
+    private static double Level(double value) => double.IsFinite(value) ? Math.Clamp(value, 0, 1) : 1;
+    public InstrumentLevels Sanitize() => new(Level(Kick), Level(Snare), Level(Tom), Level(Clap), Level(ClosedHat), Level(OpenHat), Level(Bass));
+}
+
 public sealed class OfflineSettings
 {
     public string PresetId { get; set; } = "classic";
     public double Volume { get; set; } = .45;
     public string? DeviceName { get; set; }
     public BassSound? Bass { get; set; }
+    public InstrumentLevels Levels { get; set; } = new();
     public OfflineSettings Clone() => (OfflineSettings)MemberwiseClone();
     public void Validate()
     {
+        Levels = (Levels ?? new()).Sanitize();
         PresetId = SoundPreset.Find(PresetId).Id;
         Volume = double.IsFinite(Volume) ? Math.Clamp(Volume, 0, 1) : .45;
         if (Bass is { } b) Bass = Sanitize(b);

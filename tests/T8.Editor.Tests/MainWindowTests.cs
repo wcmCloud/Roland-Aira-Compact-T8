@@ -52,6 +52,43 @@ public class MainWindowTests
         return (window, vm);
     }
 
+    [AvaloniaTheory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void Laptop_window_keeps_active_editor_and_generator_access_visible(int tab)
+    {
+        var (window, vm) = Show();
+        try
+        {
+            window.Width = 1440;
+            window.Height = 800;
+            window.FindControl<TabControl>("Tabs")!.SelectedIndex = tab;
+            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            window.UpdateLayout();
+            var tabs = window.FindControl<TabControl>("Tabs")!;
+            Assert.True(tabs.Bounds.Height >= 350, "Editing area should retain useful height on a laptop.");
+            Assert.False(window.FindControl<Expander>("RhythmGeneratorExpander")!.IsExpanded);
+            Assert.False(window.FindControl<Expander>("BassGeneratorExpander")!.IsExpanded);
+            if (tab == 1)
+            {
+                var editor = window.GetVisualDescendants().OfType<BassEditorView>().Single();
+                var scroll = editor.GetVisualDescendants().OfType<ScrollViewer>().First();
+                Assert.True(scroll.Extent.Height <= scroll.Viewport.Height + 1,
+                    "Bass steps and keyboard should fit without vertical scrolling.");
+            }
+            if (tab < 2)
+            {
+                var expander = window.FindControl<Expander>(tab == 0 ? "RhythmGeneratorExpander" : "BassGeneratorExpander")!;
+                expander.IsExpanded = true;
+                window.UpdateLayout();
+                Assert.True(expander.Bounds.Height > 50);
+                expander.IsExpanded = false;
+            }
+        }
+        finally { window.Close(); vm.Dispose(); }
+    }
+
     [AvaloniaFact]
     public void Window_shows_the_loaded_library()
     {
