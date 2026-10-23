@@ -345,6 +345,8 @@ public class MainWindowTests
     public void Rhythm_generator_has_instrument_chips_with_icons_and_outlined_combos()
     {
         var (window, vm) = Show();
+        window.FindControl<Expander>("RhythmGeneratorExpander")!.IsExpanded = true;
+        window.UpdateLayout();
         var generator = window.GetVisualDescendants().OfType<RhythmGeneratorView>().Single();
 
         var chips = new[] { "BassDrumChip", "SnareChip", "TomChip", "ClapChip", "ClosedHatChip", "OpenHatChip", "FillCheck" }
@@ -377,6 +379,7 @@ public class MainWindowTests
     {
         var (window, vm) = Show();
         window.FindControl<TabControl>("Tabs")!.SelectedIndex = 1;
+        window.FindControl<Expander>("BassGeneratorExpander")!.IsExpanded = true;
         window.UpdateLayout();
         var generator = window.GetVisualDescendants().OfType<BassGeneratorView>().Single();
 
