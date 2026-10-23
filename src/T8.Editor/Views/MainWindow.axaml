@@ -189,11 +189,34 @@
             <views:HelpTip Tip="{x:Static help:HelpTips.Playback}" />
           </StackPanel>
           <WrapPanel Orientation="Horizontal">
+            <TextBlock Text="Output" VerticalAlignment="Center" Margin="0,0,8,0" />
+            <ComboBox x:Name="OutputModePicker" ItemsSource="{Binding OutputModes}" SelectedItem="{Binding OutputMode}" MinWidth="100" Margin="0,0,8,4" />
+            <TextBlock Text="{Binding OutputSummary}" VerticalAlignment="Center" Foreground="{StaticResource SectionGreen}" Margin="0,0,8,4" />
+            <ComboBox x:Name="OfflinePresetPicker" ItemsSource="{Binding Presets}" SelectedItem="{Binding Preset}" IsVisible="{Binding IsOffline}" MinWidth="150" Margin="0,0,8,4" />
+            <Slider x:Name="OfflineVolumeSlider" Minimum="0" Maximum="1" Value="{Binding OfflineVolume}" Width="90" IsVisible="{Binding IsOffline}" ToolTip.Tip="Offline volume" />
+          </WrapPanel>
+          <Expander Header="Offline sound and audio output" IsVisible="{Binding IsOffline}" HorizontalAlignment="Stretch">
+            <StackPanel Spacing="5">
+              <WrapPanel>
+                <ComboBox ItemsSource="{Binding AudioOutputs}" SelectedItem="{Binding AudioOutput}" MinWidth="180" Margin="0,0,8,0" />
+                <Button Content="Refresh outputs" Command="{Binding RefreshAudioOutputsCommand}" />
+                <ComboBox ItemsSource="{Binding BassWaves}" SelectedItem="{Binding Wave}" MinWidth="100" Margin="8,0,0,0" />
+              </WrapPanel>
+              <WrapPanel>
+                <StackPanel Width="100" Margin="0,0,8,0"><TextBlock Text="Cutoff" /><Slider Minimum="80" Maximum="10000" Value="{Binding Cutoff}" /></StackPanel>
+                <StackPanel Width="100" Margin="0,0,8,0"><TextBlock Text="Resonance" /><Slider Minimum="0.5" Maximum="4" Value="{Binding Resonance}" /></StackPanel>
+                <StackPanel Width="100" Margin="0,0,8,0"><TextBlock Text="Decay" /><Slider Minimum="0.04" Maximum="2" Value="{Binding Decay}" /></StackPanel>
+                <StackPanel Width="100"><TextBlock Text="Slide" /><Slider Minimum="0.005" Maximum="0.5" Value="{Binding Slide}" /></StackPanel>
+              </WrapPanel>
+              <TextBlock Text="Writing preview. The T-8 plays its own sounds when you transfer the patterns." TextWrapping="Wrap" FontSize="11" Foreground="{StaticResource MutedText}" />
+            </StackPanel>
+          </Expander>
+          <WrapPanel Orientation="Horizontal">
             <views:Knob x:Name="BpmKnob" Value="{Binding Bpm}" Minimum="20" Maximum="300" DefaultValue="120" Label="BPM"
                         Accent="{StaticResource SectionGreen}" Margin="0,0,12,0" />
             <StackPanel Spacing="6" VerticalAlignment="Center">
               <StackPanel Orientation="Horizontal" Spacing="4">
-                <Button x:Name="PlayButton" Classes="seg green" Classes.active="{Binding IsPlaying}" Command="{Binding PlayCommand}" ToolTip.Tip="Play this pattern through the T-8's sounds">
+                <Button x:Name="PlayButton" Classes="seg green" Classes.active="{Binding IsPlaying}" Command="{Binding PlayCommand}" ToolTip.Tip="Play this pattern through the selected output">
                   <StackPanel Orientation="Horizontal" Spacing="5">
                     <PathIcon Data="{StaticResource IconPlay}" Width="11" Height="11" />
                     <TextBlock Text="PLAY" />
@@ -214,7 +237,7 @@
                 </Button>
                 <Button x:Name="FillButton" Classes="seg" Content="FILL" Command="{Binding PlayFillCommand}"
                         ToolTip.Tip="Play the fill pattern once after this loop, like FILL TRG on the T-8 (set the fill pattern on the Rhythm tab)" />
-                <Button x:Name="SelectOnT8Button" Classes="seg" Content="SELECT ON T-8" Command="{Binding SelectOnT8Command}" Margin="8,0,0,0"
+                <Button x:Name="SelectOnT8Button" IsEnabled="{Binding !IsOffline}" Classes="seg" Content="SELECT ON T-8" Command="{Binding SelectOnT8Command}" Margin="8,0,0,0"
                         ToolTip.Tip="Switch the T-8 to this bank and pattern (needs RX Program Change on)" />
               </StackPanel>
               <StackPanel Orientation="Horizontal" Spacing="4">
@@ -222,7 +245,7 @@
                            FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,8,0"
                            IsVisible="{Binding T8Status, Converter={x:Static StringConverters.IsNotNullOrEmpty}}" />
                 <ToggleButton x:Name="AuditionCheck" Classes="seg" Content="AUDITION" IsChecked="{Binding AuditionEnabled}"
-                              ToolTip.Tip="Play steps on the T-8 as you edit them" />
+                              ToolTip.Tip="Hear steps through the selected output as you edit them" />
                 <ToggleButton x:Name="PlayheadCheck" Classes="seg" Content="SHOW PLAYING STEP" IsChecked="{Binding ShowPlayhead}"
                               ToolTip.Tip="Highlight the step being played, and the bass note on the keyboard" />
               </StackPanel>

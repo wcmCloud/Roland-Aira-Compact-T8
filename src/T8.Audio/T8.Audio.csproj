@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageLicenseExpression>MIT OR GPL-3.0-only</PackageLicenseExpression>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../T8.Midi/T8.Midi.csproj" />
+    <PackageReference Include="Hexa.NET.MiniAudio" Version="1.0.1" />
+    <EmbeddedResource Include="Samples/*.WAV" />
+    <Content Include="Samples/LICENSE;Samples/README.md;Samples/manifest.json" Link="licenses/offline-samples/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

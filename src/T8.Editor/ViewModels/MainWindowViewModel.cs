@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using T8.Core.Patterns;
 using T8.Editor.Services;
 using T8.Midi;
+using T8.Audio;
 using T8.Midi.Ports;
 
 namespace T8.Editor.ViewModels;
@@ -14,7 +15,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     private readonly IDialogService _dialogs;
     private readonly ISettingsStore? _settingsStore;
     private readonly Func<IEnumerable<string>> _driveCandidates;
-    private T8Controller? _controller;
+    private IPatternPlayer? _controller;
     private T8InputListener? _listener;
     private readonly RhythmTrackClipboard _rowClipboard = new();
     private readonly SynchronizationContext? _ui = SynchronizationContext.Current;
@@ -99,8 +100,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         Func<IEnumerable<string>>? driveCandidates = null,
         UpdateChecker? updateChecker = null,
         IUrlOpener? urlOpener = null,
-        string? presetFolder = null)
+        string? presetFolder = null,
+        Func<T8MidiMap, OfflineSettings, OfflinePlayer>? offlineFactory = null)
     {
+        _offlineFactory = offlineFactory ?? ((map, settings) => new OfflinePlayer(map, settings));
         _updateChecker = updateChecker;
         _urlOpener = urlOpener ?? new BrowserUrlOpener();
         _ports = ports;
@@ -108,6 +111,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         _settingsStore = settingsStore;
         _driveCandidates = driveCandidates ?? T8Drive.CandidateRoots;
         Settings = settingsStore?.Load() ?? new EditorSettings();
+        Settings.Offline.Validate();
+        _outputMode = Settings.OutputMode;
+        _preset = SoundPreset.Find(Settings.Offline.PresetId);
+        _offlineVolume = Settings.Offline.Volume;
+        _audioOutput = Settings.Offline.DeviceName ?? SystemAudioOutput;
+        if (!AudioOutputs.Contains(_audioOutput)) AudioOutputs.Add(_audioOutput);
         _bpm = Settings.Bpm;
         _auditionEnabled = Settings.AuditionEnabled;
         _showPlayhead = Settings.ShowPlayhead;
@@ -158,7 +167,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         if (_announceDefaultPresets)
             Status = DefaultPresetsStatus;
         RefreshPorts();
-        _t8DrivePath = T8Drive.Find(_driveCandidates());
+        T8DrivePath = T8Drive.Find(_driveCandidates());
+        if (IsOffline) CloseListener();
+        NotifyOutput();
         StartupUpdateCheck = Settings.CheckForUpdatesOnStartup && _updateChecker is not null
             ? CheckForUpdatesInBackgroundAsync()
             : Task.CompletedTask;
@@ -252,7 +263,11 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     /// <summary>The Song tab.</summary>
     public SongViewModel Song { get; }
 
-    T8Controller? ISongHost.Controller() => Controller();
+    IPatternPlayer? ISongHost.Controller()
+    {
+        if (!Song.IsPlaying && _controller?.IsOffline == true && !WantsOffline) { CloseController(); OpenListener(); }
+        return Controller();
+    }
 
     void ISongHost.StopPatternPlayback() => StopPlayback();
 
@@ -354,8 +369,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             MarkDirty();
         Status = summary;
         // The preview plays a snapshot of the pattern, so restart it to hear the new line.
-        if (IsPlaying && Settings.PlayMode == PlayMode.PreviewNotes)
-            StartPlayback();
+        if (IsPlaying && _controller is OfflinePlayer local) local.UpdatePreview(CurrentBass, CurrentRhythm, Bpm, FillRhythm);
+        else if (IsPlaying && !PlaysOnT8) StartPlayback();
     }
 
     public EditorSettings Settings { get; private set; }
@@ -376,7 +391,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     public bool RhythmChannelOn => Settings.Midi.RhythmOn;
 
     /// <summary>Play is running the T-8's own sequencer, shown as its own pill.</summary>
-    public bool PlaysOnT8 => Settings.PlayMode == PlayMode.SyncT8Sequencer;
+    public bool PlaysOnT8 => !IsOffline && Settings.PlayMode == PlayMode.SyncT8Sequencer;
 
     private static string PartChannel(int channel) => channel == T8MidiMap.Off ? "OFF" : $"ch {channel}";
 
@@ -427,9 +442,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     partial void OnSelectedPortChanged(MidiPortInfo? value)
     {
-        StopPlayback();
-        CloseController();
-        OpenListener();
+        // A newly connected MIDI port must not interrupt offline playback.
+        if (!(_controller?.IsOffline == true && (IsPlaying || IsPaused || Song?.IsPlaying == true)))
+        {
+            Song?.Stop(); StopPlayback(); CloseController(); OpenListener();
+        }
+        NotifyOutput();
         if (value is not null && Settings.OutputPortName != value.Name)
         {
             Settings.OutputPortName = value.Name;
@@ -441,10 +459,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     {
         Settings.Bpm = value;
         SaveSettings();
-        if (IsPlaying && Settings.PlayMode == PlayMode.SyncT8Sequencer)
+        if (IsPlaying && PlaysOnT8)
             _controller!.Clock.Bpm = value;
-        else if (IsPlaying)
-            StartPlayback();
+        else if (IsPlaying && _controller is OfflinePlayer local) local.UpdatePreview(CurrentBass, CurrentRhythm, Bpm, FillRhythm);
+        else if (IsPlaying) StartPlayback();
     }
 
     partial void OnShowPlayheadChanged(bool value)
@@ -460,6 +478,11 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     /// </summary>
     public void UpdatePlayhead()
     {
+        CheckOutputConnection();
+        if (_controller is OfflinePlayer local && local.Error is { } error)
+        {
+            Song?.Stop(); StopPlayback(); CloseController(); Status = error; NotifyOutput();
+        }
         Song?.UpdatePosition();
         long? position = null;
         if (ShowPlayhead && IsPlaying)
@@ -491,7 +514,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     private void OpenListener()
     {
         CloseListener();
-        if (SelectedPort is null || !Settings.FollowT8)
+        if (SelectedPort is null || !Settings.FollowT8 || IsOffline)
             return;
         try
         {
@@ -515,7 +538,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     /// <summary>The T-8 changed pattern (it sends a program change when tXPc is on): follow it.</summary>
     internal void OnT8PatternChanged(int bank, int pattern)
     {
-        if (!Settings.FollowT8 || (bank == SelectedBank && pattern == SelectedPattern))
+        if (IsOffline || !Settings.FollowT8 || (bank == SelectedBank && pattern == SelectedPattern))
             return;
         SelectSlot(bank, pattern);
         Status = $"The T-8 switched to {PatternLabel}.";
@@ -876,6 +899,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     [RelayCommand]
     private void SelectOnT8()
     {
+        if (IsOffline) { Status = "Select T-8 output to change its pattern."; return; }
         if (Controller() is not { } t8)
             return;
         t8.SelectPattern(SelectedBank, SelectedPattern);
@@ -896,7 +920,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         }
         if (!IsPlaying || _controller is null)
             return;
-        if (Settings.PlayMode == PlayMode.SyncT8Sequencer)
+        if (PlaysOnT8)
             _controller.Clock.Stop();
         else
             _controller.PausePreview();
@@ -912,13 +936,14 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     private void StartPlayback()
     {
+        if (!IsPaused && _controller?.IsOffline == true && !WantsOffline) { CloseController(); OpenListener(); }
         Song?.Stop(); // a pattern and a song can't play at the same time
         if (Controller() is not { } t8)
             return;
         if (IsPaused)
         {
             IsPaused = false;
-            if (Settings.PlayMode == PlayMode.SyncT8Sequencer)
+            if (PlaysOnT8)
                 t8.Clock.Continue();
             else
                 t8.ResumePreview();
@@ -928,7 +953,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         }
         try
         {
-            if (Settings.PlayMode == PlayMode.SyncT8Sequencer)
+            if (PlaysOnT8)
             {
                 // The T-8 plays its own stored pattern, following our clock.
                 t8.SelectPattern(SelectedBank, SelectedPattern);
@@ -941,7 +966,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
             t8.PlayPreview(CurrentBass, CurrentRhythm, Bpm, fill: FillRhythm);
             IsPlaying = true;
-            Status = $"Playing {PatternLabel} at {Bpm:0} BPM through {SelectedPort!.Name}.";
+            Status = $"Playing {PatternLabel} at {Bpm:0} BPM through {(IsOffline ? "Offline · " + Preset.Name : SelectedPort!.Name)}.";
         }
         catch (Exception ex)
         {
@@ -961,7 +986,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     [RelayCommand]
     private void PlayFill()
     {
-        if (Settings.PlayMode == PlayMode.SyncT8Sequencer)
+        if (PlaysOnT8)
         {
             Status = "The T-8 is running its own sequencer: press SHIFT + STEP 7 on the T-8 to play its fill.";
             return;
@@ -989,36 +1014,50 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         Status = "Stopped.";
     }
 
-    private T8Controller? Controller()
+    private IPatternPlayer? Controller()
     {
-        if (_controller is not null)
-            return _controller;
-        if (SelectedPort is null)
+        if (_controller is not null) return _controller;
+        if (WantsOffline) return OpenOffline();
+        if (SelectedPort is null || IsT8DriveConnected)
         {
-            Status = "No MIDI output selected. Connect the T-8 and press Refresh.";
+            Status = "T-8 MIDI output is unavailable. Connect it normally or select Offline.";
             return null;
         }
         try
         {
             _controller = new T8Controller(_ports.OpenOutput(SelectedPort), Settings.Midi.Clone());
+            NotifyOutput();
             return _controller;
         }
         catch (Exception ex)
         {
+            if (OutputMode == OutputMode.Auto) return OpenOffline();
             Status = $"Couldn't open {SelectedPort.Name}: {ex.Message}";
             return null;
         }
     }
 
+    private IPatternPlayer? OpenOffline()
+    {
+        try
+        {
+            CloseListener();
+            _controller = _offlineFactory(Settings.Midi, Settings.Offline);
+            NotifyOutput();
+            return _controller;
+        }
+        catch (Exception ex) { Status = $"Couldn't open computer audio: {ex.Message}"; return null; }
+    }
+
     private void AuditionDrum(RhythmTrack track)
     {
-        if (AuditionEnabled && !IsPlaying && SelectedPort is not null)
+        if (AuditionEnabled && !IsPlaying && !Song.IsPlaying)
             Controller()?.TriggerDrum(track);
     }
 
     private void AuditionBass(int note)
     {
-        if (!AuditionEnabled || IsPlaying || SelectedPort is null || Controller() is not { } t8)
+        if (!AuditionEnabled || IsPlaying || Song.IsPlaying || Controller() is not { } t8)
             return;
         t8.BassNoteOn(note);
         Task.Delay(150).ContinueWith(_ => t8.BassNoteOff(note));
@@ -1031,11 +1070,11 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         LoadSelectedPattern();
         if (IsPaused)
             StopPlayback(); // the paused pattern is no longer the one shown
-        if (IsPlaying && Settings.PlayMode == PlayMode.SyncT8Sequencer)
+        if (IsPlaying && PlaysOnT8)
             _controller?.SelectPattern(SelectedBank, SelectedPattern);
         else if (IsPlaying)
             StartPlayback();
-        else if (Settings.FollowSelection && SelectedPort is not null)
+        else if (!IsOffline && Settings.FollowSelection && SelectedPort is not null)
             Controller()?.SelectPattern(SelectedBank, SelectedPattern);
     }
 
@@ -1057,6 +1096,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         IsDirty = true;
         RefreshSlots();
         Song?.RefreshSteps();
+        if (IsPlaying && _controller is OfflinePlayer local) local.UpdatePreview(CurrentBass, CurrentRhythm, Bpm, FillRhythm);
     }
 
     private void OnHistoryChanged(PatternHistoryChange change)
@@ -1072,12 +1112,13 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         RefreshSlots();
         Song?.RefreshSteps();
         Status = change == PatternHistoryChange.Undo ? "Undone." : "Redone.";
-        if (IsPlaying && Settings.PlayMode == PlayMode.PreviewNotes)
-            StartPlayback();
+        if (IsPlaying && _controller is OfflinePlayer local) local.UpdatePreview(CurrentBass, CurrentRhythm, Bpm, FillRhythm);
+        else if (IsPlaying && !PlaysOnT8) StartPlayback();
     }
 
     private void CloseController()
     {
+        Song?.Stop();
         _controller?.Dispose();
         _controller = null;
     }

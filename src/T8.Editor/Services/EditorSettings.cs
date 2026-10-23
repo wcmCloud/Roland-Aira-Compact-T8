@@ -2,8 +2,11 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using T8.Core.Patterns;
 using T8.Midi;
+using T8.Audio;
 
 namespace T8.Editor.Services;
+
+public enum OutputMode { Auto, T8, Offline }
 
 public enum PlayMode
 {
@@ -17,6 +20,8 @@ public enum PlayMode
 /// <summary>Everything the editor remembers between runs.</summary>
 public sealed class EditorSettings
 {
+    public OutputMode OutputMode { get; set; } = OutputMode.Auto;
+    public OfflineSettings Offline { get; set; } = new();
     public string? OutputPortName { get; set; }
     public T8MidiMap Midi { get; set; } = new();
     public PlayMode PlayMode { get; set; } = PlayMode.PreviewNotes;
@@ -54,6 +59,8 @@ public sealed class EditorSettings
 
     public EditorSettings Clone() => new()
     {
+        OutputMode = OutputMode,
+        Offline = Offline.Clone(),
         OutputPortName = OutputPortName,
         Midi = Midi.Clone(),
         PlayMode = PlayMode,
@@ -97,6 +104,9 @@ public sealed class JsonSettingsStore(string? path = null) : ISettingsStore
             if (!File.Exists(Path))
                 return new EditorSettings();
             var settings = JsonSerializer.Deserialize<EditorSettings>(File.ReadAllText(Path), Options) ?? new EditorSettings();
+            settings.Offline ??= new();
+            settings.Offline.Validate();
+            if (!Enum.IsDefined(settings.OutputMode)) settings.OutputMode = OutputMode.Auto;
             if (settings.Midi.Validate().Count > 0)
                 settings.Midi = new T8MidiMap();
             return settings;
