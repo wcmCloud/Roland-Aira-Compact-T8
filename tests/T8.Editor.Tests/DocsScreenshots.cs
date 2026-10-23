@@ -69,6 +69,15 @@ public class DocsScreenshots
         Save(window, "main-rhythm.png");
         Crop(window, window.FindControl<Border>("PatternsCard")!, "patterns.png");
         Crop(window, window.FindControl<Border>("PlaybackCard")!, "playback.png");
+        // Offline is an explicit choice: the kit, volume and Sound settings stay available with the T-8 connected.
+        var status = vm.Status;
+        vm.OutputMode = OutputMode.Offline;
+        Settle(window);
+        Crop(window, window.FindControl<Border>("PlaybackCard")!, "offline-playback.png");
+        SaveSoundSettings(window);
+        vm.OutputMode = OutputMode.Auto;
+        vm.Status = status;
+        Settle(window);
         Crop(window, Find<RhythmEditorView>(window), "rhythm-editor.png");
         Crop(window, Find<RhythmGeneratorView>(window), "rhythm-generator.png");
 
@@ -186,6 +195,31 @@ public class DocsScreenshots
 
         window.Close();
         vm.Dispose();
+    }
+
+    /// <summary>
+    /// The Sound settings flyout. Headless popups are not part of the window image, so the same
+    /// panel is drawn on the window background.
+    /// </summary>
+    private static void SaveSoundSettings(MainWindow window)
+    {
+        var flyout = (Flyout)window.FindControl<Button>("OfflineSoundSettingsButton")!.Flyout!;
+        var content = (Control)flyout.Content!;
+        flyout.Content = null;
+        content.DataContext = window.DataContext;
+        var shot = new Window
+        {
+            Content = new Border { Background = window.Background, Padding = new Thickness(16), Child = content },
+            SizeToContent = SizeToContent.WidthAndHeight,
+            SystemDecorations = SystemDecorations.None,
+            Background = window.Background,
+        };
+        shot.Show();
+        Settle(shot);
+        Save(shot, "offline-sound-settings.png");
+        ((Border)shot.Content).Child = null;
+        shot.Close();
+        flyout.Content = content;
     }
 
     private static T Find<T>(Visual root) where T : Visual => root.GetVisualDescendants().OfType<T>().First();
