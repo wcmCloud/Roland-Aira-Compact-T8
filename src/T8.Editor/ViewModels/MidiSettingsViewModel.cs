@@ -186,21 +186,39 @@ public sealed partial class MidiSettingsViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanDetect))]
     private async Task DetectChannelsAsync()
     {
-        if (SelectedPort is null)
+        // The button listens to the T-8 even when MIDI out is another port (a saved Akai or IAC
+        // choice would otherwise be matched by name and Detect would sit on the wrong input).
+        MidiPortInfo? output;
+        try
+        {
+            output = MidiPorts.FindT8(_ports.ListOutputs()) ?? SelectedPort;
+        }
+        catch (Exception ex)
+        {
+            DetectResult = $"Detect failed: {ex.Message}";
+            return;
+        }
+
+        if (output is null)
         {
             DetectResult = "Pick a MIDI output first. If the T-8 isn't listed, check the USB cable and press Refresh.";
             return;
         }
 
+        var selectedIsT8 = SelectedPort is not null && MidiPorts.LooksLikeT8(SelectedPort.Name);
         IsDetecting = true;
-        DetectResult = $"Listening for {DetectTime.TotalSeconds:0} s… press Start on the T-8 and let a pattern with drums and bass play.";
+        DetectResult = $"Listening to {output.Name} for {DetectTime.TotalSeconds:0} s… press Start on the T-8 and let a pattern with drums and bass play.";
         try
         {
-            var result = await new ChannelDetector(_ports, BuildMap()).RunAsync(SelectedPort, DetectTime);
+            var result = await new ChannelDetector(_ports, BuildMap()).RunAsync(output, DetectTime);
             BassChannel = result.BassChannel ?? BassChannel;
             RhythmChannel = result.RhythmChannel ?? RhythmChannel;
             ProgramChangeChannel = result.ProgramChangeChannel ?? ProgramChangeChannel;
-            DetectResult = result.Summary + (result.FoundAny ? " Press Save to keep them." : "");
+            var heardElsewhere = result.FoundAny && !selectedIsT8 && MidiPorts.LooksLikeT8(output.Name);
+            DetectResult = result.Summary
+                + (heardElsewhere && result.InputPortName is { } heard ? $" Heard on {heard}." : "")
+                + (heardElsewhere && SelectedPort is { } selected ? $" MIDI out is still {selected.Name}." : "")
+                + (result.FoundAny ? " Press Save to keep them." : "");
         }
         catch (Exception ex)
         {

@@ -41,6 +41,19 @@ public sealed partial class MainWindowViewModel
     public double Resonance { get => BassSound.Resonance; set => SetBass(BassSound with { Resonance = value }); }
     public double Decay { get => BassSound.Decay; set => SetBass(BassSound with { Decay = value }); }
     public double Slide { get => BassSound.Slide; set => SetBass(BassSound with { Slide = value }); }
+    public double KickVolume { get => Settings.Offline.Levels.Kick; set => SetLevels(Settings.Offline.Levels with { Kick = value }, nameof(KickVolume)); }
+    public double SnareVolume { get => Settings.Offline.Levels.Snare; set => SetLevels(Settings.Offline.Levels with { Snare = value }, nameof(SnareVolume)); }
+    public double TomVolume { get => Settings.Offline.Levels.Tom; set => SetLevels(Settings.Offline.Levels with { Tom = value }, nameof(TomVolume)); }
+    public double ClapVolume { get => Settings.Offline.Levels.Clap; set => SetLevels(Settings.Offline.Levels with { Clap = value }, nameof(ClapVolume)); }
+    public double ClosedHatVolume { get => Settings.Offline.Levels.ClosedHat; set => SetLevels(Settings.Offline.Levels with { ClosedHat = value }, nameof(ClosedHatVolume)); }
+    public double OpenHatVolume { get => Settings.Offline.Levels.OpenHat; set => SetLevels(Settings.Offline.Levels with { OpenHat = value }, nameof(OpenHatVolume)); }
+    public double BassVolume { get => Settings.Offline.Levels.Bass; set => SetLevels(Settings.Offline.Levels with { Bass = value }, nameof(BassVolume)); }
+    private void SetLevels(InstrumentLevels levels, string propertyName)
+    {
+        Settings.Offline.Levels = levels.Sanitize();
+        ApplySound();
+        OnPropertyChanged(propertyName);
+    }
     private void SetBass(BassSound sound) { Settings.Offline.Bass = OfflineSettings.Sanitize(sound); ApplySound(); NotifyBass(); }
     private void NotifyBass() { foreach (var name in new[] { nameof(Wave), nameof(Cutoff), nameof(Resonance), nameof(Decay), nameof(Slide) }) OnPropertyChanged(name); }
     private void NotifyOutput()

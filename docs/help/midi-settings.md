@@ -10,7 +10,7 @@ Open with the gear button in the top bar. Press **Save** to keep the settings; t
 ## MIDI channels
 
 - **BASS** = `bACh` (T-8 default 2), **RHYTHM** = `rhCh` (default 10), **PATTERN** = `Pc.Ch`, pattern select (default 16).
-- **Detect from T-8:** press it, then press Start on the T-8 and let a pattern with drums and bass play. Pattern select is found too if `tXPc` is on and you change pattern while it listens.
+- **Detect from T-8:** press it, then press Start on the T-8 and let a pattern with drums and bass play. It listens to the T-8 even when MIDI out is another port. Pattern select is found too if `tXPc` is on and you change pattern while it listens. If MIDI out is still another port, the result says so; set MIDI out to the T-8 for Play and Test.
 - **OFF** (Bass and Rhythm) sends nothing for that part, like OFF on the T-8.
 
 ## Drum notes

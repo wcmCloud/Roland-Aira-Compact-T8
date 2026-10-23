@@ -9,6 +9,61 @@ public sealed class AudioTests
     private static readonly SampleBank Bank = new();
     public static IEnumerable<object[]> Presets => SoundPreset.All.Select(p => new object[] { p.Id });
     private static double Energy(float[] buffer) => buffer.Sum(x => (double)x * x);
+    [Theory]
+    [InlineData(0)] [InlineData(1)] [InlineData(2)] [InlineData(3)]
+    [InlineData(4)] [InlineData(5)] [InlineData(6)]
+    public void Mixer_mutes_only_selected_instrument(int muted)
+    {
+        var levels = muted switch
+        {
+            0 => new InstrumentLevels(Kick: 0), 1 => new InstrumentLevels(Snare: 0),
+            2 => new InstrumentLevels(Tom: 0), 3 => new InstrumentLevels(Clap: 0),
+            4 => new InstrumentLevels(ClosedHat: 0), 5 => new InstrumentLevels(OpenHat: 0),
+            _ => new InstrumentLevels(Bass: 0)
+        };
+        for (int instrument = 0; instrument < 7; instrument++)
+        {
+            var renderer = new AudioRenderer(Bank);
+            renderer.SetLevels(levels);
+            renderer.Render(new float[24000]); // allow the click-free gain ramp to settle
+            renderer.Apply(instrument == 6 ? new(0, AudioEventKind.BassOn, 48) : new(0, AudioEventKind.Drum, instrument));
+            var buffer = new float[48000];
+            renderer.Render(buffer);
+            if (instrument == muted) Assert.True(Energy(buffer) < 1e-12);
+            else Assert.True(Energy(buffer) > .01);
+        }
+    }
+
+    [Fact]
+    public void Mix_defaults_validation_serialization_and_clone_are_safe()
+    {
+        var legacy = System.Text.Json.JsonSerializer.Deserialize<OfflineSettings>("{}")!;
+        legacy.Validate();
+        Assert.Equal(new InstrumentLevels(), legacy.Levels);
+        legacy.Levels = new(Kick: -1, Snare: 2, Tom: double.NaN, Bass: double.PositiveInfinity);
+        legacy.Validate();
+        Assert.Equal(new InstrumentLevels(Kick: 0), legacy.Levels);
+        var clone = legacy.Clone();
+        clone.Levels = clone.Levels with { Bass = .2 };
+        Assert.Equal(1, legacy.Levels.Bass);
+        var json = System.Text.Json.JsonSerializer.Serialize(clone);
+        Assert.Equal(clone.Levels, System.Text.Json.JsonSerializer.Deserialize<OfflineSettings>(json)!.Levels);
+    }
+
+    [Fact]
+    public void Live_bass_volume_change_fades_to_silence_without_stopping_voice()
+    {
+        var renderer = new AudioRenderer(Bank);
+        renderer.Apply(new(0, AudioEventKind.BassOn, 48));
+        var buffer = new float[24000]; renderer.Render(buffer);
+        Assert.True(Energy(buffer) > .01);
+        renderer.SetLevels(new(Bass: 0));
+        renderer.Render(buffer); renderer.Render(buffer);
+        Assert.True(Energy(buffer) < 1e-12);
+        renderer.SetLevels(new()); renderer.Render(buffer);
+        Assert.True(Energy(buffer) > .01);
+    }
+
     [Theory, MemberData(nameof(Presets))]
     public void Every_preset_contains_six_audible_finite_drum_voices(string id)
     {
@@ -48,6 +103,55 @@ public sealed class AudioTests
         double tail = 0;
         for (int i = 26000; i < output.Length; i++) tail += output[i] * output[i];
         Assert.True(tail > .01);
+    }
+    [Fact]
+    public void Samples_are_decoded_once_and_reused()
+    {
+        var first = SampleBank.Shared();
+        var second = SampleBank.Shared();
+        Assert.Same(first, second);
+        Assert.Same(first.Kit(SoundPreset.All[0]), second.Kit(SoundPreset.All[0]));
+        Assert.Same(first.Kit(SoundPreset.All[0])[0], second.Kit(SoundPreset.All[0])[0]);
+    }
+    [Fact]
+    public void Retriggering_a_drum_restarts_it_instead_of_stacking_another_copy()
+    {
+        float[] Hit(bool again)
+        {
+            var preset = SoundPreset.Find("classic");
+            var r = new AudioRenderer(Bank);
+            r.SetSound(preset, Bank.Kit(preset), preset.Bass);
+            r.Apply(new(0, AudioEventKind.Drum));
+            if (again) r.Render(new float[8000]);
+            var output = new float[4000];
+            if (again) r.Apply(new(0, AudioEventKind.Drum));
+            r.Render(output);
+            return output;
+        }
+        var fresh = Hit(false);
+        var again = Hit(true);
+        double error = 0, energy = 0;
+        for (int i = 400; i < fresh.Length; i++)
+        {
+            var delta = fresh[i] - again[i];
+            error += delta * delta;
+            energy += fresh[i] * fresh[i];
+        }
+        Assert.True(error < energy * .05);
+    }
+    [Fact]
+    public void Replacing_the_pattern_does_not_cut_a_ringing_drum()
+    {
+        var preset = SoundPreset.Find("classic");
+        var r = new AudioRenderer(Bank);
+        r.SetSound(preset, Bank.Kit(preset), preset.Bass);
+        r.Start(new([new(0, AudioEventKind.Drum)], 96, 96, 120, true));
+        r.Render(new float[2000]);
+        r.Start(new([], 96, 96, 120, true), preservePosition: true);
+        r.Render(new float[8000]);
+        var tail = new float[8000];
+        r.Render(tail);
+        Assert.True(Energy(tail) > .01);
     }
     [Fact]
     public void Invalid_wave_is_rejected() => Assert.Throws<InvalidDataException>(() => SampleBank.ReadWave(new MemoryStream(new byte[32]), 48000));

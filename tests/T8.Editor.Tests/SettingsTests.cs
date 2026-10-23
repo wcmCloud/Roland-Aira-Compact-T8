@@ -257,6 +257,38 @@ public class MidiSettingsViewModelTests
     }
 
     [Fact]
+    public async Task Detect_listens_to_the_t8_when_midi_out_is_another_port()
+    {
+        var akai = new MidiPortInfo("Akai Network - DAW Control", "Akai Network - DAW Control");
+        var t8Out = new MidiPortInfo("T-8 MIDI IN", "T-8 MIDI IN");
+        var ports = new FakePortProvider(akai, t8Out)
+        {
+            Inputs =
+            [
+                akai,
+                new MidiPortInfo("T-8 MIDI OUT", "T-8 MIDI OUT"),
+            ],
+        };
+        ports.InputEvents.Add(new Melanchall.DryWetMidi.Core.NoteOnEvent(
+            (Melanchall.DryWetMidi.Common.SevenBitNumber)36, (Melanchall.DryWetMidi.Common.SevenBitNumber)100)
+        { Channel = (Melanchall.DryWetMidi.Common.FourBitNumber)4 });
+        ports.InputEvents.Add(new Melanchall.DryWetMidi.Core.NoteOnEvent(
+            (Melanchall.DryWetMidi.Common.SevenBitNumber)48, (Melanchall.DryWetMidi.Common.SevenBitNumber)100)
+        { Channel = (Melanchall.DryWetMidi.Common.FourBitNumber)5 });
+        var settings = new EditorSettings { OutputPortName = akai.Name };
+        var vm = new MidiSettingsViewModel(ports, settings) { DetectTime = TimeSpan.FromMilliseconds(100) };
+
+        Assert.Equal(akai.Name, vm.SelectedPort?.Name);
+        await vm.DetectChannelsCommand.ExecuteAsync(null);
+
+        Assert.Equal("T-8 MIDI OUT", Assert.Single(ports.OpenedInputNames));
+        Assert.Equal((6, 5), (vm.BassChannel, vm.RhythmChannel));
+        Assert.Contains("Heard on T-8 MIDI OUT", vm.DetectResult);
+        Assert.Contains("MIDI out is still Akai Network - DAW Control", vm.DetectResult);
+        Assert.Equal(akai.Name, vm.SelectedPort?.Name);
+    }
+
+    [Fact]
     public void Refresh_keeps_the_choice()
     {
         var vm = Create();

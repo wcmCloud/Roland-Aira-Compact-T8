@@ -70,6 +70,10 @@ public class HelpTests
         for (var i = 0; i < 3; i++)
         {
             tabs.SelectedIndex = i;
+            if (i == 0)
+                window.FindControl<Expander>("RhythmGeneratorExpander")!.IsExpanded = true;
+            if (i == 1)
+                window.FindControl<Expander>("BassGeneratorExpander")!.IsExpanded = true;
             vm.Rhythm.SelectedCell = vm.Rhythm.Tracks[0].Cells[0];
             window.UpdateLayout();
             foreach (var icon in window.GetVisualDescendants().OfType<HelpTip>().Where(t => t.IsEffectivelyVisible).ToList())

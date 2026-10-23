@@ -51,6 +51,9 @@ public class DocsScreenshots
         vm.Status = "Loaded 64 patterns from BACKUP.";
         var window = new MainWindow { DataContext = vm, Width = 1470, Height = 890 };
         window.Show();
+        // Documentation captures the optional generator controls expanded.
+        window.FindControl<Expander>("RhythmGeneratorExpander")!.IsExpanded = true;
+        window.FindControl<Expander>("BassGeneratorExpander")!.IsExpanded = true;
 
         // Rhythm tab: a techno pattern, step 5 playing, a closed hat with a roll in the inspector.
         vm.RhythmGenerator.Style = RhythmGeneratorViewModel.Styles.Single(s => s.Value == RhythmStyle.Techno);

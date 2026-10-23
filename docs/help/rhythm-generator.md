@@ -1,6 +1,6 @@
 # Rhythm generator
 
-Writes a drum pattern into the current pattern, up to its last step.
+Open **Rhythm generator** at the bottom of the Rhythm tab. It writes a drum pattern into the current pattern, up to its last step.
 
 - **STYLE:** Techno, House, Electro, Breakbeat, Hip-hop / boom bap, Trap, Drum & bass, Minimal / acid or Random. Each style has hits that always play (like the four-on-the-floor kick in techno) and hits that only play some of the time.
 - **Instrument chips** (BD, SD, TOM, CLAP, CH, OH): the lit ones are used.

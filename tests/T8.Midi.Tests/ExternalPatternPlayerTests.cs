@@ -104,4 +104,22 @@ public class ExternalPatternPlayerTests
         Assert.Contains(output.Events, e => e is NoteOnEvent n && n.NoteNumber == 38);
         Assert.Null(player.CurrentStep);
     }
+
+    [Fact]
+    public void The_loop_restarts_the_downbeat_without_choking_sounding_drums()
+    {
+        using var output = new FakeOutputDevice();
+        using var t8 = new T8Controller(output);
+        using var input = new FakeInputDevice();
+        using var player = new ExternalPatternPlayer(input, t8, null, Kick(), null, 1, 1, false);
+        input.StartEventsListening();
+        input.Receive(new StartEvent());
+        output.Clear();
+
+        for (var i = 0; i < 25; i++)
+            input.Receive(new TimingClockEvent());
+
+        Assert.Contains(output.Events, e => e is NoteOnEvent n && n.NoteNumber == 36);
+        Assert.DoesNotContain(output.Events, e => e is ControlChangeEvent cc && (int)cc.ControlNumber is 120 or 123);
+    }
 }

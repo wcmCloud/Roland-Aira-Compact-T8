@@ -4,11 +4,18 @@ public enum AudioEventKind { Drum, BassOn, BassOff, Silence }
 public readonly record struct AudioEvent(double Tick, AudioEventKind Kind, int Note = 0, int Velocity = 100);
 public sealed record AudioTimeline(AudioEvent[] Events, double Length, double MainLength, double Bpm, bool Loop, double Start = 0);
 
-/// <summary>Single audio-thread owner; commands enter via bounded queues in OfflinePlayer.</summary>
+/// <summary>
+/// Single audio-thread owner; commands enter via bounded queues in OfflinePlayer.
+/// Each drum keeps one sample position. A new hit restarts that voice instead of stacking another
+/// copy, and a loop or pattern edit leaves an unreleased tail playing.
+/// </summary>
 public sealed class AudioRenderer
 {
-    private struct Voice { public float[]? Data; public int Position, Drum; public double Gain, Fade, Tone, Decay, Low; }
-    private readonly Voice[] _voices = new Voice[48];
+    private struct Voice { public float[]? Data; public int Position, Drum; public double Gain, Target, Attack, Fade, Tone, Decay, Low; }
+    private readonly Voice[] _voices = new Voice[6];
+    private InstrumentLevels _levels = new();
+    private readonly double[] _gains = [1, 1, 1, 1, 1, 1, 1];
+    public void SetLevels(InstrumentLevels levels) => _levels = levels.Sanitize();
     private readonly int[] _held = new int[128];
     private float[][] _kit;
     private SoundPreset _preset;
@@ -37,11 +44,18 @@ public sealed class AudioRenderer
         {
             _pending = timeline; _pendingAt = (Math.Floor(_tick / 24) + 1) * 24; return;
         }
-        Silence(); _pending = null;
+        Begin(timeline, keepDrums: false);
+    }
+    private void Begin(AudioTimeline timeline, bool keepDrums)
+    {
+        // A live edit releases the bass at the next step. Drum samples keep the position they already have.
+        if (keepDrums) ReleaseBass(); else Silence();
+        _pending = null;
         _timeline = timeline; _tick = timeline.Start;
         _index = 0; while (_index < timeline.Events.Length && timeline.Events[_index].Tick < _tick) _index++;
         _fill = false; _jumpAt = -1; _paused = false; Running = true; Finished = false;
     }
+    private void ReleaseBass() { Array.Clear(_held); _gate = false; _bassNote = -1; }
     public void Stop() { Running = false; _paused = false; Finished = false; _timeline = null; _pending = null; _tick = 0; _jumpAt = -1; Silence(); }
     public void Pause() { _paused = Running; Running = false; Silence(); }
     public void Resume() { if (_paused) { Running = true; _paused = false; } }
@@ -50,7 +64,7 @@ public sealed class AudioRenderer
     public void Silence()
     {
         Array.Clear(_held); _gate = false; _bassNote = -1;
-        for (int i = 0; i < _voices.Length; i++) _voices[i].Fade = 1.0 / (SampleRate * .004);
+        for (int i = 0; i < _voices.Length; i++) { _voices[i].Target = 0; _voices[i].Attack = 0; _voices[i].Fade = 1.0 / (SampleRate * .004); }
     }
     public void Apply(AudioEvent e)
     {
@@ -58,11 +72,10 @@ public sealed class AudioRenderer
         {
             case AudioEventKind.Silence: Silence(); break;
             case AudioEventKind.Drum:
-                if (e.Note is < 0 or >= 6) return;
-                if (e.Note == 4) for (int i = 0; i < _voices.Length; i++) if (_voices[i].Drum == 5) _voices[i].Fade = 1.0 / (SampleRate * .003);
-                var slot = Array.FindIndex(_voices, v => v.Data is null);
-                if (slot < 0) { slot = 0; for (int i = 1; i < _voices.Length; i++) if (_voices[i].Gain < _voices[slot].Gain) slot = i; }
-                _voices[slot] = new Voice { Data = _kit[e.Note], Drum = e.Note, Gain = Math.Clamp(e.Velocity, 0, 127) / 127.0, Tone = _preset.Tone,
+                if ((uint)e.Note >= (uint)_voices.Length) return;
+                if (e.Note == 4) { _voices[5].Target = 0; _voices[5].Attack = 0; _voices[5].Fade = 1.0 / (SampleRate * .003); }
+                var level = Math.Clamp(e.Velocity, 0, 127) / 127.0;
+                _voices[e.Note] = new Voice { Data = _kit[e.Note], Drum = e.Note, Target = level, Attack = level / (SampleRate * .0015), Tone = _preset.Tone,
                     Decay = Math.Exp(-(1 / _preset.DrumDecay - 1) / (SampleRate * .2)) };
                 break;
             case AudioEventKind.BassOn:
@@ -86,7 +99,7 @@ public sealed class AudioRenderer
             if (Running && _pending is { } pending && _tick + 1e-8 >= _pendingAt)
             {
                 var position = _tick % pending.MainLength;
-                Start(pending); _tick = position;
+                Begin(pending, keepDrums: true); _tick = position;
                 while (_index < pending.Events.Length && pending.Events[_index].Tick < _tick - 1e-8) _index++;
             }
             if (Running && _timeline is { } t)
@@ -106,17 +119,20 @@ public sealed class AudioRenderer
                     _tick += t.Bpm * 96 / (60 * SampleRate);
                 }
             }
+            for (int i = 0; i < _gains.Length; i++)
+                _gains[i] += .002 * (_levels[i] - _gains[i]);
             double value = 0;
             for (int i = 0; i < _voices.Length; i++)
             {
                 ref var v = ref _voices[i];
                 if (v.Data is null || v.Position >= v.Data.Length) { v.Data = null; continue; }
                 v.Low += v.Tone * (v.Data[v.Position++] - v.Low);
-                value += v.Low * v.Gain;
+                if (v.Gain < v.Target) v.Gain = Math.Min(v.Target, v.Gain + v.Attack);
+                value += v.Low * v.Gain * _gains[i];
                 v.Gain = Math.Max(0, v.Gain * v.Decay - v.Fade);
                 if (v.Position >= v.Data.Length || v.Gain < .00001) v.Data = null;
             }
-            value += BassSample();
+            value += BassSample() * _gains[6];
             _volume += .002 * (Math.Clamp(Volume, 0, 1) - _volume);
             value = Math.Tanh(value * _preset.Drive) / Math.Max(1, Math.Sqrt(_preset.Drive)) * _volume;
             stereo[frame * 2] = stereo[frame * 2 + 1] = (float)value;

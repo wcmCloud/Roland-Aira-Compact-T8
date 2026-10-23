@@ -77,6 +77,9 @@ internal sealed class FakePortProvider(params MidiPortInfo[] ports) : IMidiPortP
     public List<FakeOutputDevice> Opened { get; } = new();
     public List<FakeInputDevice> OpenedInputs { get; } = new();
 
+    /// <summary>Names of inputs opened, in order, so a test can see which port was listened to.</summary>
+    public List<string> OpenedInputNames { get; } = new();
+
     public FakeOutputDevice? LastOpened => Opened.LastOrDefault();
 
     /// <summary>Inputs to list; defaults to the same ports as the outputs.</summary>
@@ -105,6 +108,7 @@ internal sealed class FakePortProvider(params MidiPortInfo[] ports) : IMidiPortP
 
     public IInputDevice OpenInput(MidiPortInfo port)
     {
+        OpenedInputNames.Add(port.Name);
         var device = new FakeInputDevice();
         if (InputsRespond)
             device.SendOnStart.Add(new ActiveSensingEvent());

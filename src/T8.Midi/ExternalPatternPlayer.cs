@@ -201,7 +201,7 @@ public sealed class ExternalPatternPlayer : IDisposable
             {
                 _fillPlaying = false;
                 _clocks = 0;
-                _output.AllNotesOff();
+                ReleaseThrough(_fillEvents, _fillTicks);
                 SeekNotes(0);
             }
             else
@@ -213,7 +213,8 @@ public sealed class ExternalPatternPlayer : IDisposable
             var time = _clocks * 4;
             if (time >= _loopTicks && time % _loopTicks == 0)
             {
-                _output.AllNotesOff();
+                // Note-offs only. All-sound-off would choke drum samples that are still playing.
+                ReleaseThrough(_events, _loopTicks);
                 if (_fillQueued)
                 {
                     _fillQueued = false;
@@ -231,6 +232,13 @@ public sealed class ExternalPatternPlayer : IDisposable
                 Dispatch(_events, ref _index, time % _loopTicks);
         }
         _clocks++;
+    }
+
+    private void ReleaseThrough(List<TimedEvent> events, long end)
+    {
+        foreach (var timed in events)
+            if (timed.Time >= end && timed.Event is NoteOffEvent off)
+                _output.SendExternalEvent(off);
     }
 
     private void SeekNotes(long tick)

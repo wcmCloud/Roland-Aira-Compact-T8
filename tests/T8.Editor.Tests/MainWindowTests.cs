@@ -52,19 +52,56 @@ public class MainWindowTests
         return (window, vm);
     }
 
+    [AvaloniaTheory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void Laptop_window_keeps_active_editor_and_generator_access_visible(int tab)
+    {
+        var (window, vm) = Show();
+        try
+        {
+            window.Width = 1440;
+            window.Height = 800;
+            window.FindControl<TabControl>("Tabs")!.SelectedIndex = tab;
+            Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+            window.UpdateLayout();
+            var tabs = window.FindControl<TabControl>("Tabs")!;
+            Assert.True(tabs.Bounds.Height >= 350, "Editing area should retain useful height on a laptop.");
+            Assert.False(window.FindControl<Expander>("RhythmGeneratorExpander")!.IsExpanded);
+            Assert.False(window.FindControl<Expander>("BassGeneratorExpander")!.IsExpanded);
+            if (tab == 1)
+            {
+                var editor = window.GetVisualDescendants().OfType<BassEditorView>().Single();
+                var scroll = editor.GetVisualDescendants().OfType<ScrollViewer>().First();
+                Assert.True(scroll.Extent.Height <= scroll.Viewport.Height + 1,
+                    "Bass steps and keyboard should fit without vertical scrolling.");
+            }
+            if (tab < 2)
+            {
+                var expander = window.FindControl<Expander>(tab == 0 ? "RhythmGeneratorExpander" : "BassGeneratorExpander")!;
+                expander.IsExpanded = true;
+                window.UpdateLayout();
+                Assert.True(expander.Bounds.Height > 50);
+                expander.IsExpanded = false;
+            }
+        }
+        finally { window.Close(); vm.Dispose(); }
+    }
+
     [AvaloniaFact]
     public void Window_shows_the_loaded_library()
     {
         var (window, vm) = Show();
 
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.12", window.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v2.0", window.Title);
         Assert.Equal("BACKUP", window.FindControl<TextBlock>("LibraryText")!.Text);
         Assert.False(window.FindControl<Avalonia.Controls.Shapes.Ellipse>("UnsavedDot")!.IsVisible);
         vm.Rhythm.Tracks[0].Cells[1].On = !vm.Rhythm.Tracks[0].Cells[1].On;
         Assert.True(vm.IsDirty);
         Assert.True(window.FindControl<Avalonia.Controls.Shapes.Ellipse>("UnsavedDot")!.IsVisible);
         Assert.Equal("BACKUP · unsaved changes", window.FindControl<TextBlock>("LibraryText")!.Text);
-        Assert.Equal("Roland Aira Compact T-8 Editor - v1.0.12", window.Title);
+        Assert.Equal("Roland Aira Compact T-8 Editor - v2.0", window.Title);
         Assert.Contains("Loaded 64 patterns", window.FindControl<TextBlock>("StatusText")!.Text);
         // CY has no sound on the T-8, so its row is hidden.
         Assert.Equal(7, window.GetVisualDescendants().OfType<RhythmEditorView>().Single()
@@ -308,6 +345,8 @@ public class MainWindowTests
     public void Rhythm_generator_has_instrument_chips_with_icons_and_outlined_combos()
     {
         var (window, vm) = Show();
+        window.FindControl<Expander>("RhythmGeneratorExpander")!.IsExpanded = true;
+        window.UpdateLayout();
         var generator = window.GetVisualDescendants().OfType<RhythmGeneratorView>().Single();
 
         var chips = new[] { "BassDrumChip", "SnareChip", "TomChip", "ClapChip", "ClosedHatChip", "OpenHatChip", "FillCheck" }
@@ -340,6 +379,7 @@ public class MainWindowTests
     {
         var (window, vm) = Show();
         window.FindControl<TabControl>("Tabs")!.SelectedIndex = 1;
+        window.FindControl<Expander>("BassGeneratorExpander")!.IsExpanded = true;
         window.UpdateLayout();
         var generator = window.GetVisualDescendants().OfType<BassGeneratorView>().Single();
 
@@ -742,7 +782,7 @@ public class AboutWindowTests
         var texts = about.GetVisualDescendants().OfType<TextBlock>().Select(t => t.Text ?? "").ToList();
 
         Assert.Contains("Christos Christodoulidis", texts);
-        Assert.Contains(texts, t => t.StartsWith("Version 1.0.12"));
+        Assert.Contains(texts, t => t.StartsWith("Version 2.0.0"));
         Assert.DoesNotContain(texts, t => t.Contains("Avalonia", StringComparison.OrdinalIgnoreCase));
         about.Close();
     }
