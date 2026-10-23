@@ -248,6 +248,19 @@
                               ToolTip.Tip="Hear steps through the selected output as you edit them" />
                 <ToggleButton x:Name="PlayheadCheck" Classes="seg" Content="SHOW PLAYING STEP" IsChecked="{Binding ShowPlayhead}"
                               ToolTip.Tip="Highlight the step being played, and the bass note on the keyboard" />
+                <ToggleButton x:Name="FollowClockCheck" Classes="seg" Content="FOLLOW CLOCK" IsChecked="{Binding FollowExternalClock}"
+                              ToolTip.Tip="Pattern Play follows an external MIDI clock instead of the BPM knob. Press Play to arm, then start that clock." />
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="4">
+                <ComboBox x:Name="ClockInputBox" Classes="port" MinWidth="160" ItemsSource="{Binding ClockInputs}" SelectedItem="{Binding ClockInput}"
+                          PlaceholderText="Clock input" ToolTip.Tip="The port that sends MIDI clock, such as IAC or loopMIDI. Not the T-8's own output.">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="ports:MidiPortInfo">
+                      <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+                <Button x:Name="RefreshClockInputsButton" Classes="seg" Content="REFRESH INPUTS" Command="{Binding RefreshClockInputsCommand}" />
               </StackPanel>
             </StackPanel>
           </WrapPanel>
