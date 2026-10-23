@@ -303,8 +303,9 @@ Generate, Vary, Fill bank, Randomize, Undo and Seed sit together in the **Action
   away last, and copies the bass line into each so a song has somewhere to go. It skips slots that already
   have notes, and wraps into the next bank when this one runs out.
 - **Randomize** picks a new seed and replaces the pattern: a different one in the same style.
-- **Undo** puts back the pattern from before the last Generate, Vary, Randomize, Fill bank or Make fill (it is
-  greyed out when there is nothing to undo).
+- **Undo** (Cmd/Ctrl+Z, and the Undo button) walks back through every change to the open patterns: a cell, a
+  cleared or pasted row, a pasted pattern, a transpose, and Generate, Vary, Randomize, Fill bank or Make fill.
+  Shift+Cmd/Ctrl+Z redoes. It is greyed out when there is nothing to undo. Switching pattern does not drop the history.
 - **Seed:** type a number to get a generated pattern back.
 
 The generator never puts the closed and open hat on the same step, because the T-8's open hat cuts off the closed one.
@@ -381,7 +382,7 @@ steps.
 **Generate** replaces the whole line, and **Randomize** does the same with a new seed. **Vary** keeps the rhythm
 and every pitch; other notes can jump an octave, and roots on the beat stay put while Lock roots is on. Press
 Vary again for another take; the seed stays put. **Fill bank** writes eight related lines into the next empty
-slots, close to this one first, and copies the drum pattern into each. **Undo** and **Seed** work as for rhythms.
+slots, close to this one first, and copies the drum pattern into each. **Undo** (Cmd/Ctrl+Z) and **Seed** work as for rhythms.
 
 ## Songs
 
@@ -639,3 +640,11 @@ The editor uses [Avalonia](https://avaloniaui.net), [DryWetMIDI](https://github.
 Roland, AIRA and T-8 are trademarks of Roland Corporation. This is an independent project, not made or endorsed by
 Roland. The factory patterns in `original presets` and the owner's manual in `docs` are Roland's and are not covered by the
 licenses above.
+
+### Song MIDI export and DAW clock
+
+The Song tab's **Export song as MIDI…** writes either queued pattern changes (**Programs**, one pass
+ahead) or the complete drum and bass arrangement (**Notes**), including repeats, fills, tempo and markers.
+**Follow DAW MIDI clock** runs the Song tab from an input port with Start, Stop and Continue support.
+No DAW-specific selection is required. See [Using a song in a DAW](docs/help/song.md#use-a-song-in-a-daw)
+for routing, T-8 settings and virtual MIDI setup.

@@ -17,7 +17,7 @@ Each row is one of the T-8's tracks (Accent, Bass drum, Snare, Tom, Clap, Closed
 ## Rows
 
 - Click a row's name to select it (outlined orange).
-- The icons at the end of a row **copy** it, **paste** a copied row over it (also into another pattern or bank) and **clear** it.
+- The icons at the end of a row **copy** it, **paste** a copied row over it (also into another pattern or bank) and **clear** it. **Cmd/Ctrl+Z** undoes a clear, a paste or a cell click; **Shift+Cmd/Ctrl+Z** puts it back.
 - With a row selected, **Cmd/Ctrl+C** and **Cmd/Ctrl+V** copy and paste.
 
 ## Several steps at once

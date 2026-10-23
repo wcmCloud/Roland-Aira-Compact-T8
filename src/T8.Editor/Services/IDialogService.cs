@@ -22,6 +22,8 @@ public interface IDialogService
     /// <summary>Asks for a .t8song file to open; null if cancelled.</summary>
     Task<string?> PickSongToOpenAsync();
 
+    Task<string?> PickMidiToSaveAsync(string suggestedName);
+
     /// <summary>Asks where to save a .t8song file; null if cancelled.</summary>
     Task<string?> PickSongToSaveAsync(string suggestedName);
 }

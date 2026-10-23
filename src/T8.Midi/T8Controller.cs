@@ -313,6 +313,8 @@ public sealed class T8Controller : IDisposable
         }
     }
 
+    public void SendExternalEvent(MidiEvent midiEvent) => _output.SendEvent(midiEvent);
+
     private void Send(ChannelEvent midiEvent, int channel)
     {
         // A part switched OFF (like bACh/rhCh OFF on the T-8) gets nothing.

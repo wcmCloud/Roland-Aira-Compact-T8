@@ -22,7 +22,7 @@ Writes a drum pattern into the current pattern, up to its last step.
 - **Vary** keeps locked parts and rewrites hats, ghost notes and, when Live variation is up, step probability. Snare, tom and clap hits stay. Press it again for another take; the seed stays put, so Generate can still bring the pattern back.
 - **Fill bank** writes eight related patterns into the next empty slots, close to this one first and further away last, and copies the bass line into each so a song has somewhere to go.
 - **Randomize** picks a new seed and replaces the pattern: a different one in the same style.
-- **Undo** takes back the last Generate, Vary, Randomize, Fill bank or Make fill (greyed out when there's nothing to undo).
+- **Undo** (also Cmd/Ctrl+Z) takes back the last change to the open patterns, including Generate, Vary, Randomize, Fill bank and Make fill. It is greyed out when there's nothing to undo. Shift+Cmd/Ctrl+Z redoes. Switching pattern keeps the history.
 - **Seed:** type a number to get a generated pattern back.
 
 The generator never puts the closed and open hat on the same step: the T-8's open hat cuts off the closed one.

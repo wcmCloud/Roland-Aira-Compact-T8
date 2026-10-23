@@ -1,6 +1,6 @@
 # Song mode in a DAW
 
-**Status:** parked — **next step** · **Priority: the VST3/AU plugin (option C) first** · **Goal:** use the editor's songs from a
+**Status:** A and B implemented in the Song tab; C remains planned · **Goal:** use the editor's songs from a
 DAW (Ableton, Logic, Reaper, Cubase, Bitwig…)
 
 ## Options compared
@@ -24,28 +24,30 @@ Two kinds:
    the preview. The DAW plays the T-8's sounds and every note is editable in the DAW.
 
 How:
-- [ ] `SongMidiExporter` in `T8.Midi`: build from `SongPlan` (passes and steps) at the song's BPM, 96 PPQ like
+- [x] `SongMidiExporter` in `T8.Midi`: build from `SongPlan` (passes and steps) at the song's BPM, 96 PPQ like
       `PatternMidiBuilder`. Full notes reuses `PatternMidiBuilder.Build` per pass (as `T8Controller.PlaySong` does).
       Pattern changes: for pass *k* put the program change for pass *k* at the start of pass *k−1* plus one step
       (the first one at time 0), skipping repeats of the same pattern.
-- [ ] Optional markers (meta events) at each entry with its name, so the DAW shows the arrangement.
-- [ ] Song tab: **Export as MIDI…** with a choice (pattern changes / full notes), file picker (`.mid`).
+- [x] Optional markers (meta events) at each entry with its name, so the DAW shows the arrangement.
+- [x] Song tab: **Export as MIDI…** with a choice (pattern changes / full notes), file picker (`.mid`).
 - [ ] CLI: `t8 export-song <folder> <song.t8song> <file.mid> [--mode programs|notes]`.
-- [ ] Tests: event times and program numbers for a song with repeats and fills; notes mode matches the preview;
+- [x] Tests: event times and program numbers for a song with repeats and fills; notes mode matches the preview;
       OFF parts left out; tempo in the file.
-- [ ] README: "Using a song in a DAW" with the T-8 settings (SYnC USB, rXPc on) and routing tips per DAW.
+- [x] README: "Using a song in a DAW" with the T-8 settings (SYnC USB, rXPc on) and routing tips per DAW.
 
 ## B. Editor follows the DAW's clock (no plugin)
 
 The DAW sends MIDI clock/start/stop to a virtual port (IAC Driver on macOS, loopMIDI on Windows); the editor listens
 and plays the Song tab in sync (preview notes, or program changes to the T-8).
 
-- [ ] "Clock source: internal / external (MIDI input …)" in MIDI settings.
-- [ ] Reuse `T8InputListener`'s clock handling for any input port: Start resets the position, Continue resumes,
-      Stop stops, 6 clocks per step; follow tempo changes.
-- [ ] Drive the song position from the received clocks (the sync driver already works per step), for both play
-      modes; Song Position Pointer support would let the DAW start mid-song.
-- [ ] Tests with a fake input sending clock.
+- [x] Song-only clock input selection and arm/disarm controls.
+- [x] ExternalSongPlayer drives notes or sequencer programs directly from received MIDI clocks, including Start,
+      Continue, Stop and whole-song looping; no internal clock runs alongside it.
+- [x] Song Position Pointer locates notes playback. Hardware sequencer playback should start at the beginning:
+      the T-8 cannot locate within a pattern. Timeline jumps and entry-only loops stay under DAW control.
+- [x] Fake-input tests cover transport, step timing, clock forwarding and advance loop queuing.
+- [x] Leaving the Song tab releases the input and silences the output.
+
 
 ## C. VST3/AU plugin (priority)
 
@@ -115,4 +117,4 @@ A **MIDI effect** plugin, **Setlist T-8**, on a track routed to the T-8:
 
 1. **C (plugin)** — the priority; a separate repository.
 2. A (export) — quick extra for DAWs where the plugin can't send MIDI to hardware easily (Logic).
-3. B (clock follow) — if playing the editor's Song tab live alongside a DAW is still wanted.
+3. B (clock follow) — implemented in the Song tab.

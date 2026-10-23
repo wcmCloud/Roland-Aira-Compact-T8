@@ -22,6 +22,41 @@ public class SongViewModelTests : IDisposable
     private SongViewModel Song => _vm.Song;
 
     [Fact]
+    public async Task Exports_without_a_device_and_preserves_song_dirty_state()
+    {
+        Song.AddEntry(1, 1);
+        var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".mid");
+        try
+        {
+            _dialogs.MidiFiles.Enqueue(path);
+            await Song.ExportMidiCommand.ExecuteAsync(null);
+            Assert.True(File.Exists(path));
+            var midi = Melanchall.DryWetMidi.Core.MidiFile.Read(path);
+            Assert.NotEmpty(midi.Chunks);
+            Assert.True(Song.IsDirty);
+            Assert.Null(Song.FilePath);
+        }
+        finally { File.Delete(path); }
+    }
+
+    [Fact]
+    public void External_clock_is_armed_only_on_song_tab_and_released_when_leaving()
+    {
+        _vm.SelectedTab = MainWindowViewModel.SongTab;
+        Song.AddEntry(1, 1);
+        Song.FollowDawClock = true;
+        Assert.NotNull(Song.ClockInput);
+        Song.PlayCommand.Execute(null);
+        Assert.True(Song.IsPlaying);
+        var input = _ports.OpenedInputs.Last();
+        Assert.True(input.IsListeningForEvents);
+        Assert.False(Song.NextCommand.CanExecute(null));
+        _vm.SelectedTab = 0;
+        Assert.False(Song.IsPlaying);
+        Assert.True(input.IsDisposed);
+    }
+
+    [Fact]
     public void Adds_the_selected_pattern_with_a_name_and_colour()
     {
         _vm.SelectSlot(2, 5);

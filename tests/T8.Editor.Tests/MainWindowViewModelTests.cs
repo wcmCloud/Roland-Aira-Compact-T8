@@ -573,4 +573,120 @@ public class MainWindowViewModelTests : IDisposable
         _vm.Dispose();
         Assert.True(_ports.LastOpened!.IsDisposed);
     }
+
+    [Fact]
+    public void Undo_and_redo_walk_the_open_library()
+    {
+        Assert.False(_vm.UndoCommand.CanExecute(null));
+        Assert.False(_vm.RedoCommand.CanExecute(null));
+
+        _vm.Bass.Steps[0].SetNote(40);
+        _vm.Bass.TransposeCommand.Execute(1);
+        Assert.Equal(41, _vm.Bass.Steps[0].Note);
+
+        _vm.UndoCommand.Execute(null);
+        Assert.Equal("Undone.", _vm.Status);
+        Assert.Equal(40, _vm.Bass.Steps[0].Note);
+        _vm.UndoCommand.Execute(null);
+        Assert.Equal(BassStepState.Off, _vm.Bass.Steps[0].State);
+        Assert.Equal(36, _vm.Bass.Steps[0].Note);
+        Assert.False(_vm.IsDirty);
+        Assert.False(_vm.UndoCommand.CanExecute(null));
+
+        _vm.RedoCommand.Execute(null);
+        Assert.Equal("Redone.", _vm.Status);
+        Assert.Equal(40, _vm.Bass.Steps[0].Note);
+        Assert.True(_vm.IsDirty);
+
+        _vm.Bass.Steps[1].SetNote(48);
+        Assert.False(_vm.RedoCommand.CanExecute(null));
+
+        _vm.Rhythm[RhythmTrack.BD].Cells[0].On = true;
+        _vm.Rhythm[RhythmTrack.BD].Cells[3].On = true;
+        _vm.Rhythm.ClearTrackCommand.Execute(_vm.Rhythm[RhythmTrack.BD]);
+        Assert.False(_vm.Rhythm[RhythmTrack.BD].Cells[0].On);
+        _vm.UndoCommand.Execute(null);
+        Assert.True(_vm.Rhythm[RhythmTrack.BD].Cells[0].On);
+        Assert.True(_vm.Rhythm[RhythmTrack.BD].Cells[3].On);
+    }
+
+    [Fact]
+    public void Undo_survives_switching_patterns_and_restores_a_paste()
+    {
+        _vm.Bass.Steps[0].SetNote(45);
+        _vm.CopyPatternCommand.Execute(null);
+        var beforePaste = _vm.Library.Bass[0, 1].ToPrm().ToString();
+
+        _vm.SelectSlot(1, 2);
+        _vm.PastePatternCommand.Execute(null);
+        Assert.Equal(45, _vm.Bass.Steps[0].Note);
+
+        _vm.SelectSlot(1, 3);
+        _vm.Bass.Steps[0].SetNote(50);
+        _vm.UndoCommand.Execute(null);
+        Assert.Equal(BassStepState.Off, _vm.Library.Bass[0, 2].Steps[0].State);
+
+        _vm.UndoCommand.Execute(null);
+        Assert.Equal(beforePaste, _vm.Library.Bass[0, 1].ToPrm().ToString());
+        _vm.SelectSlot(1, 2);
+        Assert.Equal(BassStepState.Off, _vm.Bass.Steps[0].State);
+
+        _vm.UndoCommand.Execute(null);
+        _vm.SelectSlot(1, 1);
+        Assert.Equal(BassStepState.Off, _vm.Bass.Steps[0].State);
+        Assert.False(_vm.IsDirty);
+    }
+
+    [Fact]
+    public void Generator_runs_share_the_undo_stack()
+    {
+        _vm.RhythmGenerator.GenerateCommand.Execute(null);
+        var generated = _vm.CurrentRhythm.ToPrm().ToString();
+        _vm.Rhythm[RhythmTrack.SD].Cells[2].On = true;
+
+        _vm.UndoCommand.Execute(null);
+        Assert.Equal(generated, _vm.CurrentRhythm.ToPrm().ToString());
+
+        _vm.RhythmGenerator.MakeFillCommand.Execute(null);
+        var fill = _vm.RhythmGenerator.FillPattern - 1;
+        Assert.Contains(_vm.Library.Rhythm[0, fill].Steps, step => step.Cells.Any(cell => cell.On));
+
+        _vm.BassGenerator.UndoCommand.Execute(null);
+        Assert.DoesNotContain(_vm.Library.Rhythm[0, fill].Steps, step => step.Cells.Any(cell => cell.On));
+        Assert.Equal(generated, _vm.CurrentRhythm.ToPrm().ToString());
+        Assert.Equal("Undone.", _vm.BassGenerator.Summary);
+
+        _vm.UndoCommand.Execute(null);
+        Assert.Equal(new RhythmPattern { Length = 16 }.ToPrm().ToString(), _vm.CurrentRhythm.ToPrm().ToString());
+    }
+
+    [Fact]
+    public async Task Undoing_back_to_the_save_clears_the_unsaved_state()
+    {
+        using var temp = TestPaths.CreateTempFolder();
+        PatternLibrary.CreateBlank().Save(temp.Path);
+        _vm.OpenFolder(temp.Path);
+        _vm.Bass.Steps[0].SetNote(40);
+
+        await _vm.SaveCommand.ExecuteAsync(null);
+        Assert.False(_vm.IsDirty);
+
+        _vm.UndoCommand.Execute(null);
+        Assert.True(_vm.IsDirty);
+        _vm.RedoCommand.Execute(null);
+        Assert.False(_vm.IsDirty);
+    }
+
+    [Fact]
+    public async Task A_new_library_drops_the_undo_stack()
+    {
+        _vm.Bass.Steps[0].SetNote(40);
+        _dialogs.ConfirmResult = true;
+
+        await _vm.NewLibraryCommand.ExecuteAsync(null);
+
+        Assert.False(_vm.UndoCommand.CanExecute(null));
+        Assert.False(_vm.IsDirty);
+        Assert.Equal(BassStepState.Off, _vm.Bass.Steps[0].State);
+    }
 }

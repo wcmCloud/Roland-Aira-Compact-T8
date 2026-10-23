@@ -45,7 +45,7 @@
               </StackPanel>
             </Button>
             <Button x:Name="UndoRhythmButton" Grid.Column="1" Classes="chip" Command="{Binding UndoCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                    ToolTip.Tip="Undo the last generate, vary, fill bank or make fill">
+                    ToolTip.Tip="Undo the last change to the patterns (Ctrl/Cmd+Z)">
               <StackPanel Orientation="Horizontal" Spacing="6">
                 <PathIcon Data="{StaticResource IconUndo}" />
                 <TextBlock Text="UNDO" />

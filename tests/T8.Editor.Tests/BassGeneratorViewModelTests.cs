@@ -8,11 +8,16 @@ public class BassGeneratorViewModelTests
     private readonly BassPattern _pattern = new() { Length = 16 };
     private readonly List<BassGeneratorOptions> _saved = new();
     private int _generated;
+    private PatternLibrary _library = null!;
+    private PatternHistory _history = null!;
 
     private (BassGeneratorViewModel Generator, BassEditorViewModel Bass) Create()
     {
-        var bass = new BassEditorViewModel(_pattern, () => { });
-        var generator = new BassGeneratorViewModel(new BassGeneratorOptions(), _saved.Add, _ => _generated++) { Target = bass };
+        _library = PatternLibrary.CreateBlank();
+        _library.Bass[0, 0] = _pattern;
+        _history = new PatternHistory(() => _library);
+        var bass = new BassEditorViewModel(_pattern, () => { }, history: _history);
+        var generator = new BassGeneratorViewModel(new BassGeneratorOptions(), _saved.Add, _ => _generated++, history: _history) { Target = bass };
         return (generator, bass);
     }
 
@@ -72,12 +77,17 @@ public class BassGeneratorViewModelTests
     }
 
     [Fact]
-    public void Undo_is_dropped_when_the_pattern_changes()
+    public void Undo_keeps_the_earlier_line_when_the_pattern_changes()
     {
         var (generator, _) = Create();
+        var before = _pattern.Steps.Select(s => (s.State, s.Note, s.Accent, s.Slide)).ToList();
         generator.GenerateCommand.Execute(null);
         generator.Target = new BassEditorViewModel(new BassPattern(), () => { });
-        Assert.False(generator.UndoCommand.CanExecute(null));
+
+        Assert.True(generator.UndoCommand.CanExecute(null));
+        generator.UndoCommand.Execute(null);
+
+        Assert.Equal(before, _pattern.Steps.Select(s => (s.State, s.Note, s.Accent, s.Slide)).ToList());
     }
 
     [Fact]
@@ -130,13 +140,15 @@ public class BassGeneratorViewModelTests
         library.Rhythm[0, 0].Steps[0][RhythmTrack.BD].On = true;
         var root = library.Bass[0, 0].Steps[0].Note;
         var source = library.Bass[0, 0].Steps.Select(s => (s.State, s.Note)).ToList();
-        var bass = new BassEditorViewModel(library.Bass[0, 0], () => { });
+        var history = new PatternHistory(() => library);
+        var bass = new BassEditorViewModel(library.Bass[0, 0], () => { }, history: history);
         var summaries = new List<string>();
         var generator = new BassGeneratorViewModel(options, _ => { }, summaries.Add,
             (bank, pattern) => library.Bass[bank - 1, pattern - 1],
             (bank, pattern) => library.Rhythm[bank - 1, pattern - 1],
             count => Enumerable.Range(2, count).Select(pattern => (1, pattern)).ToList(),
-            () => library.Rhythm[0, 0])
+            () => library.Rhythm[0, 0],
+            history)
         { Target = bass };
 
         generator.FillBankCommand.Execute(null);

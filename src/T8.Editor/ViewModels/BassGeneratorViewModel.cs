@@ -14,14 +14,14 @@ public sealed record Choice<T>(T Value, string Name)
 /// Generates bass lines into the current pattern from a key, a scale, a chord progression and
 /// chances. Generate replaces the whole line and keeps the seed. Vary keeps the rhythm, the pitches
 /// and (by default) the root on the beat. Fill bank writes eight related lines into the next empty
-/// slots. Undo puts back the last of those.
+/// slots. Each of those is one step on the shared undo history.
 /// </summary>
 public sealed partial class BassGeneratorViewModel : ObservableObject
 {
     private readonly BassGeneratorOptions _options;
     private readonly Action<BassGeneratorOptions> _save;
     private readonly Action<string> _generated;
-    private (BassEditorViewModel Target, Action Restore)? _undo;
+    private readonly PatternHistory? _history;
     private readonly Func<int, int, BassPattern>? _patternAt;
     private readonly Func<int, int, RhythmPattern>? _rhythmAt;
     private readonly Func<int, IReadOnlyList<(int Bank, int Pattern)>>? _freeSlots;
@@ -40,6 +40,7 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
     /// <param name="rhythmAt">The library's rhythm pattern for a slot Fill bank copies the drums into.</param>
     /// <param name="freeSlots">The next empty slots after the one being edited.</param>
     /// <param name="currentRhythm">The drums edited with this bass line.</param>
+    /// <param name="history">Undo stack for the open library. Null leaves Generate without an undo step.</param>
     public BassGeneratorViewModel(
         BassGeneratorOptions options,
         Action<BassGeneratorOptions> save,
@@ -47,7 +48,8 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
         Func<int, int, BassPattern>? patternAt = null,
         Func<int, int, RhythmPattern>? rhythmAt = null,
         Func<int, IReadOnlyList<(int Bank, int Pattern)>>? freeSlots = null,
-        Func<RhythmPattern>? currentRhythm = null)
+        Func<RhythmPattern>? currentRhythm = null,
+        PatternHistory? history = null)
     {
         _options = options;
         _save = save;
@@ -56,6 +58,9 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
         _rhythmAt = rhythmAt;
         _freeSlots = freeSlots;
         _currentRhythm = currentRhythm;
+        _history = history;
+        if (history is not null)
+            history.Changed += _ => UndoCommand.NotifyCanExecuteChanged();
     }
 
     public static IReadOnlyList<Choice<int>> Keys { get; } =
@@ -75,11 +80,7 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
     public BassEditorViewModel? Target
     {
         get => _target;
-        set
-        {
-            if (SetProperty(ref _target, value))
-                UndoCommand.NotifyCanExecuteChanged();
-        }
+        set => SetProperty(ref _target, value);
     }
 
     public Choice<int> Key
@@ -183,10 +184,11 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
     {
         if (Target is not { } target)
             return;
-        _undo = (target, Snapshot(target.Pattern, target.Refresh));
-        BassGenerator.Generate(target.Pattern, _options);
-        target.Refresh();
-        UndoCommand.NotifyCanExecuteChanged();
+        PatternHistory.Apply(_history, () =>
+        {
+            BassGenerator.Generate(target.Pattern, _options);
+            target.Refresh();
+        });
         Summary = LineSummary(target);
         _generated(Summary);
     }
@@ -208,13 +210,14 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
     {
         if (Target is not { } target)
             return;
-        _undo = (target, Snapshot(target.Pattern, target.Refresh));
         _variation++;
         var options = _options.Clone();
         options.Seed = PatternVariation.Seed(_options.Seed, PatternVariation.BankSize + _variation);
-        BassGenerator.Vary(target.Pattern, options);
-        target.Refresh();
-        UndoCommand.NotifyCanExecuteChanged();
+        PatternHistory.Apply(_history, () =>
+        {
+            BassGenerator.Vary(target.Pattern, options);
+            target.Refresh();
+        });
         Summary = LockRoots
             ? "Variation. Kept roots on the beat. Rewrote octave jumps."
             : "Variation. Roots can jump octaves too. Pitch and rhythm stay.";
@@ -243,29 +246,22 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
             return;
         }
 
-        var restores = new List<Action>();
         var rhythm = _currentRhythm();
-        for (var i = 0; i < slots.Count; i++)
+        PatternHistory.Apply(_history, () =>
         {
-            var (bank, pattern) = slots[i];
-            var bassSlot = _patternAt(bank, pattern);
-            var rhythmSlot = _rhythmAt(bank, pattern);
-            restores.Add(Snapshot(bassSlot, () => { }));
-            restores.Add(SnapshotRhythm(rhythmSlot));
-            var varied = target.Pattern.Clone();
-            var options = _options.Clone();
-            options.Seed = PatternVariation.Seed(_options.Seed, i);
-            BassGenerator.Vary(varied, options, PatternVariation.Amount(i, slots.Count));
-            bassSlot.CopyFrom(varied);
-            rhythmSlot.CopyFrom(rhythm);
-        }
-
-        _undo = (target, () =>
-        {
-            foreach (var restore in restores)
-                restore();
+            for (var i = 0; i < slots.Count; i++)
+            {
+                var (bank, pattern) = slots[i];
+                var bassSlot = _patternAt(bank, pattern);
+                var rhythmSlot = _rhythmAt(bank, pattern);
+                var varied = target.Pattern.Clone();
+                var options = _options.Clone();
+                options.Seed = PatternVariation.Seed(_options.Seed, i);
+                BassGenerator.Vary(varied, options, PatternVariation.Amount(i, slots.Count));
+                bassSlot.CopyFrom(varied);
+                rhythmSlot.CopyFrom(rhythm);
+            }
         });
-        UndoCommand.NotifyCanExecuteChanged();
         var roots = LockRoots ? "Roots on the beat stay; other notes can jump an octave." : "Octave jumps move; the rhythm of the line stays.";
         Summary = $"{slots.Count} variations written to {PatternSlots.Describe(slots)}. {roots} The drums are copied with them.";
         if (slots.Count < PatternVariation.BankSize)
@@ -273,41 +269,23 @@ public sealed partial class BassGeneratorViewModel : ObservableObject
         _generated(Summary);
     }
 
-    private bool CanUndo() => _undo is { } undo && undo.Target == Target;
+    private bool CanUndo() => _history?.CanUndo == true;
 
-    /// <summary>Puts back the lines from before the last Generate, Vary, Randomize or Fill bank.</summary>
+    /// <summary>Puts back the last change to the open patterns (the same stack as Cmd/Ctrl+Z).</summary>
     [RelayCommand(CanExecute = nameof(CanUndo))]
     private void Undo()
     {
-        if (_undo is not { } undo || undo.Target != Target)
+        if (_history is null || !_history.CanUndo)
             return;
-        undo.Restore();
-        _undo = null;
-        UndoCommand.NotifyCanExecuteChanged();
+        _history.Undo();
+        Target?.Refresh();
         Summary = "Undone.";
-        _generated(Summary);
     }
 
     private string LineSummary(BassEditorViewModel target) =>
         $"{Key.Name} {Scale.Name.ToLowerInvariant()}" +
         (_options.Progression == Core.Patterns.Progression.None ? "" : $", {Progression.Name}") +
         $" · seed {Seed} · {target.Length} steps";
-
-    private static Action Snapshot(BassPattern pattern, Action refresh)
-    {
-        var saved = pattern.Clone();
-        return () =>
-        {
-            pattern.CopyFrom(saved);
-            refresh();
-        };
-    }
-
-    private static Action SnapshotRhythm(RhythmPattern pattern)
-    {
-        var saved = pattern.Clone();
-        return () => pattern.CopyFrom(saved);
-    }
 
     private static int Percent(int value) => Math.Clamp(value, 0, 100);
 

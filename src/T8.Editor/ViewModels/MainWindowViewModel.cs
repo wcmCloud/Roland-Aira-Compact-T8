@@ -20,6 +20,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     private readonly SynchronizationContext? _ui = SynchronizationContext.Current;
     private bool _playheadShown;
     private (BassPattern Bass, RhythmPattern Rhythm)? _clipboard;
+    private readonly PatternHistory _history;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(LibraryLabel))]
@@ -111,6 +112,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         _auditionEnabled = Settings.AuditionEnabled;
         _showPlayhead = Settings.ShowPlayhead;
         Library = LoadDefaultPresets(presetFolder);
+        _history = new PatternHistory(() => Library);
+        _history.Changed += OnHistoryChanged;
         BassGenerator = new BassGeneratorViewModel(Settings.BassGenerator.Clone(), options =>
         {
             Settings.BassGenerator = options;
@@ -119,7 +122,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             (bank, pattern) => Library.Bass[bank - 1, pattern - 1],
             (bank, pattern) => Library.Rhythm[bank - 1, pattern - 1],
             NextFreeSlots,
-            () => Library.Rhythm[SelectedBank - 1, SelectedPattern - 1]);
+            () => Library.Rhythm[SelectedBank - 1, SelectedPattern - 1],
+            _history);
         RhythmGenerator = new RhythmGeneratorViewModel(Settings.RhythmGenerator.Clone(), options =>
         {
             Settings.RhythmGenerator = options;
@@ -129,8 +133,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             (bank, pattern) => Library.Rhythm[bank - 1, pattern - 1],
             (bank, pattern) => Library.Bass[bank - 1, pattern - 1],
             NextFreeSlots,
-            () => Library.Bass[SelectedBank - 1, SelectedPattern - 1]);
-        Song = new SongViewModel(this, dialogs);
+            () => Library.Bass[SelectedBank - 1, SelectedPattern - 1],
+            _history);
+        Song = new SongViewModel(this, dialogs, ports);
         PatternBanks = Enumerable.Range(1, PatternLibrary.BankCount)
             .Select(bank => new PatternBankRow(bank, Enumerable.Range(1, PatternLibrary.PatternsPerBank)
                 .Select(pattern => new PatternSlotViewModel(bank, pattern, OnSlotClicked))
@@ -269,6 +274,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     [ObservableProperty]
     private int _selectedTab;
 
+    partial void OnSelectedTabChanged(int value)
+    {
+        if (value != SongTab && Song.FollowDawClock) Song.Stop();
+        if (value == SongTab) Song.RefreshClockInputsCommand.Execute(null);
+    }
+
     /// <summary>A click in the pattern grid: opens the pattern, and on the Song tab also adds it to the song.</summary>
     private void OnSlotClicked(PatternSlotViewModel slot)
     {
@@ -339,7 +350,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     private void OnPatternGenerated(string summary)
     {
-        MarkDirty();
+        if (_history.IsDirty)
+            MarkDirty();
         Status = summary;
         // The preview plays a snapshot of the pattern, so restart it to hear the new line.
         if (IsPlaying && Settings.PlayMode == PlayMode.PreviewNotes)
@@ -562,7 +574,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         StopPlayback();
         Library = PatternLibrary.CreateBlank();
         FolderPath = null;
-        IsDirty = false;
+        _history.Clear();
         LoadSelectedPattern();
         Status = "New library with 64 blank patterns.";
     }
@@ -593,7 +605,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             StopPlayback();
             Library = library;
             FolderPath = root;
-            IsDirty = false;
+            _history.Clear();
             LoadSelectedPattern();
             Settings.LastFolder = root;
             SaveSettings();
@@ -630,7 +642,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         {
             Library.Save(folder);
             FolderPath = folder;
-            IsDirty = false;
+            _history.MarkSaved();
             Status = $"Saved 64 patterns to {folder}.";
             return true;
         }
@@ -729,20 +741,40 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     {
         if (_clipboard is not { } clip)
             return;
-        Library.Bass[SelectedBank - 1, SelectedPattern - 1] = clip.Bass.Clone();
-        Library.Rhythm[SelectedBank - 1, SelectedPattern - 1] = clip.Rhythm.Clone();
-        LoadSelectedPattern();
-        MarkDirty();
+        _history.Edit(() =>
+        {
+            Library.Bass[SelectedBank - 1, SelectedPattern - 1] = clip.Bass.Clone();
+            Library.Rhythm[SelectedBank - 1, SelectedPattern - 1] = clip.Rhythm.Clone();
+            LoadSelectedPattern();
+        });
+        if (_history.IsDirty)
+            MarkDirty();
         Status = $"Pasted into {PatternLabel}.";
     }
+
+    private bool CanUndo() => _history.CanUndo;
+
+    private bool CanRedo() => _history.CanRedo;
+
+    /// <summary>Puts back the last change to the open patterns (Cmd/Ctrl+Z).</summary>
+    [RelayCommand(CanExecute = nameof(CanUndo))]
+    private void Undo() => _history.Undo();
+
+    /// <summary>Reapplies the change just undone (Shift+Cmd/Ctrl+Z).</summary>
+    [RelayCommand(CanExecute = nameof(CanRedo))]
+    private void Redo() => _history.Redo();
 
     [RelayCommand]
     private void ClearPattern()
     {
-        CurrentBass.Clear();
-        CurrentRhythm.Clear();
-        LoadSelectedPattern();
-        MarkDirty();
+        _history.Edit(() =>
+        {
+            CurrentBass.Clear();
+            CurrentRhythm.Clear();
+            LoadSelectedPattern();
+        });
+        if (_history.IsDirty)
+            MarkDirty();
         Status = $"Cleared {PatternLabel}.";
     }
 
@@ -1011,8 +1043,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     {
         Bass?.Detach();
         BassGenerator.MatchPattern(CurrentBass);
-        Bass = new BassEditorViewModel(CurrentBass, MarkDirty, AuditionBass, BassGenerator);
-        Rhythm = new RhythmEditorViewModel(CurrentRhythm, MarkDirty, AuditionDrum, _rowClipboard);
+        Bass = new BassEditorViewModel(CurrentBass, MarkDirty, AuditionBass, BassGenerator, _history);
+        Rhythm = new RhythmEditorViewModel(CurrentRhythm, MarkDirty, AuditionDrum, _rowClipboard, _history);
         BassGenerator.Target = Bass;
         RhythmGenerator.Target = Rhythm;
         Song?.RefreshSteps();
@@ -1025,6 +1057,23 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         IsDirty = true;
         RefreshSlots();
         Song?.RefreshSteps();
+    }
+
+    private void OnHistoryChanged(PatternHistoryChange change)
+    {
+        IsDirty = _history.IsDirty;
+        UndoCommand.NotifyCanExecuteChanged();
+        RedoCommand.NotifyCanExecuteChanged();
+        if (change is not (PatternHistoryChange.Undo or PatternHistoryChange.Redo))
+            return;
+
+        Bass?.Refresh();
+        Rhythm?.Refresh();
+        RefreshSlots();
+        Song?.RefreshSteps();
+        Status = change == PatternHistoryChange.Undo ? "Undone." : "Redone.";
+        if (IsPlaying && Settings.PlayMode == PlayMode.PreviewNotes)
+            StartPlayback();
     }
 
     private void CloseController()
