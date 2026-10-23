@@ -1,0 +1,152 @@
+{
+  "author": "Michael Fischer / Technopolis",
+  "source": "https://github.com/tidalcycles/sounds-tr808-fischer",
+  "revision": "85fbecf1bec32553395625ea659e2a56dfd7c0e1",
+  "license": "CC0-1.0",
+  "files": [
+    {
+      "file": "BD0010.WAV",
+      "source": "bd8/BD0010.WAV",
+      "sha256": "2929f825db405543f8f1e1ef09e368d83421f030e249cb6a17e5a5ff34a882d6",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "BD1010.WAV",
+      "source": "bd8/BD1010.WAV",
+      "sha256": "e26156c1af24c999f2b817bfacbadd78b9c639a9b8439743bbea4378c54ff8e5",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "BD2525.WAV",
+      "source": "bd8/BD2525.WAV",
+      "sha256": "9a6500e746256c6a7dcbc70f65cde17a6d3713cfc879619e93079e540f06c741",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "BD5050.WAV",
+      "source": "bd8/BD5050.WAV",
+      "sha256": "2ca93cd7a3b19f6ec7fe26fefe51b89de69b7be7a87047ffc8ecd396064a8504",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "BD7500.WAV",
+      "source": "bd8/BD7500.WAV",
+      "sha256": "d91601a7dee7a81a55a191024e0f6f756e69c4e09e33e820018a620ef27dfd2d",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "BD7550.WAV",
+      "source": "bd8/BD7550.WAV",
+      "sha256": "44dc338b85c2605c6b75465d1d208f4cf58e440a25118fcac64033590a59ca0a",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "CH.WAV",
+      "source": "ch8/CH.WAV",
+      "sha256": "c9f30ff2b4d73b03f41960e504e03c54e9a59697af666fe4d155bab9cd1ccae6",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "CP.WAV",
+      "source": "cp8/CP.WAV",
+      "sha256": "376429bb81cb48d1f392a11cd066c32ffb7883d445b2488704ea52e46bb08286",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "LT00.WAV",
+      "source": "lt8/LT00.WAV",
+      "sha256": "a324073813003398a3ed92c3e569ac80f6ff50d82253f95b2b87a3f268f6951b",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "LT10.WAV",
+      "source": "lt8/LT10.WAV",
+      "sha256": "b5f6c19876ce23539cd9b943f5d96c9284b0f95d6317e15e3f12b59f97f048df",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "LT25.WAV",
+      "source": "lt8/LT25.WAV",
+      "sha256": "fdd8fbb073407dce560847b2407f16f307463ddc423f0000ee098d75647eee60",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "LT50.WAV",
+      "source": "lt8/LT50.WAV",
+      "sha256": "d3720682985a9621c4a67749dfd5336fa4f25564ef7ea2e633ac8ff5fdd64eda",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "LT75.WAV",
+      "source": "lt8/LT75.WAV",
+      "sha256": "17386b1ed8d6eb2820fa217bfd86109c0d5178eda256557bcc0e849a903476b9",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "OH00.WAV",
+      "source": "oh8/OH00.WAV",
+      "sha256": "d8ca0f2176aae52143c9f239237a680aab997e566196466a3db64199c8fbe9c2",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "OH10.WAV",
+      "source": "oh8/OH10.WAV",
+      "sha256": "1cfdc86ad44525bbef78b2db0bf860dc5abc8fe53636af7920267410666ff782",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "OH25.WAV",
+      "source": "oh8/OH25.WAV",
+      "sha256": "2674962ca376c0d08ce802423eb696be86b516450fe23707ac69f3878b35f12b",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "OH50.WAV",
+      "source": "oh8/OH50.WAV",
+      "sha256": "84ae3220fab2396380fb6ba6032bcec7c55a6d3f621d30a13c11fdeaa099aff7",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "OH75.WAV",
+      "source": "oh8/OH75.WAV",
+      "sha256": "cde0aec2ca84358067859f52bac7d55b875f30d2baea700923e25e21307803e9",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "SD0025.WAV",
+      "source": "sd8/SD0025.WAV",
+      "sha256": "321007ec8ff915bad2a01ab69a095e1366a13f703f37a7d87c45ee15184d44f6",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "SD1010.WAV",
+      "source": "sd8/SD1010.WAV",
+      "sha256": "8ffd64829a047bc0e45dbf5ce0250adae38cefd9c9e6a577a5bd28090e5f4dc9",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "SD2525.WAV",
+      "source": "sd8/SD2525.WAV",
+      "sha256": "a843fbb74d9cc90399a518c5ecbff0b515c3a8267c49b539d940ce669d827303",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "SD5050.WAV",
+      "source": "sd8/SD5050.WAV",
+      "sha256": "6dcbf8acd5cee6d6b7955d26c6b57d8ca413f1ae1c7caafaaec780d83f08d712",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "SD7500.WAV",
+      "source": "sd8/SD7500.WAV",
+      "sha256": "d84f53193b298ca4af50fa54add07001ac49542e4ba49c9cf9c0285b980b664b",
+      "processing": "None; normalized and resampled in memory at load time"
+    },
+    {
+      "file": "SD7575.WAV",
+      "source": "sd8/SD7575.WAV",
+      "sha256": "d7fa75dff476baaef99de0b251d86c39aa0e0f36a06043db9a97417350fe4439",
+      "processing": "None; normalized and resampled in memory at load time"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/T8.Cli/T8.Cli.csproj" />
+    <Project Path="src/T8.Audio/T8.Audio.csproj" />
     <Project Path="src/T8.Core/T8.Core.csproj" />
     <Project Path="src/T8.Editor/T8.Editor.csproj" />
     <Project Path="src/T8.Midi/T8.Midi.csproj" />
@@ -10,6 +11,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/T8.Cli.Tests/T8.Cli.Tests.csproj" />
+    <Project Path="tests/T8.Audio.Tests/T8.Audio.Tests.csproj" />
     <Project Path="tests/T8.Core.Tests/T8.Core.Tests.csproj" />
     <Project Path="tests/T8.Editor.Tests/T8.Editor.Tests.csproj" />
     <Project Path="tests/T8.Midi.Tests/T8.Midi.Tests.csproj" />

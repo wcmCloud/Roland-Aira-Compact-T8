@@ -1,0 +1,3 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><ProjectReference Include="../../src/T8.Audio/T8.Audio.csproj" /></ItemGroup>
+</Project>

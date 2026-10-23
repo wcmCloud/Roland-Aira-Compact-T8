@@ -10,7 +10,7 @@ namespace T8.Midi;
 public sealed class ExternalSongPlayer : IDisposable
 {
     private readonly IInputDevice _input;
-    private readonly T8Controller _output;
+    private readonly IPatternPlayer _output;
     private readonly List<TimedEvent> _events;
     private readonly long _length;
     private readonly bool _loop;
@@ -19,12 +19,26 @@ public sealed class ExternalSongPlayer : IDisposable
     private readonly object _gate = new();
     private long _clocks;
     private int _index;
+    private readonly TimeProvider _time;
+    private long _lastClock;
+    public bool ClockLost { get; private set; }
+    /// <summary>Called by the UI heartbeat; release held notes if a DAW disappears without Stop.</summary>
+    public void CheckClockTimeout()
+    {
+        lock (_gate)
+        {
+            if (!IsRunning || _time.GetElapsedTime(_lastClock) < TimeSpan.FromSeconds(2)) return;
+            IsRunning = false; ClockLost = true; _output.AllNotesOff();
+            if (_programs) _output.SendExternalEvent(new StopEvent());
+        }
+    }
     public bool IsRunning { get; private set; }
     public bool Finished { get; private set; }
     public long CurrentStep => _clocks > 0 ? (_clocks - 1) / 6 : 0;
 
-    public ExternalSongPlayer(IInputDevice input, T8Controller output, Song song, PatternLibrary library, bool programs, bool loop)
+    public ExternalSongPlayer(IInputDevice input, IPatternPlayer output, Song song, PatternLibrary library, bool programs, bool loop, TimeProvider? time = null)
     {
+        _time = time ?? TimeProvider.System;
         _input = input;
         _output = output;
         _programs = programs;
@@ -48,7 +62,7 @@ public sealed class ExternalSongPlayer : IDisposable
                     Finished = false;
                     _clocks = 0;
                     _index = 0;
-                    IsRunning = true;
+                    IsRunning = true; ClockLost = false; _lastClock = _time.GetTimestamp();
                     // Select the first pattern before forwarding Start.
                     if (_programs)
                     {
@@ -59,7 +73,7 @@ public sealed class ExternalSongPlayer : IDisposable
                     if (_programs) _output.SendExternalEvent(message);
                     break;
                 case ContinueEvent:
-                    IsRunning = true;
+                    IsRunning = true; ClockLost = false; _lastClock = _time.GetTimestamp();
                     if (_programs) _output.SendExternalEvent(message);
                     break;
                 case StopEvent:
@@ -77,6 +91,7 @@ public sealed class ExternalSongPlayer : IDisposable
                     if (_programs) SelectAt(tick);
                     break;
                 case TimingClockEvent when IsRunning:
+                    _lastClock = _time.GetTimestamp();
                     var time = _clocks * 4; // 96 PPQ / 24 clocks
                     if (time >= _length)
                     {

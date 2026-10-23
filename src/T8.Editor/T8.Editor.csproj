@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\T8.Audio\T8.Audio.csproj" />
     <ProjectReference Include="..\T8.Core\T8.Core.csproj" />
     <ProjectReference Include="..\T8.Midi\T8.Midi.csproj" />
   </ItemGroup>

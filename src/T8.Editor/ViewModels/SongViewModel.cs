@@ -20,7 +20,7 @@ public interface ISongHost
     EditorSettings Settings { get; }
 
     /// <summary>The open T-8 output, or null (with the reason in the status bar) if there is none.</summary>
-    T8Controller? Controller();
+    IPatternPlayer? Controller();
 
     /// <summary>Stops the pattern playback of the Rhythm and Bass tabs, so the song can play.</summary>
     void StopPatternPlayback();
@@ -46,7 +46,7 @@ public sealed partial class SongViewModel : ObservableObject
     private Song _song = new();
     private SongPlan? _plan;
     private SongSyncDriver? _sync;
-    private T8Controller? _player;
+    private IPatternPlayer? _player;
     private ExternalSongPlayer? _external;
     private readonly IMidiPortProvider _ports;
 
@@ -482,7 +482,7 @@ public sealed partial class SongViewModel : ObservableObject
                 try
                 {
                     _external = new ExternalSongPlayer(input, t8, _song, _host.Library,
-                        _host.Settings.PlayMode == PlayMode.SyncT8Sequencer, loop);
+                        _player?.IsOffline != true && _host.Settings.PlayMode == PlayMode.SyncT8Sequencer, loop);
                     input.StartEventsListening();
                 }
                 catch
@@ -492,9 +492,9 @@ public sealed partial class SongViewModel : ObservableObject
                     throw;
                 }
             }
-            else if (_host.Settings.PlayMode == PlayMode.SyncT8Sequencer)
+            else if (_player?.IsOffline != true && _host.Settings.PlayMode == PlayMode.SyncT8Sequencer)
             {
-                _sync = new SongSyncDriver(t8, _plan, loop, fromPass);
+                _sync = new SongSyncDriver((T8Controller)t8, _plan, loop, fromPass);
                 _sync.Start(_host.Bpm);
             }
             else
@@ -511,9 +511,9 @@ public sealed partial class SongViewModel : ObservableObject
 
         _time.Restart();
         IsPlaying = true;
-        _host.ShowStatus(FollowDawClock ? "Armed: waiting for DAW MIDI Start / Continue and clock." : _host.Settings.PlayMode == PlayMode.SyncT8Sequencer
+        _host.ShowStatus(FollowDawClock ? "Armed: waiting for DAW MIDI Start / Continue and clock." : _player?.IsOffline != true && _host.Settings.PlayMode == PlayMode.SyncT8Sequencer
             ? $"Playing \"{Title}\" on the T-8's sequencer (needs rXPc on and SYnC set to AUTO or USB)."
-            : $"Playing \"{Title}\" through the T-8's sounds.");
+            : $"Playing \"{Title}\" through {(t8.IsOffline ? "Offline sounds" : "the T-8's sounds")}.");
         UpdatePosition();
     }
 
@@ -631,7 +631,8 @@ public sealed partial class SongViewModel : ObservableObject
 
         if (_external is not null)
         {
-            CurrentText = _external.IsRunning ? "Following DAW clock" : "Armed / DAW stopped";
+            _external.CheckClockTimeout();
+            CurrentText = _external.ClockLost ? "DAW clock lost — send Start or Continue" : _external.IsRunning ? "Following DAW clock" : "Armed / DAW stopped";
             TimeText = "DAW";
             if (!_external.IsRunning && !_external.Finished) return;
         }

@@ -13,3 +13,4 @@ Features we've looked into and want to do later. Each plan says why, what, how, 
 |---|---|---|
 | [Mac App Store version](mac-app-store.md) | Planned | A free, sandboxed build of the editor on the Mac App Store |
 | [Song mode in a DAW](daw-song-mode.md) | Parked — **next step** | **Setlist T-8**, a VST3/AU plugin (JUCE) that plays songs in sync with the DAW; also MIDI export and following the DAW's clock |
+| [Offline Mode](offline-mode.md) | In progress | Local drum samples and sliding bass, six presets, automatic fallback and manual selection; pattern and song playback. Uncommitted on master |

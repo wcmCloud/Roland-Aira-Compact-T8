@@ -1,5 +1,6 @@
 using Melanchall.DryWetMidi.Core;
 using T8.Core.Patterns;
+using T8.Editor.Services;
 using T8.Editor.ViewModels;
 using T8.Midi.Ports;
 using T8.Tests.Shared;
@@ -517,10 +518,11 @@ public class MainWindowViewModelTests : IDisposable
     public void Commands_without_a_port_explain_what_to_do()
     {
         using var vm = new MainWindowViewModel(new FakePortProvider(), _dialogs);
+        vm.OutputMode = OutputMode.T8;
         vm.PlayCommand.Execute(null);
 
         Assert.False(vm.IsPlaying);
-        Assert.Contains("No MIDI output selected", vm.Status);
+        Assert.Contains("unavailable", vm.Status);
     }
 
     [Fact]

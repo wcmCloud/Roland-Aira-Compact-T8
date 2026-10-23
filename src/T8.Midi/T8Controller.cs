@@ -12,8 +12,11 @@ namespace T8.Midi;
 /// Live control of a connected T-8 over USB MIDI. The T-8 has no CC or SysEx support
 /// (MIDI Implementation Chart), so live control is notes, program change and clock.
 /// </summary>
-public sealed class T8Controller : IDisposable
+public sealed class T8Controller : IPatternPlayer
 {
+    public bool IsOffline => false;
+    void IPatternPlayer.PlayPreview(BassPattern? bass, RhythmPattern? rhythm, double bpm, bool loop, int? seed, RhythmPattern? fill) => PlayPreview(bass, rhythm, bpm, loop, seed, fill);
+    void IPatternPlayer.PlaySong(SongPlan plan, PatternLibrary library, double bpm, bool loop, int fromPass) => PlaySong(plan, library, bpm, loop, fromPass);
     private readonly IOutputDevice _output;
     private Playback? _preview;
 
