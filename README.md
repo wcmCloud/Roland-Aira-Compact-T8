@@ -4,7 +4,7 @@
 
 # Roland Aira Compact T-8 Editor
 
-**Edit, generate and play the patterns of your AIRA Compact T-8 — drums and bass — from your computer, over USB.**
+**Edit and generate the patterns of your AIRA Compact T-8 — drums and bass — on your computer. Play them on the T-8 over USB, or listen on the computer when it isn't connected.**
 
 [![Latest release](https://img.shields.io/github/v/release/wcmCloud/Roland-Aira-Compact-T8?label=release&color=FF7A1A&style=for-the-badge)](https://github.com/wcmCloud/Roland-Aira-Compact-T8/releases/latest)
 [![Platforms](https://img.shields.io/badge/macOS%20·%20Windows%20·%20Linux-arm64%20%2B%20x64-2C2C32?style=for-the-badge)](#getting-started)
@@ -69,7 +69,7 @@
     <td valign="top">
       <h3>🎼 Songs</h3>
       Chain patterns from the banks with repeats and fills as bridges, see the song on a colour timeline, and
-      play it through the T-8's sounds or on its own sequencer. Saved as <code>.t8song</code> files.
+      play it through the T-8's sounds, on its own sequencer, or on the computer. Saved as <code>.t8song</code> files.
     </td>
   </tr>
   <tr>
@@ -77,12 +77,19 @@
       <h3>💾 Load &amp; write</h3>
       Read all 64 patterns from the T-8's USB drive, save sets on your computer, and write them back.
     </td>
+    <td valign="top">
+      <h3>🎧 Hear it on the computer</h3>
+      No T-8 plugged in? Leave <b>Output</b> on Auto, or choose Offline. Patterns and songs play here,
+      with six drum kits and a simple bass, so you can write away from the instrument.
+      Writing a pattern back still uses the T-8's own sounds.
+    </td>
   </tr>
 </table>
 
 > [!TIP]
-> New here? Download the app for your computer, then follow [Connecting the T-8](#connecting-the-t-8) —
-> **Detect from T-8** sets up the MIDI channels for you.
+> New here? Download the app and press Play: with no T-8 connected, **Output** on Auto already plays on the computer.
+> When the instrument is plugged in, follow [Connecting the T-8](#connecting-the-t-8) —
+> **Detect from T-8** sets up the MIDI channels.
 
 ## Contents
 
@@ -93,7 +100,7 @@
 | [The window](#the-window) | [Command line](#command-line) · [Build packages](#build-packages) |
 | [Editing rhythms](#editing-rhythms) · [Generating rhythms](#generating-rhythms) · [Fills](#fills) | [For developers](#for-developers) |
 | [Editing bass lines](#editing-bass-lines) · [Generating bass lines](#generating-bass-lines) | |
-| [Songs](#songs) · [Playing patterns](#playing-patterns) | |
+| [Songs](#songs) · [Playing patterns](#playing-patterns) · [On the computer](#play-on-the-computer) | |
 
 ## Getting started
 
@@ -221,6 +228,7 @@ pattern. The current pattern is outlined in orange, empty patterns are dimmed, a
 
 ![The playback controls](docs/screenshots/playback.png)
 
+- **Output:** Auto, T-8, or Offline. Auto plays on the computer when the T-8 isn't available. Offline always plays here. See [Play on the computer](#play-on-the-computer).
 - **BPM** knob: the tempo for Play.
 - **Play**, **Pause**, **Stop**: play the current pattern (Play lights green while playing). Pause keeps the place:
   Play (or Pause again) carries on from there, and in sync mode the T-8 gets MIDI Continue. Stop goes back to the start.
@@ -448,10 +456,15 @@ What **Play** does is set in the MIDI settings:
   and sends MIDI clock, so the T-8 plays its stored pattern at the editor's tempo. Set the T-8's `SYnC` to AUTO or
   USB and turn `rXPc` on.
 
-**Output** on the Playback card is **Auto**, **T-8**, or **Offline**. Auto plays through the computer when no MIDI
-output is available or the T-8 is in drive mode. Offline always plays on the computer: pick a drum kit, the volume,
-and the bass sound. Those sounds are for writing. **Save** and **Write to T-8** still send the pattern data, and the
-T-8 plays its own sounds.
+### Play on the computer
+
+You can hear a pattern or a song with no T-8 connected. On the Playback card, **Output** is **Auto**, **T-8**, or **Offline**.
+
+- **Auto** plays on the T-8 when one is connected, and on the computer when there is no MIDI output or the T-8 is in drive mode.
+- **Offline** always plays on the computer, including while the T-8 is plugged in.
+- **T-8** plays only on the instrument. If it isn't available, Play says so.
+
+Pick one of six drum kits, set the volume, and adjust the bass: wave, cutoff, resonance, decay and slide. It is there so you can write and try ideas away from the instrument. **Save** and **Write to T-8** still send the pattern data, and the T-8 plays that pattern with its own sounds.
 
 **Follow clock** makes Play wait for an external MIDI clock. Choose an input that carries the clock from a DAW
 (IAC on Mac, loopMIDI on Windows), not the T-8's own output, then press Play and start that clock.
