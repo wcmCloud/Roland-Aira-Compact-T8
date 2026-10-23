@@ -4,8 +4,22 @@ namespace T8.Audio;
 /// <summary>Preloaded mono PCM. All I/O and resampling happen before the audio callback starts.</summary>
 public sealed class SampleBank
 {
+    private static readonly Dictionary<int, SampleBank> SharedBanks = new();
     private readonly Dictionary<string, float[]> _samples = new();
+    private readonly Dictionary<string, float[][]> _kits = new();
     public int SampleRate { get; }
+
+    /// <summary>Decoded once per sample rate. Every voice reads these arrays; playback never opens the WAVs again.</summary>
+    public static SampleBank Shared(int sampleRate = 48000)
+    {
+        lock (SharedBanks)
+        {
+            if (!SharedBanks.TryGetValue(sampleRate, out var bank))
+                SharedBanks[sampleRate] = bank = new SampleBank(sampleRate);
+            return bank;
+        }
+    }
+
     public SampleBank(int sampleRate = 48000)
     {
         if (sampleRate is < 8000 or > 192000) throw new ArgumentOutOfRangeException(nameof(sampleRate));
@@ -18,8 +32,13 @@ public sealed class SampleBank
         }
         foreach (var preset in SoundPreset.All) _ = Kit(preset);
     }
-    public float[][] Kit(SoundPreset preset) => new[] { preset.Kick, preset.Snare, preset.Tom, "CP", "CH", preset.OpenHat }
-        .Select(n => _samples.TryGetValue(n, out var data) ? data : throw new InvalidDataException($"Missing drum sample: {n}")).ToArray();
+    public float[][] Kit(SoundPreset preset)
+    {
+        if (_kits.TryGetValue(preset.Id, out var kit)) return kit;
+        kit = new[] { preset.Kick, preset.Snare, preset.Tom, "CP", "CH", preset.OpenHat }
+            .Select(n => _samples.TryGetValue(n, out var data) ? data : throw new InvalidDataException($"Missing drum sample: {n}")).ToArray();
+        return _kits[preset.Id] = kit;
+    }
 
     public static float[] ReadWave(Stream stream, int outputRate)
     {

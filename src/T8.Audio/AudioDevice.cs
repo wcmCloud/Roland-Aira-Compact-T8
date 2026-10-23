@@ -1,3 +1,4 @@
+using System.Runtime;
 using System.Runtime.InteropServices;
 using Hexa.NET.MiniAudio;
 namespace T8.Audio;
@@ -20,6 +21,8 @@ public sealed unsafe class AudioDevice : IAudioDevice
     private RenderAudio? _render;
     private readonly DataCallback _callback;
     private string? _error;
+    private GCLatencyMode _previousLatency;
+    private bool _lowLatency;
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private delegate void DataCallback(MaDevice* device, void* output, void* input, uint frames);
     public AudioDevice(string? name = null) { _name = name; _callback = Fill; }
@@ -72,7 +75,8 @@ public sealed unsafe class AudioDevice : IAudioDevice
             _context = OpenContext();
             var config = MiniAudio.DeviceConfigInit(MaDeviceType.Playback);
             config.Playback.Format = MaFormat.F32; config.Playback.Channels = 2;
-            config.SampleRate = 48000; config.PeriodSizeInFrames = 256; config.Periods = 2;
+            // 256 frames is about 5 ms. A garbage-collection pause then drops the callback and the loop clicks.
+            config.SampleRate = 48000; config.PeriodSizeInFrames = 1024; config.Periods = 3;
             config.DataCallback = (void*)Marshal.GetFunctionPointerForDelegate(_callback);
             MaDeviceId chosen = default;
             if (_name is not null)
@@ -88,6 +92,9 @@ public sealed unsafe class AudioDevice : IAudioDevice
             _device = (MaDevice*)Alloc(Math.Max((nuint)sizeof(MaDevice), DeviceBytes));
             Check(MiniAudio.DeviceInit(_context, &config, _device)); _initialized = true;
             Check(MiniAudio.DeviceStart(_device));
+            _previousLatency = GCSettings.LatencyMode;
+            GCSettings.LatencyMode = GCLatencyMode.SustainedLowLatency;
+            _lowLatency = true;
         }
         catch { Dispose(); throw; }
     }
@@ -104,6 +111,7 @@ public sealed unsafe class AudioDevice : IAudioDevice
         if (_device != null) { NativeMemory.AlignedFree(_device); _device = null; }
         if (_context != null) { MiniAudio.ContextUninit(_context); NativeMemory.AlignedFree(_context); _context = null; }
         _render = null;
+        if (_lowLatency) { GCSettings.LatencyMode = _previousLatency; _lowLatency = false; }
         GC.KeepAlive(_callback);
     }
 }

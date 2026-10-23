@@ -50,6 +50,55 @@ public sealed class AudioTests
         Assert.True(tail > .01);
     }
     [Fact]
+    public void Samples_are_decoded_once_and_reused()
+    {
+        var first = SampleBank.Shared();
+        var second = SampleBank.Shared();
+        Assert.Same(first, second);
+        Assert.Same(first.Kit(SoundPreset.All[0]), second.Kit(SoundPreset.All[0]));
+        Assert.Same(first.Kit(SoundPreset.All[0])[0], second.Kit(SoundPreset.All[0])[0]);
+    }
+    [Fact]
+    public void Retriggering_a_drum_restarts_it_instead_of_stacking_another_copy()
+    {
+        float[] Hit(bool again)
+        {
+            var preset = SoundPreset.Find("classic");
+            var r = new AudioRenderer(Bank);
+            r.SetSound(preset, Bank.Kit(preset), preset.Bass);
+            r.Apply(new(0, AudioEventKind.Drum));
+            if (again) r.Render(new float[8000]);
+            var output = new float[4000];
+            if (again) r.Apply(new(0, AudioEventKind.Drum));
+            r.Render(output);
+            return output;
+        }
+        var fresh = Hit(false);
+        var again = Hit(true);
+        double error = 0, energy = 0;
+        for (int i = 400; i < fresh.Length; i++)
+        {
+            var delta = fresh[i] - again[i];
+            error += delta * delta;
+            energy += fresh[i] * fresh[i];
+        }
+        Assert.True(error < energy * .05);
+    }
+    [Fact]
+    public void Replacing_the_pattern_does_not_cut_a_ringing_drum()
+    {
+        var preset = SoundPreset.Find("classic");
+        var r = new AudioRenderer(Bank);
+        r.SetSound(preset, Bank.Kit(preset), preset.Bass);
+        r.Start(new([new(0, AudioEventKind.Drum)], 96, 96, 120, true));
+        r.Render(new float[2000]);
+        r.Start(new([], 96, 96, 120, true), preservePosition: true);
+        r.Render(new float[8000]);
+        var tail = new float[8000];
+        r.Render(tail);
+        Assert.True(Energy(tail) > .01);
+    }
+    [Fact]
     public void Invalid_wave_is_rejected() => Assert.Throws<InvalidDataException>(() => SampleBank.ReadWave(new MemoryStream(new byte[32]), 48000));
     [Fact]
     public void Native_context_and_device_use_the_loaded_library_size()

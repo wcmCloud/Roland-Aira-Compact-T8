@@ -30,7 +30,7 @@ public sealed class OfflinePlayer : IPatternPlayer
     {
         // Canonical internal routing: user MIDI remapping must never change drum identities.
         Map = new T8MidiMap { BassChannel = hardwareMap.BassOn ? 2 : 0, RhythmChannel = hardwareMap.RhythmOn ? 10 : 0 };
-        _bank = new SampleBank(); _renderer = new AudioRenderer(_bank);
+        _bank = SampleBank.Shared(); _renderer = new AudioRenderer(_bank);
         _device = device ?? new AudioDevice(settings.DeviceName);
         Configure(settings);
         try { _device.Start(Render); } catch { _device.Dispose(); Clock.Dispose(); throw; }
