@@ -16,6 +16,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     private readonly ISettingsStore? _settingsStore;
     private readonly Func<IEnumerable<string>> _driveCandidates;
     private IPatternPlayer? _controller;
+    private ExternalPatternPlayer? _external;
     private T8InputListener? _listener;
     private readonly RhythmTrackClipboard _rowClipboard = new();
     private readonly SynchronizationContext? _ui = SynchronizationContext.Current;
@@ -74,6 +75,41 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
 
     [ObservableProperty]
     private bool _showPlayhead = true;
+
+    /// <summary>Pattern Play follows an external MIDI clock instead of the BPM knob.</summary>
+    public ObservableCollection<MidiPortInfo> ClockInputs { get; } = new();
+
+    [ObservableProperty]
+    private MidiPortInfo? _clockInput;
+
+    [ObservableProperty]
+    private bool _followExternalClock;
+
+    partial void OnFollowExternalClockChanged(bool value) => StopPlayback();
+
+    partial void OnClockInputChanged(MidiPortInfo? value)
+    {
+        if (FollowExternalClock && (IsPlaying || IsPaused))
+            StopPlayback();
+    }
+
+    [RelayCommand]
+    private void RefreshClockInputs()
+    {
+        try
+        {
+            var id = ClockInput?.Id;
+            var inputs = _ports.ListInputs();
+            ClockInputs.Clear();
+            foreach (var input in inputs)
+                ClockInputs.Add(input);
+            ClockInput = ClockInputs.FirstOrDefault(p => p.Id == id) ?? ClockInputs.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            Status = $"Couldn't list clock inputs: {ex.Message}";
+        }
+    }
 
     /// <summary>Paused with the Pause button: Play carries on from the same place.</summary>
     [ObservableProperty]
@@ -167,6 +203,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         if (_announceDefaultPresets)
             Status = DefaultPresetsStatus;
         RefreshPorts();
+        RefreshClockInputs();
         T8DrivePath = T8Drive.Find(_driveCandidates());
         if (IsOffline) CloseListener();
         NotifyOutput();
@@ -459,6 +496,8 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     {
         Settings.Bpm = value;
         SaveSettings();
+        if (FollowExternalClock)
+            return;
         if (IsPlaying && PlaysOnT8)
             _controller!.Clock.Bpm = value;
         else if (IsPlaying && _controller is OfflinePlayer local) local.UpdatePreview(CurrentBass, CurrentRhythm, Bpm, FillRhythm);
@@ -485,8 +524,10 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         }
         Song?.UpdatePosition();
         long? position = null;
+        if (_external?.SilenceIfQuiet(1000) == true)
+            Status = "MIDI clock stopped. Waiting for Start.";
         if (ShowPlayhead && IsPlaying)
-            position = _controller?.CurrentStep;
+            position = _external is not null ? _external.CurrentStep : _controller?.CurrentStep;
         else if (ShowPlayhead && !IsPaused && Settings.FollowT8 && _listener is { IsRunning: true } t8)
             position = t8.CurrentStep; // the T-8 playing its own sequencer
         UpdateT8Status();
@@ -913,6 +954,11 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     [RelayCommand(CanExecute = nameof(CanPause))]
     private void Pause()
     {
+        if (FollowExternalClock && (IsPlaying || IsPaused))
+        {
+            Status = "The external clock owns pause. Stop that transport, or press Stop here to disarm.";
+            return;
+        }
         if (IsPaused)
         {
             StartPlayback();
@@ -951,6 +997,19 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             Status = $"Carrying on with {PatternLabel}.";
             return;
         }
+        if (FollowExternalClock)
+        {
+            try
+            {
+                ArmExternalClock(t8);
+            }
+            catch (Exception ex)
+            {
+                DisarmExternalClock();
+                Status = $"Couldn't follow the MIDI clock: {ex.Message}";
+            }
+            return;
+        }
         try
         {
             if (PlaysOnT8)
@@ -975,6 +1034,50 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         }
     }
 
+    private void ArmExternalClock(IPatternPlayer output)
+    {
+        if (ClockInput is null)
+        {
+            Status = "Select an external MIDI clock input first.";
+            return;
+        }
+        var input = _ports.OpenInput(ClockInput);
+        try
+        {
+            _external = new ExternalPatternPlayer(input, output, CurrentBass, CurrentRhythm, FillRhythm,
+                SelectedBank, SelectedPattern, PlaysOnT8);
+            _external.Changed += () => OnUi(OnExternalTransport);
+            input.StartEventsListening();
+        }
+        catch
+        {
+            if (_external is not null)
+                DisarmExternalClock();
+            else
+                (input as IDisposable)?.Dispose();
+            throw;
+        }
+        IsPlaying = true;
+        Status = "Armed: waiting for MIDI Start / Continue and clock.";
+    }
+
+    private void OnExternalTransport()
+    {
+        if (_external is not { } player)
+            return;
+        Status = player.IsRunning
+            ? PlaysOnT8
+                ? $"Following external MIDI clock on the T-8's {PatternLabel}."
+                : $"Following external MIDI clock for {PatternLabel}."
+            : "External clock stopped. Waiting for Start.";
+    }
+
+    private void DisarmExternalClock()
+    {
+        _external?.Dispose();
+        _external = null;
+    }
+
     /// <summary>The rhythm the Fill button plays: the generator's fill pattern in this bank, if it isn't this one.</summary>
     private RhythmPattern? FillRhythm =>
         RhythmGenerator.FillPattern == SelectedPattern ? null : Library.Rhythm[SelectedBank - 1, RhythmGenerator.FillPattern - 1];
@@ -986,6 +1089,23 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     [RelayCommand]
     private void PlayFill()
     {
+        if (FollowExternalClock)
+        {
+            if (PlaysOnT8)
+            {
+                Status = "The T-8 is running its own sequencer: press SHIFT + STEP 7 on the T-8 to play its fill.";
+                return;
+            }
+            if (FillRhythm is null)
+            {
+                Status = $"Pattern {SelectedPattern} is the fill pattern itself. Pick another fill pattern on the Rhythm tab.";
+                return;
+            }
+            Status = _external?.QueueFill() == true
+                ? $"Fill: bank {SelectedBank} pattern {RhythmGenerator.FillPattern} plays after this loop, then {PatternLabel} again."
+                : "Arm Play and start the external clock before the fill.";
+            return;
+        }
         if (PlaysOnT8)
         {
             Status = "The T-8 is running its own sequencer: press SHIFT + STEP 7 on the T-8 to play its fill.";
@@ -1006,6 +1126,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     {
         if (!IsPlaying && !IsPaused)
             return;
+        DisarmExternalClock();
         _controller?.StopPreview();
         _controller?.Clock.Stop();
         IsPlaying = false;
@@ -1070,7 +1191,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         LoadSelectedPattern();
         if (IsPaused)
             StopPlayback(); // the paused pattern is no longer the one shown
-        if (IsPlaying && PlaysOnT8)
+        if (IsPlaying && FollowExternalClock)
+            _external?.Use(CurrentBass, CurrentRhythm, FillRhythm, SelectedBank, SelectedPattern);
+        else if (IsPlaying && PlaysOnT8)
             _controller?.SelectPattern(SelectedBank, SelectedPattern);
         else if (IsPlaying)
             StartPlayback();
@@ -1096,7 +1219,9 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         IsDirty = true;
         RefreshSlots();
         Song?.RefreshSteps();
-        if (IsPlaying && _controller is OfflinePlayer local) local.UpdatePreview(CurrentBass, CurrentRhythm, Bpm, FillRhythm);
+        if (IsPlaying && FollowExternalClock)
+            _external?.Use(CurrentBass, CurrentRhythm, FillRhythm, SelectedBank, SelectedPattern);
+        else if (IsPlaying && _controller is OfflinePlayer local) local.UpdatePreview(CurrentBass, CurrentRhythm, Bpm, FillRhythm);
     }
 
     private void OnHistoryChanged(PatternHistoryChange change)
@@ -1112,13 +1237,16 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
         RefreshSlots();
         Song?.RefreshSteps();
         Status = change == PatternHistoryChange.Undo ? "Undone." : "Redone.";
-        if (IsPlaying && _controller is OfflinePlayer local) local.UpdatePreview(CurrentBass, CurrentRhythm, Bpm, FillRhythm);
+        if (IsPlaying && FollowExternalClock)
+            _external?.Use(CurrentBass, CurrentRhythm, FillRhythm, SelectedBank, SelectedPattern);
+        else if (IsPlaying && _controller is OfflinePlayer local) local.UpdatePreview(CurrentBass, CurrentRhythm, Bpm, FillRhythm);
         else if (IsPlaying && !PlaysOnT8) StartPlayback();
     }
 
     private void CloseController()
     {
         Song?.Stop();
+        DisarmExternalClock();
         _controller?.Dispose();
         _controller = null;
     }
@@ -1142,6 +1270,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     {
         Bass?.Detach();
         Song?.Stop();
+        DisarmExternalClock();
         CloseListener();
         _controller?.Dispose();
         _controller = null;

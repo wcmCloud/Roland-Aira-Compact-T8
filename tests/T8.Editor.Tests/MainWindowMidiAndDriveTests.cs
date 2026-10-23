@@ -2,6 +2,7 @@ using Melanchall.DryWetMidi.Core;
 using T8.Core.Patterns;
 using T8.Editor.Services;
 using T8.Editor.ViewModels;
+using T8.Midi.Ports;
 using T8.Tests.Shared;
 
 namespace T8.Editor.Tests;
@@ -148,6 +149,30 @@ public class MainWindowMidiAndDriveTests : IDisposable
         Assert.Contains(events, e => e is ProgramChangeEvent p && p.ProgramNumber == 18);
         Assert.IsType<StopEvent>(events.Last(e => e is not ControlChangeEvent));
         Assert.DoesNotContain(events, e => e is NoteOnEvent);
+    }
+
+    [Fact]
+    public void Pattern_play_arms_an_external_clock_and_does_not_generate_one()
+    {
+        _store.Stored = new EditorSettings { FollowT8 = false, FollowSelection = false };
+        Vm.Rhythm[RhythmTrack.BD].Cells[0].On = true;
+        _ports.Inputs = [new MidiPortInfo("DAW", "daw")];
+        Vm.RefreshClockInputsCommand.Execute(null);
+        Vm.ClockInput = Vm.ClockInputs.Single(p => p.Id == "daw");
+        Vm.FollowExternalClock = true;
+
+        Vm.PlayCommand.Execute(null);
+
+        Assert.Contains("Armed", Vm.Status);
+        Assert.DoesNotContain(_ports.LastOpened!.Events, e => e is TimingClockEvent or StartEvent or NoteOnEvent);
+        var input = Assert.Single(_ports.OpenedInputs);
+        input.Receive(new StartEvent());
+        Assert.Contains(_ports.LastOpened.Events, e => e is NoteOnEvent n && n.NoteNumber == 36);
+        Assert.DoesNotContain(_ports.LastOpened.Events, e => e is TimingClockEvent);
+        var notes = _ports.LastOpened.Events.OfType<NoteOnEvent>().Count();
+        input.Receive(new StopEvent());
+        input.Receive(new TimingClockEvent());
+        Assert.Equal(notes, _ports.LastOpened.Events.OfType<NoteOnEvent>().Count());
     }
 
     [Fact]
