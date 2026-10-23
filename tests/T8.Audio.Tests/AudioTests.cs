@@ -38,6 +38,21 @@ public sealed class AudioTests
     [Fact]
     public void Invalid_wave_is_rejected() => Assert.Throws<InvalidDataException>(() => SampleBank.ReadWave(new MemoryStream(new byte[32]), 48000));
     [Fact]
+    public void Native_context_and_device_use_the_loaded_library_size()
+    {
+        // A too-small ma_context aborts the process on Linux instead of throwing.
+        try { Assert.NotNull(AudioDevice.ListOutputs()); }
+        catch (InvalidOperationException ex) { Assert.Contains("Audio device", ex.Message); }
+
+        using var device = new AudioDevice();
+        try
+        {
+            device.Start(buffer => buffer.Clear());
+            Assert.True(device.IsRunning);
+        }
+        catch (InvalidOperationException ex) { Assert.Contains("Audio", ex.Message); }
+    }
+    [Fact]
     public void Timeline_uses_audio_frames_and_stops_at_exact_duration()
     {
         var r = new AudioRenderer(Bank); r.Start(new([new(24, AudioEventKind.Drum)], 48, 48, 120, false));

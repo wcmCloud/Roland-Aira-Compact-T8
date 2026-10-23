@@ -26,11 +26,29 @@ public sealed unsafe class AudioDevice : IAudioDevice
     public string? Error => _error;
     public bool IsRunning => _initialized && MiniAudio.DeviceIsStarted(_device) != 0 && _error is null;
     private static void Check(MaResult result) { if (result != MaResult.Success) throw new InvalidOperationException($"Audio device: {result}."); }
+
+    // The generated structs match the Windows build (context 720, device 3312). The same
+    // package's Linux and macOS libraries are larger — Linux x64 context is 1024 bytes and
+    // macOS device is 3944 — so sizing from sizeof overflows the heap and glibc aborts.
+    private const nuint DeviceBytes = 8192;
+
+    private static void* Alloc(nuint bytes)
+    {
+        const nuint alignment = 16;
+        var size = Math.Max(alignment, (bytes + alignment - 1) & ~(alignment - 1));
+        var memory = NativeMemory.AlignedAlloc(size, alignment);
+        NativeMemory.Clear(memory, size);
+        return memory;
+    }
+
+    private static MaContext* AllocContext() =>
+        (MaContext*)Alloc(Math.Max((nuint)sizeof(MaContext), (nuint)MiniAudio.ContextSizeof()));
+
     private static MaContext* OpenContext()
     {
-        var context = (MaContext*)NativeMemory.AllocZeroed((nuint)sizeof(MaContext));
+        var context = AllocContext();
         try { Check(MiniAudio.ContextInit((MaBackend*)null, 0, (MaContextConfig*)null, context)); return context; }
-        catch { NativeMemory.Free(context); throw; }
+        catch { NativeMemory.AlignedFree(context); throw; }
     }
     public static IReadOnlyList<string> ListOutputs()
     {
@@ -43,7 +61,7 @@ public sealed unsafe class AudioDevice : IAudioDevice
             for (int i = 0; i < count; i++) names.Add(Marshal.PtrToStringUTF8((nint)(&playback[i].Name_0))!);
             return names;
         }
-        finally { MiniAudio.ContextUninit(context); NativeMemory.Free(context); }
+        finally { MiniAudio.ContextUninit(context); NativeMemory.AlignedFree(context); }
     }
     public void Start(RenderAudio render)
     {
@@ -67,7 +85,7 @@ public sealed unsafe class AudioDevice : IAudioDevice
                 if (!found) throw new InvalidOperationException("Selected audio output is unavailable. Choose System default or another output.");
                 config.Playback.PDeviceID = &chosen;
             }
-            _device = (MaDevice*)NativeMemory.AllocZeroed((nuint)sizeof(MaDevice));
+            _device = (MaDevice*)Alloc(Math.Max((nuint)sizeof(MaDevice), DeviceBytes));
             Check(MiniAudio.DeviceInit(_context, &config, _device)); _initialized = true;
             Check(MiniAudio.DeviceStart(_device));
         }
@@ -83,8 +101,8 @@ public sealed unsafe class AudioDevice : IAudioDevice
     {
         // Uninit waits for the callback before its storage and delegate are released.
         if (_initialized) { MiniAudio.DeviceUninit(_device); _initialized = false; }
-        if (_device != null) { NativeMemory.Free(_device); _device = null; }
-        if (_context != null) { MiniAudio.ContextUninit(_context); NativeMemory.Free(_context); _context = null; }
+        if (_device != null) { NativeMemory.AlignedFree(_device); _device = null; }
+        if (_context != null) { MiniAudio.ContextUninit(_context); NativeMemory.AlignedFree(_context); _context = null; }
         _render = null;
         GC.KeepAlive(_callback);
     }
