@@ -12,7 +12,7 @@ The Song tab chains patterns from the banks into a song.
 
 ## Playing
 
-- **Play song** plays it; the playing entry is outlined in green and the timeline fills up. The bottom row shows now, next, the step and the time.
+- **Play song** plays it; the playing entry is outlined in green and the timeline fills up. The bottom row shows now, next, the step and the time. The song uses the Playback card's **Output**, so Offline (and Auto when the T-8 isn't available) plays it on this computer with that kit and mix.
 - **Previous** and **Next** jump between entries. **Click a block on the timeline** to play that part next, as soon as the current pattern ends.
 - **LOOP:** Play once, Loop whole song (saved with the song), or keep repeating one entry.
 - On the T-8's own sequencer (see *MIDI settings*), **Write to T-8** first and turn `rXPc` on with `SYnC` on AUTO or USB.
@@ -23,7 +23,7 @@ The Song tab chains patterns from the banks into a song.
 
 ## Files
 
-**Save song** and **Open song…** use `.t8song` files: a small JSON file with the bank and pattern numbers, repeats, names, colours, fills, the loop and the tempo. A song plays whatever patterns are open.
+**Save song** and **Open song…** use `.t8song` files: a small JSON file with the bank and pattern numbers, repeats, names, colours, fills, the loop and the tempo. A song plays whatever patterns are open. On macOS, Save song can open Documents, Downloads and the sidebar.
 
 ## Use a song in a DAW
 
@@ -43,8 +43,9 @@ stopped to avoid doubled notes.
 
 To run the arrangement live, enable **Follow DAW MIDI clock**, choose its input and press **Play Song**
 to arm. The DAW's Start resets the arrangement, Stop silences it, and Continue resumes its position.
-Tempo follows incoming clock directly. No DAW selector is needed. In sequencer mode the editor forwards
-transport and clock to the T-8 and queues pattern changes; in notes mode it sends notes without starting
+Tempo follows incoming clock directly. No DAW selector is needed. The song uses the same **Output** as
+patterns: on the computer it plays the notes here, and in sequencer mode on the T-8 the editor forwards
+transport and clock and queues pattern changes. In notes mode on the T-8 it sends notes without starting
 the T-8 sequencer. Use a dedicated input from the DAW, rather than the T-8's returning clock, and avoid
 also routing the DAW clock directly to the T-8. Leaving the Song tab disarms external playback.
 The DAW owns navigation; entry jumps and entry-only loops are unavailable while following it.

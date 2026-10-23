@@ -1,6 +1,6 @@
 # Bass generator
 
-Writes a bass line into the current pattern, up to its last step, following the key set on the step editor.
+Open **Bass generator** at the bottom of the Bass tab. It writes a bass line into the current pattern, up to its last step, following the key set on the step editor.
 
 **KEY**, **SCALE** and **CHORDS** sit above the keyboard. Opening a pattern sets the key and scale from the notes in the line. Changing them changes what Generate and Vary write. **COLOURS** starts off; turn it on and the keyboard lights that scale. Grey keys are outside it.
 

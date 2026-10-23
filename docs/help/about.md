@@ -6,7 +6,7 @@
 
 Free software, dual-licensed: **MIT OR GPL-3.0**, at your choice. Both licence files come with the app.
 
-It uses Avalonia (MIT), DryWetMIDI (MIT) and the CommunityToolkit.Mvvm (MIT).
+It uses Avalonia (MIT), DryWetMIDI (MIT) and the CommunityToolkit.Mvvm (MIT). Computer playback uses Michael Fischer's TR-808 samples (CC0-1.0). The bass is synthesized in the app.
 
 ## Trademarks
 

@@ -54,7 +54,7 @@
     <td width="33%" valign="top">
       <h3>🎲 Generators</h3>
       Rhythms in 9 styles and bass lines in 13 scales, seeded so the same settings give the same pattern.
-      Vary keeps what you lock; Fill bank writes eight related patterns into empty slots.
+      Vary keeps what you lock; Fill bank writes eight related patterns into empty slots. Undo takes the last change back.
     </td>
   </tr>
   <tr>
@@ -79,9 +79,9 @@
     </td>
     <td valign="top">
       <h3>🎧 Hear it on the computer</h3>
-      No T-8 plugged in? Leave <b>Output</b> on Auto, or choose Offline. Patterns and songs play here,
-      with six drum kits and a simple bass, so you can write away from the instrument.
-      Writing a pattern back still uses the T-8's own sounds.
+      Leave <b>Output</b> on Auto, or choose Offline. Patterns and songs play here, with six drum kits,
+      a simple bass, and a mix for each instrument, so you can write away from the T-8.
+      <b>Save</b> and <b>Write to T-8</b> still send the pattern data. The T-8 plays its own sounds.
     </td>
   </tr>
 </table>
@@ -109,12 +109,12 @@ The downloads are self-contained, so there is nothing else to install:
 
 | Computer | Download |
 |---|---|
-| Mac with Apple Silicon (M1 and later) | `T8Editor-1.0.13-osx-arm64.zip` |
-| Mac with Intel | `T8Editor-1.0.13-osx-x64.zip` |
-| Windows PC (x64) | `T8Editor-1.0.13-win-x64.zip` |
-| Windows on ARM | `T8Editor-1.0.13-win-arm64.zip` |
-| Linux x64 | `T8Editor-1.0.13-linux-x64.tar.gz` |
-| Linux ARM64 | `T8Editor-1.0.13-linux-arm64.tar.gz` |
+| Mac with Apple Silicon (M1 and later) | `T8Editor-2.0.0-osx-arm64.zip` |
+| Mac with Intel | `T8Editor-2.0.0-osx-x64.zip` |
+| Windows PC (x64) | `T8Editor-2.0.0-win-x64.zip` |
+| Windows on ARM | `T8Editor-2.0.0-win-arm64.zip` |
+| Linux x64 | `T8Editor-2.0.0-linux-x64.tar.gz` |
+| Linux ARM64 | `T8Editor-2.0.0-linux-arm64.tar.gz` |
 
 - **macOS:** unzip and move *Roland Aira Compact T-8 Editor* to Applications, then open it. The app is signed with
   a Developer ID and notarized by Apple, so it opens without warnings.
@@ -124,7 +124,7 @@ The downloads are self-contained, so there is nothing else to install:
   `~/.local/share/applications/` with `Exec=` set to the full path of `T8Editor`.
 
 > [!NOTE]
-> The apps aren't signed by Apple or Microsoft, so your system asks once before opening them — that's expected.
+> The macOS app is signed and notarized. On Windows, SmartScreen may ask once before the app opens.
 
 Or run it from source with the [.NET 10 SDK](https://dotnet.microsoft.com/download):
 
@@ -150,7 +150,9 @@ The editor and the T-8 must use the same MIDI channels. Open the MIDI settings w
 ![MIDI settings after detecting the T-8's channels](docs/screenshots/midi-settings.png)
 
 - **Detect from T-8** finds the bass and rhythm channels for you: press it, then press Start on the T-8 and let a
-  pattern with drums and bass play. The editor listens to the notes the T-8 sends and fills in the channels.
+  pattern with drums and bass play. It listens to the T-8 even when **MIDI out** is another port. The editor
+  fills in the channels from the notes the T-8 sends. If MIDI out is still that other port, the result says so:
+  set MIDI out to the T-8 for Play and Test.
 - Or set them by hand to match the T-8's menu (hold SHIFT, press OCT+): bass `bACh` (default 2), rhythm `rhCh`
   (default 10) and pattern select `Pc.Ch` (default 16). Detect finds pattern select too if `tXPc` is on in the
   T-8's menu and you change pattern while it listens; otherwise set it by hand.
@@ -189,7 +191,7 @@ The screenshots at the top show the whole window on each tab. From top to bottom
 - **Rhythm**, **Bass** and **Song** tabs (a rounded selector with icons; the open tab is a raised orange pill): the editors,
   their generators, and songs.
 - **Status bar:** what just happened on the left, the MIDI channels in use on the right, and an orange chip such as
-  **v1.0.13 available** when a newer version is out (see [Updates](#updates)).
+  **v2.0.0 available** when a newer version is out (see [Updates](#updates)).
 
 ### Help
 
@@ -228,8 +230,8 @@ pattern. The current pattern is outlined in orange, empty patterns are dimmed, a
 
 ![The playback controls](docs/screenshots/playback.png)
 
-- **Output:** Auto, T-8, or Offline. Auto plays on the computer when the T-8 isn't available. Offline always plays here. See [Play on the computer](#play-on-the-computer).
-- **BPM** knob: the tempo for Play.
+- **Output:** Auto, T-8, or Offline. Auto plays on the computer when the T-8 isn't available. Offline always plays here, and shows the kit, the volume and **Sound settings**. See [Play on the computer](#play-on-the-computer).
+- **BPM** knob: the tempo for Play. **Follow clock** makes Play wait for an external MIDI clock instead.
 - **Play**, **Pause**, **Stop**: play the current pattern (Play lights green while playing). Pause keeps the place:
   Play (or Pause again) carries on from there, and in sync mode the T-8 gets MIDI Continue. Stop goes back to the start.
 - **Fill**: play the fill pattern once after this loop, see [Fills](#fills).
@@ -279,7 +281,7 @@ can't be picked, and switching a picked step off drops it from the selection.
 
 ![The rhythm generator](docs/screenshots/rhythm-generator.png)
 
-The rhythm generator writes a new drum pattern into the current pattern, up to its last step.
+The rhythm generator is folded under **Rhythm generator** at the bottom of the Rhythm tab. Open it to write a new drum pattern into the current pattern, up to its last step.
 
 - **Style:** Techno, House, Electro, Breakbeat, Hip-hop / boom bap, Trap, Drum & bass, Minimal / acid or Random.
   Every style has hits that always play, like the four-on-the-floor kick and the off-beat open hats in techno,
@@ -361,7 +363,7 @@ Each column is one step: its note, its state, semitone up/down, and Accent and S
 
 ![The bass line generator](docs/screenshots/bass-generator.png)
 
-The bass line generator writes a new line into the current pattern, up to its last step. It follows the **Key**,
+The bass line generator is folded under **Bass generator** at the bottom of the Bass tab. Open it to write a new line into the current pattern, up to its last step. It follows the **Key**,
 **Scale** and **Chords** on the step editor, the same ones the keyboard lights.
 
 - **Key:** C to B.
@@ -422,12 +424,20 @@ The **Loop** menu sets what happens at the end:
   you press Stop. This is saved with the song.
 - **#n: an entry:** keep repeating just that entry while you work on it.
 
-What PLAY SONG does follows the Play mode in the MIDI settings:
+What PLAY SONG does follows **Output** and the Play mode in the MIDI settings:
 
+- **On the computer** (Output Auto when the T-8 isn't available, or Offline): the song plays here with the kit and mix from the Playback card.
 - **Through the T-8's sounds:** the editor plays the whole song as notes, straight from the patterns in the editor.
 - **On the T-8's own sequencer:** the editor selects the first pattern, sends the clock, and as each pattern
   starts it tells the T-8 the next one, which the T-8 switches to when the current pattern ends. The T-8 needs
   the same patterns as the editor (**Write to T-8** first), `rXPc` on and `SYnC` set to AUTO or USB.
+
+**Export song as MIDI…** writes one pass of the arrangement, including repeats and fills, the tempo and entry markers. The Loop menu does not repeat the file.
+
+- **Notes** is the drum and bass arrangement, on the channels from the MIDI settings. Parts set to OFF are left out.
+- **Programs** is pattern changes the T-8 can follow. Load the same patterns onto the T-8, turn `rXPc` on, set `SYnC` to USB or AUTO, and send the file plus MIDI clock to the T-8. Start from the beginning so the first pattern is selected while the T-8 is stopped.
+
+**Follow DAW MIDI clock** runs the song from Start, Stop, Continue and clock on an input port. Press **Play song** to arm, then start the DAW. Use a dedicated input from the DAW (IAC on Mac, loopMIDI on Windows), not the T-8's own output. In notes mode the editor sends the arrangement to the selected output, including the computer when Output is Offline. In sequencer mode it forwards the clock to the T-8 and queues pattern changes. Leaving the Song tab disarms it.
 
 ### Copying a song into a bank
 
@@ -443,7 +453,7 @@ T-8** as usual.
 
 **Save song** / **Open song…** use `.t8song` files, a small JSON format described in
 [docs/SONG-FORMAT.md](docs/SONG-FORMAT.md). A song refers to bank and pattern numbers, so it plays whatever patterns
-are open; the tempo is saved with it.
+are open; the tempo is saved with it. On macOS, Save song can open Documents, Downloads and the sidebar.
 
 ## Playing patterns
 
@@ -458,16 +468,23 @@ What **Play** does is set in the MIDI settings:
 
 ### Play on the computer
 
-You can hear a pattern or a song with no T-8 connected. On the Playback card, **Output** is **Auto**, **T-8**, or **Offline**.
+You can hear a pattern or a song on the computer. On the Playback card, **Output** is **Auto**, **T-8**, or **Offline**.
 
 - **Auto** plays on the T-8 when one is connected, and on the computer when there is no MIDI output or the T-8 is in drive mode.
 - **Offline** always plays on the computer, including while the T-8 is plugged in.
 - **T-8** plays only on the instrument. If it isn't available, Play says so.
 
-Pick one of six drum kits, set the volume, and adjust the bass: wave, cutoff, resonance, decay and slide. It is there so you can write and try ideas away from the instrument. **Save** and **Write to T-8** still send the pattern data, and the T-8 plays that pattern with its own sounds.
+When playback is on the computer, pick a drum kit and a **Volume**. **Sound settings** opens the rest:
+
+- **Audio output:** the computer's playback device. Refresh lists them again.
+- **Bass voice:** saw or square, with cutoff, resonance, decay and slide. The bass is a simple synth.
+- **Instrument mix:** kick, snare, tom, clap, closed hat, open hat and bass. 0% mutes that part.
+
+The kits are Classic Analog, Deep Electro, Tight Machine, Bright Acid, Warm Tape and Gritty Club. They are drum samples for writing and trying ideas, with a short bass sound. A drum keeps ringing past the end of the bar, and the next hit of that drum starts it again. **Save** and **Write to T-8** still send the pattern data, and the T-8 plays that pattern with its own sounds.
 
 **Follow clock** makes Play wait for an external MIDI clock. Choose an input that carries the clock from a DAW
-(IAC on Mac, loopMIDI on Windows), not the T-8's own output, then press Play and start that clock.
+(IAC on Mac, loopMIDI on Windows), not the T-8's own output, then press Play and start that clock. The same
+**Output** is used, so a pattern can follow that clock on the computer or on the T-8.
 
 With **Show playing step** on, the playing step is outlined in yellow on both tabs, and the bass note being played
 lights up yellow on the keyboard. Each part loops on its own length, as on the T-8.
@@ -571,7 +588,7 @@ dotnet run --project src/T8.Cli -- export BACKUP 1 1 pattern.mid
 ```sh
 scripts/publish.sh                 # all six packages into artifacts/
 scripts/publish.sh osx-arm64       # just one: osx-arm64, osx-x64, win-arm64, win-x64, linux-arm64, linux-x64
-VERSION=1.0.13 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
+VERSION=2.0.0 scripts/publish.sh   # another version (default: <Version> in src/T8.Editor/T8.Editor.csproj)
 ```
 
 Packages are self-contained, so no .NET install is needed to run them. On macOS the app is signed ad hoc
@@ -621,7 +638,7 @@ Nobody pushes to `master` directly, and force pushes and deleting `master` are b
 |---|---|
 | `src/T8.Core` | Reads and writes the T-8's `.PRM` pattern files ([format](docs/PRM-FORMAT.md)) |
 | `src/T8.Midi` | USB MIDI with [DryWetMIDI](https://github.com/melanchall/drywetmidi): pattern select, preview through the T-8's sounds, MIDI clock, `.mid` export ([notes](docs/MIDI.md)) |
-| `src/T8.Audio` | Laptop playback when Output is Offline: drum samples and a bass synth |
+| `src/T8.Audio` | Computer playback when Output is Offline: drum samples, a bass synth and a per-instrument mix |
 | `src/T8.Editor` | The desktop editor (Avalonia): rhythm grid with a step inspector, bass lane, bank/pattern picker, copy/paste, preview and audition on the T-8 |
 | `src/T8.Cli` | Command-line tool (`t8`) for the MIDI side |
 | `tests/*.Tests` | One test project per project above, including headless UI tests of the editor |
@@ -657,16 +674,10 @@ This project is **dual-licensed**: you may use, copy, modify and distribute it u
 at your choice (SPDX: `MIT OR GPL-3.0-only`). Contributions are accepted under the same terms.
 
 The editor uses [Avalonia](https://avaloniaui.net), [DryWetMIDI](https://github.com/melanchall/drywetmidi) and
-[CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet), all MIT-licensed.
+[CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet), all MIT-licensed. Computer playback uses
+Michael Fischer's TR-808 samples (CC0-1.0), from the [TidalCycles copy](https://github.com/tidalcycles/sounds-tr808-fischer).
+The bass on the computer is synthesized in the app.
 
 Roland, AIRA and T-8 are trademarks of Roland Corporation. This is an independent project, not made or endorsed by
 Roland. The factory patterns in `original presets` and the owner's manual in `docs` are Roland's and are not covered by the
-licenses above.
-
-### Song MIDI export and DAW clock
-
-The Song tab's **Export song as MIDI…** writes either queued pattern changes (**Programs**, one pass
-ahead) or the complete drum and bass arrangement (**Notes**), including repeats, fills, tempo and markers.
-**Follow DAW MIDI clock** runs the Song tab from an input port with Start, Stop and Continue support.
-No DAW-specific selection is required. See [Using a song in a DAW](docs/help/song.md#use-a-song-in-a-daw)
-for routing, T-8 settings and virtual MIDI setup.
+licenses above. Routing a song into a DAW is in [Using a song in a DAW](docs/help/song.md#use-a-song-in-a-daw).

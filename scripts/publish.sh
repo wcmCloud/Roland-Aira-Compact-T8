@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds self-contained Roland Aira Compact T-8 Editor packages (no .NET install needed to run them).
 # Usage: scripts/publish.sh [rid ...]          e.g. scripts/publish.sh osx-arm64
-#        VERSION=1.0.13 scripts/publish.sh     (defaults to the <Version> in src/T8.Editor/T8.Editor.csproj)
+#        VERSION=2.0.0 scripts/publish.sh     (defaults to the <Version> in src/T8.Editor/T8.Editor.csproj)
 # Default: macOS, Windows and Linux, each for Apple Silicon/ARM64 and Intel/AMD64.
 # Output: artifacts/T8Editor-<version>-<rid>.zip (macOS, Windows) or .tar.gz (Linux).
 #
