@@ -18,7 +18,7 @@
     <Border DockPanel.Dock="Top" Classes="topbarAccent" />
     <Border DockPanel.Dock="Top" Classes="topbar">
       <DockPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4">
           <Border Classes="toolgroup">
             <StackPanel Orientation="Horizontal" Spacing="4">
               <TextBlock Text="OUT" Foreground="{StaticResource MutedText}" VerticalAlignment="Center" FontSize="10"
@@ -35,7 +35,7 @@
                 <PathIcon Data="{StaticResource IconRefresh}" />
               </Button>
               <Button x:Name="TestConnectionButton" Classes="tool" Command="{Binding TestConnectionCommand}" ToolTip.Tip="Play test sounds on the T-8 and check that it answers">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconPulse}" />
                   <TextBlock Text="Test" />
                 </StackPanel>
@@ -57,7 +57,7 @@
             </StackPanel>
           </Border>
         </StackPanel>
-        <StackPanel Orientation="Horizontal" Spacing="8">
+        <StackPanel Orientation="Horizontal" Spacing="4">
           <Border Classes="logoBadge" Margin="0,0,4,0">
             <StackPanel Orientation="Horizontal" Spacing="5">
               <TextBlock Classes="logo" Text="T-8" />
@@ -67,25 +67,25 @@
           <Border Classes="toolgroup">
             <StackPanel Orientation="Horizontal" Spacing="2">
               <Button x:Name="NewButton" Classes="tool" Command="{Binding NewLibraryCommand}" ToolTip.Tip="64 blank patterns">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconNew}" />
                   <TextBlock Text="New" />
                 </StackPanel>
               </Button>
               <Button x:Name="OpenButton" Classes="tool" Command="{Binding OpenFolderCommand}" ToolTip.Tip="Open a pattern folder. Starts in original presets">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconOpen}" />
                   <TextBlock Text="Open…" />
                 </StackPanel>
               </Button>
               <Button x:Name="SaveButton" Classes="tool" Command="{Binding SaveCommand}" HotKey="Ctrl+S" ToolTip.Tip="Save the patterns (Ctrl/Cmd+S)">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconSave}" />
                   <TextBlock Text="Save" />
                 </StackPanel>
               </Button>
               <Button x:Name="SaveAsButton" Classes="tool" Command="{Binding SaveAsCommand}" ToolTip.Tip="Save the patterns to another folder">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconSaveAs}" />
                   <TextBlock Text="Save as…" />
                 </StackPanel>
@@ -96,19 +96,19 @@
             <StackPanel Orientation="Horizontal" Spacing="2">
               <Ellipse x:Name="T8DriveDot" Classes="driveDot" Classes.on="{Binding IsT8DriveConnected}" ToolTip.Tip="{Binding T8DriveStatus}" />
               <Button x:Name="LoadFromT8Button" Classes="tool t8" Command="{Binding LoadFromT8Command}" ToolTip.Tip="Read the patterns from the T-8 drive (the T-8 in drive mode: switch it on while holding PLAY)">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconLoadFrom}" />
                   <TextBlock Text="Load from T-8" />
                 </StackPanel>
               </Button>
               <Button x:Name="WriteToT8Button" Classes="tool t8" Command="{Binding WriteToT8Command}" ToolTip.Tip="Write all 64 patterns to the T-8 drive's RESTORE folder">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconWriteTo}" />
                   <TextBlock Text="Write to T-8" />
                 </StackPanel>
               </Button>
               <Button x:Name="CheckT8DriveButton" Classes="tool" Command="{Binding CheckT8DriveCommand}" ToolTip.Tip="Look for the T-8 drive again">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconSearch}" />
                   <TextBlock Text="Check" />
                 </StackPanel>
@@ -119,19 +119,19 @@
           <Border Classes="toolgroup">
             <StackPanel Orientation="Horizontal" Spacing="2">
               <Button x:Name="CopyButton" Classes="tool" Command="{Binding CopyPatternCommand}" ToolTip.Tip="Copy this pattern (bass and rhythm)">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconCopy}" />
                   <TextBlock Text="Copy" />
                 </StackPanel>
               </Button>
               <Button x:Name="PasteButton" Classes="tool" Command="{Binding PastePatternCommand}" ToolTip.Tip="Paste into this pattern">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconPaste}" />
                   <TextBlock Text="Paste" />
                 </StackPanel>
               </Button>
               <Button x:Name="ClearButton" Classes="tool" Command="{Binding ClearPatternCommand}" ToolTip.Tip="Clear this pattern">
-                <StackPanel Orientation="Horizontal" Spacing="6">
+                <StackPanel Orientation="Horizontal" Spacing="4">
                   <PathIcon Data="{StaticResource IconEraser}" />
                   <TextBlock Text="Clear" />
                 </StackPanel>
