@@ -6,6 +6,7 @@ using T8.Core.Patterns;
 using T8.Core.Songs;
 using T8.Editor.Services;
 using T8.Midi;
+using T8.Midi.Ports;
 
 namespace T8.Editor.ViewModels;
 
@@ -46,6 +47,46 @@ public sealed partial class SongViewModel : ObservableObject
     private SongPlan? _plan;
     private SongSyncDriver? _sync;
     private T8Controller? _player;
+    private ExternalSongPlayer? _external;
+    private readonly IMidiPortProvider _ports;
+
+    public ObservableCollection<MidiPortInfo> ClockInputs { get; } = new();
+    [ObservableProperty] private MidiPortInfo? _clockInput;
+    [ObservableProperty] private bool _followDawClock;
+    [ObservableProperty] private SongMidiMode _exportMode = SongMidiMode.Programs;
+    public static IReadOnlyList<SongMidiMode> ExportModes { get; } = Enum.GetValues<SongMidiMode>();
+    partial void OnFollowDawClockChanged(bool value) => Stop();
+    partial void OnClockInputChanged(MidiPortInfo? value) => Stop();
+
+    [RelayCommand]
+    private void RefreshClockInputs()
+    {
+        try
+        {
+            var id = ClockInput?.Id;
+            var inputs = _ports.ListInputs();
+            ClockInputs.Clear();
+            foreach (var input in inputs) ClockInputs.Add(input);
+            ClockInput = ClockInputs.FirstOrDefault(p => p.Id == id) ?? ClockInputs.FirstOrDefault();
+        }
+        catch (Exception ex) { _host.ShowStatus($"Couldn't list clock inputs: {ex.Message}"); }
+    }
+
+    [RelayCommand]
+    private async Task ExportMidiAsync()
+    {
+        try
+        {
+            var file = new SongMidiExporter { Map = _host.Settings.Midi.Clone() }
+                .Build(_song, _host.Library, _host.Bpm, ExportMode);
+            var name = string.Concat(Title.Split(Path.GetInvalidFileNameChars())).Trim();
+            if (await _dialogs.PickMidiToSaveAsync(name.Length > 0 ? name : "Song") is not { } path) return;
+            file.Write(path, overwriteFile: true);
+            _host.ShowStatus($"Exported song MIDI to {path}.");
+        }
+        catch (Exception ex) { _host.ShowStatus($"Couldn't export song MIDI: {ex.Message}"); }
+    }
+
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(FileLabel))]
@@ -82,8 +123,9 @@ public sealed partial class SongViewModel : ObservableObject
     [ObservableProperty]
     private Choice<int>? _loopChoice;
 
-    public SongViewModel(ISongHost host, IDialogService dialogs)
+    public SongViewModel(ISongHost host, IDialogService dialogs, IMidiPortProvider? ports = null)
     {
+        _ports = ports ?? MidiPorts.System;
         _host = host;
         _dialogs = dialogs;
         LoadEntries();
@@ -432,7 +474,25 @@ public sealed partial class SongViewModel : ObservableObject
         _player = t8;
         try
         {
-            if (_host.Settings.PlayMode == PlayMode.SyncT8Sequencer)
+            if (FollowDawClock)
+            {
+                if (ClockInput is null) { _host.ShowStatus("Select a DAW clock input first."); return; }
+                if (entry != 0 || only is not null) { _host.ShowStatus("DAW clock follows the whole song. Start from the beginning and select Play once or Loop whole song."); return; }
+                var input = _ports.OpenInput(ClockInput);
+                try
+                {
+                    _external = new ExternalSongPlayer(input, t8, _song, _host.Library,
+                        _host.Settings.PlayMode == PlayMode.SyncT8Sequencer, loop);
+                    input.StartEventsListening();
+                }
+                catch
+                {
+                    if (_external is not null) { _external.Dispose(); _external = null; }
+                    else (input as IDisposable)?.Dispose();
+                    throw;
+                }
+            }
+            else if (_host.Settings.PlayMode == PlayMode.SyncT8Sequencer)
             {
                 _sync = new SongSyncDriver(t8, _plan, loop, fromPass);
                 _sync.Start(_host.Bpm);
@@ -451,7 +511,7 @@ public sealed partial class SongViewModel : ObservableObject
 
         _time.Restart();
         IsPlaying = true;
-        _host.ShowStatus(_host.Settings.PlayMode == PlayMode.SyncT8Sequencer
+        _host.ShowStatus(FollowDawClock ? "Armed: waiting for DAW MIDI Start / Continue and clock." : _host.Settings.PlayMode == PlayMode.SyncT8Sequencer
             ? $"Playing \"{Title}\" on the T-8's sequencer (needs rXPc on and SYnC set to AUTO or USB)."
             : $"Playing \"{Title}\" through the T-8's sounds.");
         UpdatePosition();
@@ -480,6 +540,8 @@ public sealed partial class SongViewModel : ObservableObject
 
     private void StopPlayers()
     {
+        _external?.Dispose();
+        _external = null;
         _sync?.Dispose();
         _sync = null;
         _player?.StopPreview();
@@ -497,6 +559,7 @@ public sealed partial class SongViewModel : ObservableObject
     /// </summary>
     public void QueueEntry(int entry)
     {
+        if (FollowDawClock && IsPlaying) { _host.ShowStatus("Use the DAW transport to move through the song."); return; }
         if (entry < 0 || entry >= Entries.Count)
             return;
         if (!IsPlaying || _plan is null)
@@ -532,7 +595,7 @@ public sealed partial class SongViewModel : ObservableObject
 
     private bool JumpPending => _sync?.IsJumpPending ?? _player?.IsSongJumpPending ?? false;
 
-    private bool CanStep() => IsPlaying;
+    private bool CanStep() => IsPlaying && !FollowDawClock;
 
     [RelayCommand(CanExecute = nameof(CanStep))]
     private void Previous() => Jump(-1);
@@ -558,7 +621,7 @@ public sealed partial class SongViewModel : ObservableObject
         return index < 0 ? null : _plan.Passes[index];
     }
 
-    private long? CurrentStep() => _sync is not null ? _sync.CurrentStep : _player?.CurrentStep;
+    private long? CurrentStep() => _external is not null ? _external.CurrentStep : _sync is not null ? _sync.CurrentStep : _player?.CurrentStep;
 
     /// <summary>Moves the highlights, progress and texts along; the main window calls this on a timer.</summary>
     public void UpdatePosition()
@@ -566,7 +629,13 @@ public sealed partial class SongViewModel : ObservableObject
         if (!IsPlaying || _plan is null)
             return;
 
-        var finished = _sync?.Finished ?? _player?.PreviewFinished ?? true;
+        if (_external is not null)
+        {
+            CurrentText = _external.IsRunning ? "Following DAW clock" : "Armed / DAW stopped";
+            TimeText = "DAW";
+            if (!_external.IsRunning && !_external.Finished) return;
+        }
+        var finished = _external is not null ? _external.Finished : _sync?.Finished ?? _player?.PreviewFinished ?? true;
         if (finished)
         {
             Stop();
@@ -574,7 +643,7 @@ public sealed partial class SongViewModel : ObservableObject
             return;
         }
 
-        TimeText = _time.Elapsed.ToString(_time.Elapsed.TotalHours >= 1 ? @"h\:mm\:ss" : @"mm\:ss");
+        if (_external is null) TimeText = _time.Elapsed.ToString(_time.Elapsed.TotalHours >= 1 ? @"h\:mm\:ss" : @"mm\:ss");
         if (QueuedEntry >= 0 && !JumpPending)
             SetQueued(-1); // the queued entry has started
         if (CurrentStep() is not { } step)
@@ -612,7 +681,7 @@ public sealed partial class SongViewModel : ObservableObject
         if (QueuedEntry >= 0)
         {
             NextText = $"{Entries[QueuedEntry].Name} (queued)";
-            PositionText = $"Step {inSong - pass.StartStep + 1} / {pass.Steps} · {_host.Bpm:0} BPM";
+            PositionText = $"Step {inSong - pass.StartStep + 1} / {pass.Steps} · {(_external is null ? $"{_host.Bpm:0} BPM" : "DAW clock")}";
             return;
         }
         var nextIndex = passIndex + 1 < _plan.Passes.Count ? passIndex + 1 : (_song.Loop || LoopChoice is { Value: >= 0 }) ? 0 : -1;
@@ -621,7 +690,7 @@ public sealed partial class SongViewModel : ObservableObject
             : _plan.Passes[nextIndex] is var next && next.IsFill
                 ? $"Fill: bank {next.Bank} pattern {next.Pattern}"
                 : $"{Entries[_plan.Passes[nextIndex].Entry].SlotLabel} {Entries[_plan.Passes[nextIndex].Entry].Name}".Trim();
-        PositionText = $"Step {inSong - pass.StartStep + 1} / {pass.Steps} · {_host.Bpm:0} BPM";
+        PositionText = $"Step {inSong - pass.StartStep + 1} / {pass.Steps} · {(_external is null ? $"{_host.Bpm:0} BPM" : "DAW clock")}";
     }
 }
 

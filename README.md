@@ -641,3 +641,10 @@ Roland, AIRA and T-8 are trademarks of Roland Corporation. This is an independen
 Roland. The factory patterns in `original presets` and the owner's manual in `docs` are Roland's and are not covered by the
 licenses above.
 
+### Song MIDI export and DAW clock
+
+The Song tab's **Export song as MIDI…** writes either queued pattern changes (**Programs**, one pass
+ahead) or the complete drum and bass arrangement (**Notes**), including repeats, fills, tempo and markers.
+**Follow DAW MIDI clock** runs the Song tab from an input port with Start, Stop and Continue support.
+No DAW-specific selection is required. See [Using a song in a DAW](docs/help/song.md#use-a-song-in-a-daw)
+for routing, T-8 settings and virtual MIDI setup.

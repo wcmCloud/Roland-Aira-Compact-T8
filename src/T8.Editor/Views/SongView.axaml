@@ -6,6 +6,17 @@
              x:Class="T8.Editor.Views.SongView"
              x:DataType="vm:SongViewModel">
   <DockPanel Margin="0,8,0,0">
+    <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,8">
+      <WrapPanel Orientation="Horizontal">
+        <ComboBox ItemsSource="{Binding ExportModes}" SelectedItem="{Binding ExportMode}" Width="120" Margin="0,0,8,0"
+                  ToolTip.Tip="Programs: queued pattern changes. Notes: full drum and bass notes." />
+        <Button Content="Export song as MIDI…" Command="{Binding ExportMidiCommand}" Margin="0,0,18,0" />
+        <CheckBox Content="Follow DAW MIDI clock" IsChecked="{Binding FollowDawClock}" Margin="0,0,8,0" />
+        <ComboBox ItemsSource="{Binding ClockInputs}" SelectedItem="{Binding ClockInput}" Width="200" Margin="0,0,8,0"
+                  ToolTip.Tip="Input from your DAW (IAC / loopMIDI). Press Play Song to arm, then start the DAW." />
+        <Button Content="Refresh inputs" Command="{Binding RefreshClockInputsCommand}" />
+      </WrapPanel>
+    </Border>
     <!-- Song: title, copy to bank, file -->
     <Border DockPanel.Dock="Top" Classes="card" Margin="0,0,0,10">
       <DockPanel>

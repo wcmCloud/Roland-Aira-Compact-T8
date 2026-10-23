@@ -135,7 +135,7 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
             NextFreeSlots,
             () => Library.Bass[SelectedBank - 1, SelectedPattern - 1],
             _history);
-        Song = new SongViewModel(this, dialogs);
+        Song = new SongViewModel(this, dialogs, ports);
         PatternBanks = Enumerable.Range(1, PatternLibrary.BankCount)
             .Select(bank => new PatternBankRow(bank, Enumerable.Range(1, PatternLibrary.PatternsPerBank)
                 .Select(pattern => new PatternSlotViewModel(bank, pattern, OnSlotClicked))
@@ -273,6 +273,12 @@ public sealed partial class MainWindowViewModel : ObservableObject, IDisposable,
     /// <summary>The tab shown: 0 Rhythm, 1 Bass, 2 Song.</summary>
     [ObservableProperty]
     private int _selectedTab;
+
+    partial void OnSelectedTabChanged(int value)
+    {
+        if (value != SongTab && Song.FollowDawClock) Song.Stop();
+        if (value == SongTab) Song.RefreshClockInputsCommand.Execute(null);
+    }
 
     /// <summary>A click in the pattern grid: opens the pattern, and on the Song tab also adds it to the song.</summary>
     private void OnSlotClicked(PatternSlotViewModel slot)

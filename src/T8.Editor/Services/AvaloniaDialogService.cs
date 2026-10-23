@@ -88,6 +88,18 @@ public sealed class AvaloniaDialogService(Window owner) : IDialogService
         return file?.TryGetLocalPath();
     }
 
+    public async Task<string?> PickMidiToSaveAsync(string suggestedName)
+    {
+        var file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = "Export song as MIDI",
+            SuggestedFileName = suggestedName + ".mid",
+            DefaultExtension = "mid",
+            FileTypeChoices = [new FilePickerFileType("MIDI file") { Patterns = ["*.mid"] }],
+        });
+        return file?.TryGetLocalPath();
+    }
+
     public async Task<bool> ShowMidiSettingsAsync(MidiSettingsViewModel settings)
     {
         var window = new MidiSettingsWindow { DataContext = settings };
